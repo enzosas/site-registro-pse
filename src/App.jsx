@@ -85,6 +85,9 @@ function App() {
 								</div>
 
 								<div className='app--footer'>
+									<div className='app--buttonSecondary'>
+										<p>A escola não está na lista</p>
+									</div>
 									<div className='app--buttonMain' onClick={avancar}>
 										<p>Avançar</p>
 									</div>
