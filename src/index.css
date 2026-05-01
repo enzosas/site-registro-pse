@@ -1,0 +1,40 @@
+:root {
+  --cor-botao: hsl(207, 100%, 43%);
+  --cor-fundo: hsl(0, 0%, 95%);
+  --cor-frame: hsl(0, 0%, 100%);
+  --cor-botao2: hsl(0, 0%, 70%);
+  --cor-texto: hsl(0, 0%, 0%);
+  --cor-step: hsl(110, 34%, 50%);
+  --fonte: "Inter", sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--fonte);
+}
+
+body {
+	font-size: 20px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
