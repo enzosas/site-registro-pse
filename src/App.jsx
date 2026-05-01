@@ -110,6 +110,79 @@ function App() {
 						{etapa === 4 && (
 							<>
 								<IconeVoltar className="icone-voltar" onClick={voltar} />
+								<p className='app--title'>Defina o eixo temático:</p>
+								<div className='app--list'>
+									<label>
+										<input type="checkbox" />
+										1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)
+									</label>
+									<label>
+										<input type="checkbox" />
+										2. Promoção da atividade física (práticas corporais)
+									</label>
+									<label>
+										<input type="checkbox" />
+										3. Alimentação saudável e prevenção da obesidade (antropometria)
+									</label>
+									<label>
+										<input type="checkbox" />
+										4. Promoção da cultura de paz e direitos humanos
+									</label>
+									<label>
+										<input type="checkbox" />
+										5. Prevenção das violências e dos acidentes
+									</label>
+									<label>
+										<input type="checkbox" />
+										6. Prevenção de doenças negligenciadas
+									</label>
+									<label>
+										<input type="checkbox" />
+										7. Verificação da situação vacinal
+									</label>
+									<label>
+										<input type="checkbox" />
+										8. Saúde sexual e reprodutiva e prevenção do HIV/IST
+									</label>
+									<label>
+										<input type="checkbox" />
+										9. Prevenção ao uso de álcool, tabaco e outras drogas
+									</label>
+									<label>
+										<input type="checkbox" />
+										10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)
+									</label>
+									<label>
+										<input type="checkbox" />
+										11. Saúde auditiva
+									</label>
+									<label>
+										<input type="checkbox" />
+										12. Saúde ocular
+									</label>
+									<label>
+										<input type="checkbox" />
+										13. Prevenção à covid-19
+									</label>
+									<label>
+										<input type="checkbox" />
+										14. Cuidados com higiene pessoal
+									</label>
+									<label>
+										<input type="checkbox" />
+										15. Prevenção à toxoplasmose
+									</label>
+								</div>
+								<div className='app--footer'>
+									<div className='app--buttonMain' onClick={avancar}>
+										<p>Avançar</p>
+									</div>
+								</div>
+							</>
+						)}
+						{etapa === 5 && (
+							<>
+								<IconeVoltar className="icone-voltar" onClick={voltar} />
 								<p className='app--title'>Defina a lista de presença:</p>
 								<div className='app--list'>
 									<label>
@@ -139,7 +212,7 @@ function App() {
 								</div>
 							</>
 						)}
-						{etapa === 5 && (
+						{etapa === 6 && (
 							<>
 								<IconeVoltar className="icone-voltar" onClick={voltar} />
 								<p className='app--title'>Preencha os dados de cada aluno:</p>
@@ -166,7 +239,7 @@ function App() {
 								</div>
 							</>
 						)}
-						{etapa === 6 && (
+						{etapa === 7 && (
 							<>
 								<IconeVoltar className="icone-voltar" onClick={voltar} />
 								<p className='app--title'>Tudo pronto!</p>

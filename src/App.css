@@ -15,6 +15,7 @@
 	align-items: center;
 	gap: 1rem;
 	flex: 1;
+	min-height: 0
 }
 
 .app--header {
@@ -32,6 +33,7 @@
 	flex-direction: column;
 	gap: 1rem;
 	flex: 1;
+	overflow-y: auto;
 }
 
 .app--title {
@@ -155,6 +157,10 @@
 
 .app--buttonMain:hover {
 	filter: brightness(0.9);
+}
+
+.app--botao-voltar {
+	flex-shrink: 0;
 }
 
 .app--botao-voltar:hover {
