@@ -19,16 +19,26 @@ export function IconePesquisa() {
 
 function App() {
 
+	// guarda a etapa do processo de preenchimento do registro
+	// define a etapa para mostrar na tela
 	const [etapa, setEtapa] = useState(1)
 
+	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
 	const avancar = () => {
 		setEtapa(etapa + 1)
 	}
 
+	// mesma coisa so que de ré
 	const voltar = () => {
 		setEtapa(etapa - 1)
 	}
 
+	// geracao automatica do dia de hoje para mostrar no preenchimento
+	// armazenamento da data da atividade
+	const hoje = new Date()
+	const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'))
+	const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'))
+	const [ano, setAno] = useState(String(hoje.getFullYear()))
 
 	return (
 		<>
@@ -39,11 +49,11 @@ function App() {
 						{etapa === 1 && (
 							<>
 								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Digite a data de hoje:</p>
+								<p className='app--title'>Digite a data da atividade:</p>
 								<div className='app--date-group'>
-									<input type="text" placeholder="DD" maxLength="2" className='app--date-input' />
-									<input type="text" placeholder="MM" maxLength="2" className='app--date-input' />
-									<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' />
+									<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />
+									<input type="text" placeholder="MM" maxLength="2" className='app--date-input' value={mes} onChange={(e) => setMes(e.target.value)} />
+									<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' value={ano} onChange={(e) => setAno(e.target.value)} />
 								</div>
 								<div className='app--footer'>
 									<div className='app--buttonMain' onClick={avancar}>
