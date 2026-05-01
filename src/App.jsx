@@ -93,7 +93,10 @@ function App() {
 
 		return (
 			<>
-				<p className='app--header'>Geração de Relatório</p>
+				<div className='app--header-container'>
+					<p className='app--header'>Geração de Relatório</p>
+					<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
 					{etapa === 1 && (
@@ -171,7 +174,7 @@ function App() {
 					{etapa === 4 && (
 						<>
 							<IconeVoltar className="icone-voltar" onClick={voltar} />
-							<p className='app--title'>Defina o eixo temático:</p>
+							<p className='app--title'>Defina os eixos temáticos:</p>
 							<div className='app--list'>
 								<label>
 									<input type="checkbox" />

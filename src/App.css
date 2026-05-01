@@ -39,8 +39,21 @@
 	object-fit: contain;
 }
 
+.app--header-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	width: 100%;
+}
+
 .app--header {
 	text-align: center;
+}
+
+.app--header-logo {
+	height: 1.5rem;
+	object-fit: contain;
 }
 
 .app--card {
