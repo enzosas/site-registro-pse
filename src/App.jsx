@@ -17,6 +17,39 @@ export function IconePesquisa() {
 	)
 }
 
+export function IconeCheck() {
+	return (
+		<svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M1.5 5.5L4.5 8.5L12.5 1.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	)
+}
+
+export function BarraProgresso({ etapaAtual, totalEtapas }) {
+	const passos = Array.from({ length: totalEtapas }, (_, i) => i + 1)
+
+	return (
+		<div className="app--progress-bar">
+			{passos.map((passo, index) => {
+				let statusClass = 'pending'
+				if (passo < etapaAtual) statusClass = 'completed'
+				if (passo === etapaAtual) statusClass = 'current'
+
+				return (
+					<div key={passo} className="app--progress-step-container">
+						<div className={`app--progress-step ${statusClass}`}>
+							{statusClass === 'completed' && <IconeCheck />}
+						</div>
+						{index < totalEtapas - 1 && (
+							<div className={`app--progress-line ${passo < etapaAtual ? 'completed' : 'pending'}`} />
+						)}
+					</div>
+				)
+			})}
+		</div>
+	)
+}
+
 function App() {
 
 	// guarda a etapa do processo de preenchimento do registro
@@ -45,6 +78,7 @@ function App() {
 			<div className='app--background'>
 				<div className='app--column'>
 					<p className='app--header'>Geração de Relatório</p>
+					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<div className='app--card'>
 						{etapa === 1 && (
 							<>
@@ -79,8 +113,6 @@ function App() {
 										<p>Escola 4</p>
 										<p>Escola 5</p>
 										<p>Escola 6</p>
-										<p>Escola 7</p>
-										<p>Escola 8</p>
 									</div>
 								</div>
 
