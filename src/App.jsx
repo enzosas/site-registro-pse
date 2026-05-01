@@ -38,7 +38,7 @@ function App() {
 					<div className='app--card'>
 						{etapa === 1 && (
 							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar}/>
+								<IconeVoltar className="icone-voltar" onClick={voltar} />
 								<p className='app--title'>Digite a data de hoje:</p>
 								<div className='app--date-group'>
 									<input type="text" placeholder="DD" maxLength="2" className='app--date-input' />
@@ -144,9 +144,24 @@ function App() {
 								<IconeVoltar className="icone-voltar" onClick={voltar} />
 								<p className='app--title'>Preencha os dados de cada aluno:</p>
 
-								<div className='app--footer'>
+								<p className='app--contador'>1/5</p>
+								
+								<p className='app--nomeAluno'>Aluno Importado 1</p>
+
+								<div className='app--input-group'>
+									<label>Altura (cm)</label>
+									<input type="text" placeholder="Digite aqui a altura" />
+								</div>
+
+								<div className='app--input-group'>
+									<label>Peso (kg)</label>
+									<input type="text" placeholder="Digite aqui a altura" />
+								</div>
+								
+								<div className='app--dados-aluno--footer'>
+									<IconeVoltar className="icone-voltar" onClick={voltar} />
 									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
+										<p>Próximo</p>
 									</div>
 								</div>
 							</>

@@ -26,6 +26,7 @@
 	height: 100%;
 	width: 100%;
 	padding: 1rem;
+	padding-top: 1.5rem;
 	border-radius: 2rem;
 	display: flex;
 	flex-direction: column;
@@ -103,15 +104,16 @@
 .app--list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0rem;
 }
 
 .app--list label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 	font-size: 1rem;
 	padding: 1rem 0rem;
+	font-size: 1.25rem;
 }
 
 .app--footer {
@@ -157,6 +159,51 @@
 
 .app--botao-voltar:hover {
 	cursor: pointer;
+}
+
+.app--contador {
+	color: var(--cor-botao2);
+}
+
+.app--nomeAluno {
+	font-size: 2.5rem;
+	font-weight: 600;
+	line-height: 1.25em;
+	margin-bottom: 0.25em;
+	text-align: center;
+}
+
+.app--input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.app--input-group label {
+	font-size: 1rem;
+}
+
+.app--input-group input {
+	border: var(--input-border);
+	border-radius: 0.5rem;
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	outline: none;
+	background-color: transparent;
+	width: 100%;
+}
+
+.app--dados-aluno--footer {
+	margin-top: auto;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 1rem;
+}
+
+.app--input-group input:focus {
+	border-color: var(--cor-texto);
 }
 
 @media (max-width: 768px) {
