@@ -73,230 +73,255 @@ function App() {
 	const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'))
 	const [ano, setAno] = useState(String(hoje.getFullYear()))
 
+	// estado para controlar o render da tela inicial
+	const [telaInicial, setTelaInicial] = useState(true)
+
+	const renderizarConteudo = () => {
+		if (telaInicial) {
+			return (
+				<div className='app--column app--tela-inicial'>
+					<div className='app--tela-inicial-content'>
+						<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
+						<div className='app--buttonMain' onClick={() => setTelaInicial(false)}>
+							<p>Gerar Relatório</p>
+						</div>
+					</div>
+					<img src="/pseLogo1.png" alt="Logo PSE" className="app--logo-pse" />
+				</div>
+			)
+		}
+
+		return (
+			<>
+				<p className='app--header'>Geração de Relatório</p>
+				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+				<div className='app--card'>
+					{etapa === 1 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+							<p className='app--title'>Digite a data da atividade:</p>
+							<div className='app--date-group'>
+								<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />
+								<input type="text" placeholder="MM" maxLength="2" className='app--date-input' value={mes} onChange={(e) => setMes(e.target.value)} />
+								<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' value={ano} onChange={(e) => setAno(e.target.value)} />
+							</div>
+							<div className='app--footer'>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Avançar</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 2 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Selecione sua escola:</p>
+
+							<div className='app--search-container'>
+								<div className='app--search-bar'>
+									<input type="text" placeholder="Digite aqui para pesquisar" />
+									<IconePesquisa />
+								</div>
+								<div className='app--search-list'>
+									<p>Escola 1</p>
+									<p>Escola 2</p>
+									<p>Escola 3</p>
+									<p>Escola 4</p>
+									<p>Escola 5</p>
+									<p>Escola 6</p>
+								</div>
+							</div>
+
+							<div className='app--footer'>
+								<div className='app--buttonSecondary'>
+									<p>A escola não está na lista</p>
+								</div>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Avançar</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 3 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Selecione sua turma:</p>
+
+							<div className='app--search-container'>
+								<div className='app--search-bar'>
+									<input type="text" placeholder="Digite aqui para pesquisar" />
+									<IconePesquisa />
+								</div>
+								<div className='app--search-list'>
+									<p>Turma 21 2026</p>
+									<p>Turma 22 2026</p>
+									<p>Turma 31 2026</p>
+									<p>Turma 32 2026</p>
+									<p>Turma 33 2026</p>
+								</div>
+							</div>
+
+							<div className='app--footer'>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Avançar</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 4 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Defina o eixo temático:</p>
+							<div className='app--list'>
+								<label>
+									<input type="checkbox" />
+									1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)
+								</label>
+								<label>
+									<input type="checkbox" />
+									2. Promoção da atividade física (práticas corporais)
+								</label>
+								<label>
+									<input type="checkbox" />
+									3. Alimentação saudável e prevenção da obesidade (antropometria)
+								</label>
+								<label>
+									<input type="checkbox" />
+									4. Promoção da cultura de paz e direitos humanos
+								</label>
+								<label>
+									<input type="checkbox" />
+									5. Prevenção das violências e dos acidentes
+								</label>
+								<label>
+									<input type="checkbox" />
+									6. Prevenção de doenças negligenciadas
+								</label>
+								<label>
+									<input type="checkbox" />
+									7. Verificação da situação vacinal
+								</label>
+								<label>
+									<input type="checkbox" />
+									8. Saúde sexual e reprodutiva e prevenção do HIV/IST
+								</label>
+								<label>
+									<input type="checkbox" />
+									9. Prevenção ao uso de álcool, tabaco e outras drogas
+								</label>
+								<label>
+									<input type="checkbox" />
+									10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)
+								</label>
+								<label>
+									<input type="checkbox" />
+									11. Saúde auditiva
+								</label>
+								<label>
+									<input type="checkbox" />
+									12. Saúde ocular
+								</label>
+								<label>
+									<input type="checkbox" />
+									13. Prevenção à covid-19
+								</label>
+								<label>
+									<input type="checkbox" />
+									14. Cuidados com higiene pessoal
+								</label>
+								<label>
+									<input type="checkbox" />
+									15. Prevenção à toxoplasmose
+								</label>
+							</div>
+							<div className='app--footer'>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Avançar</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 5 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Defina a lista de presença:</p>
+							<div className='app--list'>
+								<label>
+									<input type="checkbox" />
+									Aluno Importado 1
+								</label>
+								<label>
+									<input type="checkbox" />
+									Aluno Importado 2
+								</label>
+								<label>
+									<input type="checkbox" />
+									Aluno Importado 3
+								</label>
+								<label>
+									<input type="checkbox" />
+									Aluno Importado 4
+								</label>
+							</div>
+							<div className='app--footer'>
+								<div className='app--buttonSecondary'>
+									<p>Adicionar aluno manualmente</p>
+								</div>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Avançar</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 6 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Preencha os dados de cada aluno:</p>
+
+							<p className='app--contador'>1/5</p>
+
+							<p className='app--nomeAluno'>Aluno Importado 1</p>
+
+							<div className='app--input-group'>
+								<label>Altura (cm)</label>
+								<input type="text" placeholder="Digite aqui a altura" />
+							</div>
+
+							<div className='app--input-group'>
+								<label>Peso (kg)</label>
+								<input type="text" placeholder="Digite aqui a altura" />
+							</div>
+
+							<div className='app--dados-aluno--footer'>
+								<IconeVoltar className="icone-voltar" onClick={voltar} />
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Próximo</p>
+								</div>
+							</div>
+						</>
+					)}
+					{etapa === 7 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<p className='app--title'>Tudo pronto!</p>
+
+							<div className='app--footer'>
+								<div className='app--buttonMain' onClick={avancar}>
+									<p>Enviar Relatório</p>
+								</div>
+							</div>
+						</>
+					)}
+				</div>
+			</>
+		)
+	}
+
 	return (
 		<>
 			<div className='app--background'>
 				<div className='app--column'>
-					<p className='app--header'>Geração de Relatório</p>
-					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<div className='app--card'>
-						{etapa === 1 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Digite a data da atividade:</p>
-								<div className='app--date-group'>
-									<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />
-									<input type="text" placeholder="MM" maxLength="2" className='app--date-input' value={mes} onChange={(e) => setMes(e.target.value)} />
-									<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' value={ano} onChange={(e) => setAno(e.target.value)} />
-								</div>
-								<div className='app--footer'>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 2 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Selecione sua escola:</p>
-
-								<div className='app--search-container'>
-									<div className='app--search-bar'>
-										<input type="text" placeholder="Digite aqui para pesquisar" />
-										<IconePesquisa />
-									</div>
-									<div className='app--search-list'>
-										<p>Escola 1</p>
-										<p>Escola 2</p>
-										<p>Escola 3</p>
-										<p>Escola 4</p>
-										<p>Escola 5</p>
-										<p>Escola 6</p>
-									</div>
-								</div>
-
-								<div className='app--footer'>
-									<div className='app--buttonSecondary'>
-										<p>A escola não está na lista</p>
-									</div>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 3 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Selecione sua turma:</p>
-
-								<div className='app--search-container'>
-									<div className='app--search-bar'>
-										<input type="text" placeholder="Digite aqui para pesquisar" />
-										<IconePesquisa />
-									</div>
-									<div className='app--search-list'>
-										<p>Turma 21 2026</p>
-										<p>Turma 22 2026</p>
-										<p>Turma 31 2026</p>
-										<p>Turma 32 2026</p>
-										<p>Turma 33 2026</p>
-									</div>
-								</div>
-
-								<div className='app--footer'>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 4 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Defina o eixo temático:</p>
-								<div className='app--list'>
-									<label>
-										<input type="checkbox" />
-										1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)
-									</label>
-									<label>
-										<input type="checkbox" />
-										2. Promoção da atividade física (práticas corporais)
-									</label>
-									<label>
-										<input type="checkbox" />
-										3. Alimentação saudável e prevenção da obesidade (antropometria)
-									</label>
-									<label>
-										<input type="checkbox" />
-										4. Promoção da cultura de paz e direitos humanos
-									</label>
-									<label>
-										<input type="checkbox" />
-										5. Prevenção das violências e dos acidentes
-									</label>
-									<label>
-										<input type="checkbox" />
-										6. Prevenção de doenças negligenciadas
-									</label>
-									<label>
-										<input type="checkbox" />
-										7. Verificação da situação vacinal
-									</label>
-									<label>
-										<input type="checkbox" />
-										8. Saúde sexual e reprodutiva e prevenção do HIV/IST
-									</label>
-									<label>
-										<input type="checkbox" />
-										9. Prevenção ao uso de álcool, tabaco e outras drogas
-									</label>
-									<label>
-										<input type="checkbox" />
-										10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)
-									</label>
-									<label>
-										<input type="checkbox" />
-										11. Saúde auditiva
-									</label>
-									<label>
-										<input type="checkbox" />
-										12. Saúde ocular
-									</label>
-									<label>
-										<input type="checkbox" />
-										13. Prevenção à covid-19
-									</label>
-									<label>
-										<input type="checkbox" />
-										14. Cuidados com higiene pessoal
-									</label>
-									<label>
-										<input type="checkbox" />
-										15. Prevenção à toxoplasmose
-									</label>
-								</div>
-								<div className='app--footer'>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 5 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Defina a lista de presença:</p>
-								<div className='app--list'>
-									<label>
-										<input type="checkbox" />
-										Aluno Importado 1
-									</label>
-									<label>
-										<input type="checkbox" />
-										Aluno Importado 2
-									</label>
-									<label>
-										<input type="checkbox" />
-										Aluno Importado 3
-									</label>
-									<label>
-										<input type="checkbox" />
-										Aluno Importado 4
-									</label>
-								</div>
-								<div className='app--footer'>
-									<div className='app--buttonSecondary'>
-										<p>Adicionar aluno manualmente</p>
-									</div>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Avançar</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 6 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Preencha os dados de cada aluno:</p>
-
-								<p className='app--contador'>1/5</p>
-								
-								<p className='app--nomeAluno'>Aluno Importado 1</p>
-
-								<div className='app--input-group'>
-									<label>Altura (cm)</label>
-									<input type="text" placeholder="Digite aqui a altura" />
-								</div>
-
-								<div className='app--input-group'>
-									<label>Peso (kg)</label>
-									<input type="text" placeholder="Digite aqui a altura" />
-								</div>
-								
-								<div className='app--dados-aluno--footer'>
-									<IconeVoltar className="icone-voltar" onClick={voltar} />
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Próximo</p>
-									</div>
-								</div>
-							</>
-						)}
-						{etapa === 7 && (
-							<>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<p className='app--title'>Tudo pronto!</p>
-
-								<div className='app--footer'>
-									<div className='app--buttonMain' onClick={avancar}>
-										<p>Enviar Relatório</p>
-									</div>
-								</div>
-							</>
-						)}
-					</div>
+					{renderizarConteudo()}
 				</div>
 			</div>
 		</>
