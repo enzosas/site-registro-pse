@@ -5,7 +5,7 @@
   --cor-botao2: hsl(0, 0%, 70%);
   --cor-botao3: hsl(0, 0%, 85%);
   --cor-texto: hsl(0, 0%, 0%);
-  --cor-step: hsl(110, 34%, 50%);
+  --cor-step: hsl(150, 35%, 46%);
   --fonte: "Inter", sans-serif;
   --input-border: 0.1rem solid var(--cor-botao3);
 }
