@@ -1,3 +1,4 @@
+import { use } from 'react'
 import './App.css'
 import { useState } from 'react'
 
@@ -54,7 +55,7 @@ function App() {
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
-	const [etapa, setEtapa] = useState(1)
+	const [etapa, setEtapa] = useState(0)
 
 	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
 	const avancar = () => {
@@ -66,6 +67,11 @@ function App() {
 		setEtapa(etapa - 1)
 	}
 
+	{/*const valida = () => {
+		//blablabla
+	}
+		para validar o login quando tiver o banco de dados*/}
+
 	// geracao automatica do dia de hoje para mostrar no preenchimento
 	// armazenamento da data da atividade
 	const hoje = new Date()
@@ -75,6 +81,8 @@ function App() {
 
 	// estado para controlar o render da tela inicial
 	const [telaInicial, setTelaInicial] = useState(true)
+
+	const [telaSenha, setTelaSenha] = useState(false);
 
 	const renderizarConteudo = () => {
 		if (telaInicial) {
@@ -91,6 +99,19 @@ function App() {
 			)
 		}
 
+		if(telaSenha) {
+			return (
+			<>
+				<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+				<div className='login--texto-card'>
+					<label> Digite seu email </label>
+					<input type="text" />
+				</div>
+
+			</>	
+			)
+		}
+
 		return (
 			<>
 				<div className='app--header-container'>
@@ -99,9 +120,39 @@ function App() {
 				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
-					{etapa === 1 && (
+					{etapa === 0 && ( 
 						<>
 							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+							<div className='login--bemvindos'>
+								<main className="login--texto-sessao">
+									<div className="login--texto-sessao">
+										<h1>Programa<br/>Saúde nas<br/> escolas </h1>
+										<p>Santa Maria, RS</p>
+									</div>
+									<div className="login--form-sessao">
+										<div className="login--card">
+											<div className="login--input-group">
+												<label>Login</label>
+												<input type="text" />
+											</div>
+											<div className="login--input-group">
+												<label>Senha</label>
+												<input type="password" />
+											</div>
+											<p className="login--esqueci-senha" onClick={() => setTelaSenha(true)}> Esqueci a senha </p>
+										</div>
+
+										<div className='app--buttonMain' onClick={avancar}>
+											<p>Entrar</p>
+										</div>
+									</div>
+								</main>
+							</div>
+						</>
+					)}
+					{etapa === 1 && (
+						<>
+							<IconeVoltar className="icone-voltar" onClick={voltar} />
 							<p className='app--title'>Digite a data da atividade:</p>
 							<div className='app--date-group'>
 								<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />
