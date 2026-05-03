@@ -55,7 +55,7 @@ function App() {
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
-	const [etapa, setEtapa] = useState(0)
+	const [etapa, setEtapa] = useState(1)
 
 	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
 	const avancar = () => {
@@ -67,10 +67,9 @@ function App() {
 		setEtapa(etapa - 1)
 	}
 
-	{/*const valida = () => {
-		//blablabla
+	const valida = () => {
+		setIsLoggedIn(true);
 	}
-		para validar o login quando tiver o banco de dados*/}
 
 	// geracao automatica do dia de hoje para mostrar no preenchimento
 	// armazenamento da data da atividade
@@ -83,6 +82,8 @@ function App() {
 	const [telaInicial, setTelaInicial] = useState(true)
 
 	const [telaSenha, setTelaSenha] = useState(false);
+
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	const renderizarConteudo = () => {
 		if (telaInicial) {
@@ -98,21 +99,57 @@ function App() {
 				</div>
 			)
 		}
-
-		if(telaSenha) {
+		
+		else if (telaSenha) {
 			return (
 			<>
-				<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
-				<div className='login--texto-card'>
-					<label> Digite seu email </label>
-					<input type="text" />
+				<div className='app--input-group'>
+					<div className='app--card'>
+						<IconeVoltar className="icone-voltar" onClick={() => setTelaSenha(false)} />
+						<div className='app--input-group'>
+							<label>Digite seu email</label>
+							<input type="text" />
+						</div>
+					</div>
 				</div>
-
+				
 			</>	
 			)
 		}
 
-		return (
+		else if (!isLoggedIn) {
+			return (
+				<>
+					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
+					<div className='app--card'>
+						<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+						<p className='app--title'>Login</p>
+						<p>Programa Saúde nas Escolas</p>
+						<p>Santa Maria, RS</p>
+						<div className='login--input-group'>
+							<div className='app--input-group'>
+								<label>Login</label>
+								<input type="text" />
+							</div>
+							<div className='app--input-group'>
+								<label>Senha</label>
+								<input type="password" />
+							</div>
+						</div>
+						<div className='app--footer'>
+							<div className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
+								<p>Esqueci a senha</p>
+							</div>
+							<div className='app--buttonMain' onClick={valida}>
+								<p>Entrar</p>
+							</div>
+						</div>
+					</div>
+				</>
+			)
+		}
+
+		else return (
 			<>
 				<div className='app--header-container'>
 					<p className='app--header'>Geração de Relatório</p>
@@ -120,39 +157,9 @@ function App() {
 				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
-					{etapa === 0 && ( 
-						<>
-							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
-							<div className='login--bemvindos'>
-								<main className="login--texto-sessao">
-									<div className="login--texto-sessao">
-										<h1>Programa<br/>Saúde nas<br/> escolas </h1>
-										<p>Santa Maria, RS</p>
-									</div>
-									<div className="login--form-sessao">
-										<div className="login--card">
-											<div className="login--input-group">
-												<label>Login</label>
-												<input type="text" />
-											</div>
-											<div className="login--input-group">
-												<label>Senha</label>
-												<input type="password" />
-											</div>
-											<p className="login--esqueci-senha" onClick={() => setTelaSenha(true)}> Esqueci a senha </p>
-										</div>
-
-										<div className='app--buttonMain' onClick={avancar}>
-											<p>Entrar</p>
-										</div>
-									</div>
-								</main>
-							</div>
-						</>
-					)}
 					{etapa === 1 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
 							<p className='app--title'>Digite a data da atividade:</p>
 							<div className='app--date-group'>
 								<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />

@@ -187,19 +187,11 @@ font-size: 2.1rem;
   margin-bottom: 1rem;
 }
 
-.login--input-group label {
-  color: #69a3ff;            
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;     
-  display: block;
-}
-
-.login--input-group input {
-  width: 100%;               
-  padding: 1rem;             
-  border: none;              
-  background-color: white;   
-  outline: none;             
+.login--input-group {
+  	display: flex;
+  	flex-direction: column;
+  	gap: inherit;
+	margin: auto 0;
 }
 
 .login--esqueci-senha {
