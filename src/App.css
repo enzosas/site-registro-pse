@@ -272,6 +272,11 @@ font-size: 2.1rem;
 	cursor: pointer;
 	text-align: center;
 	width: 100%;
+	transition: transform 0.1s ease;
+}
+
+.app--buttonMain:active {
+	transform: scale(0.975);
 }
 
 .app--buttonSecondary {
@@ -286,6 +291,11 @@ font-size: 2.1rem;
 	border-radius: 2rem;
 	cursor: pointer;
 	text-align: center;
+	transition: transform 0.1s ease;
+}
+
+.app--buttonSecondary:active {
+	transform: scale(0.95);
 }
 
 .app--buttonMain:hover {
@@ -294,10 +304,15 @@ font-size: 2.1rem;
 
 .app--botao-voltar {
 	flex-shrink: 0;
+	transition: transform 0.1s ease;
 }
 
 .app--botao-voltar:hover {
 	cursor: pointer;
+}
+
+.app--botao-voltar:active {
+	transform: scale(0.8);
 }
 
 .app--contador {
