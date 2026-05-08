@@ -250,7 +250,7 @@ font-size: 2.1rem;
 .app--list--aluno-nascimento {
 	display: flex;
 	flex-direction: row;
-	gap: 5rem;
+	gap: 1rem;
 	justify-content: space-between;
 	align-items: center;
 	width: 100%;
