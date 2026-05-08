@@ -237,6 +237,8 @@ font-size: 2.1rem;
 	flex-direction: row;
 	padding: 1rem 0rem;
 	gap: 1rem;
+	stroke-width: 0.1rem;
+	align-items: center;
 }
 
 .app--list {
@@ -403,6 +405,7 @@ font-size: 2.1rem;
 	justify-content: center;
 	flex-shrink: 0;
 	color: white;
+	stroke-width: 0.15rem;
 }
 
 .app--progress-step.completed {
