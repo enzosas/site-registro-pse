@@ -293,7 +293,7 @@ function App() {
 					)}
 					{etapa === 3 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<IconeVoltar className="icone-voltar" onClick={() => {setTurmaSelecionada(null); voltar();}} />
 							<p className='app--title'>Selecione sua turma:</p>
 
 							<div className='app--search-container'>
