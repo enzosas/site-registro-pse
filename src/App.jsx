@@ -67,6 +67,12 @@ function App() {
 	
 	// estado para controlar os alunos presentes
 	const [alunosPresentes, setAlunosPresentes] = useState([])
+
+	// estados do preenchimento do peso e altura
+	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
+	const [dadosAlunos, setDadosAlunos] = useState({})
+	const alunosSelecionados = turmaSelecionada?.alunos.filter(aluno => alunosPresentes.includes(aluno.id)) || []
+	const alunoAtual = alunosSelecionados[alunoAtualIndex]
 	
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
@@ -110,12 +116,40 @@ function App() {
 		turma.nome.toLowerCase().includes(buscaTurma.toLowerCase())
 	) || []
 
+	// remove ou adiciona o aluno presente
 	const toggleAluno = (idAluno) => {
 		setAlunosPresentes(prev =>
 			prev.includes(idAluno)
 				? prev.filter(id => id !== idAluno)
 				: [...prev, idAluno]
 		)
+	}
+
+	// preenche dados peso altura
+	const handleMudancaDados = (campo, valor) => {
+		setDadosAlunos(prev => ({
+			...prev,
+			[alunoAtual.id]: {
+				...prev[alunoAtual.id],
+				[campo]: valor
+			}
+		}))
+	}
+
+	// vai ou volta na tela do peso altura
+	const proximoAluno = () => {
+		if (alunoAtualIndex < alunosSelecionados.length - 1) {
+			setAlunoAtualIndex(alunoAtualIndex + 1)
+		} else {
+			avancar()
+		}
+	}
+	const alunoAnterior = () => {
+		if (alunoAtualIndex > 0) {
+			setAlunoAtualIndex(alunoAtualIndex - 1)
+		} else {
+			voltar()
+		}
 	}
 
 	const renderizarConteudo = () => {
@@ -396,24 +430,34 @@ function App() {
 							<IconeVoltar className="icone-voltar" onClick={voltar} />
 							<p className='app--title'>Preencha os dados de cada aluno:</p>
 
-							<p className='app--contador'>1/5</p>
+							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosSelecionados.length}</p>
 
-							<p className='app--nomeAluno'>Aluno Importado 1</p>
+							<p className='app--nomeAluno'>{alunoAtual.nome}</p>
 
 							<div className='app--input-group'>
 								<label>Altura (cm)</label>
-								<input type="text" placeholder="Digite aqui a altura" />
+								<input
+									type="number"
+									placeholder="Digite aqui a altura"
+									value={dadosAlunos[alunoAtual.id]?.altura || ''}
+									onChange={(e) => handleMudancaDados('altura', e.target.value)}
+								/>
 							</div>
 
 							<div className='app--input-group'>
 								<label>Peso (kg)</label>
-								<input type="text" placeholder="Digite aqui a altura" />
+								<input
+									type="number"
+									placeholder="Digite aqui o peso"
+									value={dadosAlunos[alunoAtual.id]?.peso || ''}
+									onChange={(e) => handleMudancaDados('peso', e.target.value)}
+								/>
 							</div>
 
 							<div className='app--dados-aluno--footer'>
-								<IconeVoltar className="icone-voltar" onClick={voltar} />
-								<div className='app--buttonMain' onClick={avancar}>
-									<p>Próximo</p>
+								<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
+								<div className='app--buttonMain' onClick={proximoAluno}>
+									<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Finalizar' : 'Próximo'}</p>
 								</div>
 							</div>
 						</>
