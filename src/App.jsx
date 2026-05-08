@@ -52,6 +52,24 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 	)
 }
 
+const eixosTematicosLista = [
+	{ id: 1, label: "1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)" },
+	{ id: 2, label: "2. Promoção da atividade física (práticas corporais)" },
+	{ id: 3, label: "3. Alimentação saudável e prevenção da obesidade (antropometria)" },
+	{ id: 4, label: "4. Promoção da cultura de paz e direitos humanos" },
+	{ id: 5, label: "5. Prevenção das violências e dos acidentes" },
+	{ id: 6, label: "6. Prevenção de doenças negligenciadas" },
+	{ id: 7, label: "7. Verificação da situação vacinal" },
+	{ id: 8, label: "8. Saúde sexual e reprodutiva e prevenção do HIV/IST" },
+	{ id: 9, label: "9. Prevenção ao uso de álcool, tabaco e outras drogas" },
+	{ id: 10, label: "10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)" },
+	{ id: 11, label: "11. Saúde auditiva" },
+	{ id: 12, label: "12. Saúde ocular" },
+	{ id: 13, label: "13. Prevenção à covid-19" },
+	{ id: 14, label: "14. Cuidados com higiene pessoal" },
+	{ id: 15, label: "15. Prevenção à toxoplasmose" }
+]
+
 function App() {
 	
 	// carrega as escolas mock do db.json
@@ -157,6 +175,16 @@ function App() {
 		} else {
 			voltar()
 		}
+	}
+
+	// controle dos eixos selecionados
+	const [eixosSelecionados, setEixosSelecionados] = useState([])
+	const toggleEixo = (idEixo) => {
+		setEixosSelecionados(prev =>
+			prev.includes(idEixo)
+				? prev.filter(id => id !== idEixo)
+				: [...prev, idEixo]
+		)
 	}
 
 	const renderizarConteudo = () => {
@@ -337,66 +365,16 @@ function App() {
 							<IconeVoltar className="icone-voltar" onClick={voltar} />
 							<p className='app--title'>Defina os eixos temáticos:</p>
 							<div className='app--list'>
-								<label>
-									<input type="checkbox" />
-									1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)
-								</label>
-								<label>
-									<input type="checkbox" />
-									2. Promoção da atividade física (práticas corporais)
-								</label>
-								<label>
-									<input type="checkbox" />
-									3. Alimentação saudável e prevenção da obesidade (antropometria)
-								</label>
-								<label>
-									<input type="checkbox" />
-									4. Promoção da cultura de paz e direitos humanos
-								</label>
-								<label>
-									<input type="checkbox" />
-									5. Prevenção das violências e dos acidentes
-								</label>
-								<label>
-									<input type="checkbox" />
-									6. Prevenção de doenças negligenciadas
-								</label>
-								<label>
-									<input type="checkbox" />
-									7. Verificação da situação vacinal
-								</label>
-								<label>
-									<input type="checkbox" />
-									8. Saúde sexual e reprodutiva e prevenção do HIV/IST
-								</label>
-								<label>
-									<input type="checkbox" />
-									9. Prevenção ao uso de álcool, tabaco e outras drogas
-								</label>
-								<label>
-									<input type="checkbox" />
-									10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)
-								</label>
-								<label>
-									<input type="checkbox" />
-									11. Saúde auditiva
-								</label>
-								<label>
-									<input type="checkbox" />
-									12. Saúde ocular
-								</label>
-								<label>
-									<input type="checkbox" />
-									13. Prevenção à covid-19
-								</label>
-								<label>
-									<input type="checkbox" />
-									14. Cuidados com higiene pessoal
-								</label>
-								<label>
-									<input type="checkbox" />
-									15. Prevenção à toxoplasmose
-								</label>
+								{eixosTematicosLista.map((eixo) => (
+									<label key={eixo.id}>
+										<input
+											type="checkbox"
+											checked={eixosSelecionados.includes(eixo.id)}
+											onChange={() => toggleEixo(eixo.id)}
+										/>
+										{eixo.label}
+									</label>
+								))}
 							</div>
 							<div className='app--footer'>
 								<div className='app--buttonMain' onClick={() => {iniciaTodosAlunosPresentes(); avancar();}}>
@@ -411,14 +389,17 @@ function App() {
 							<p className='app--title'>Defina a lista de presença:</p>
 							<div className='app--list'>
 								{turmaSelecionada?.alunos.map((aluno) => (
-									<label key={aluno.id}>
-										<input
-											type="checkbox"
-											checked={alunosPresentes.includes(aluno.id)}
-											onChange={() => toggleAluno(aluno.id)}
-										/>
-										{aluno.nome}
-									</label>
+										<label key={aluno.id}>
+											<input
+												type="checkbox"
+												checked={alunosPresentes.includes(aluno.id)}
+												onChange={() => toggleAluno(aluno.id)}
+											/>
+											<div className='app--list--aluno-nascimento'>
+												{aluno.nome}
+												<p className='app--list--aluno-nascimento--nascimento'>{aluno.dataNascimento}</p>
+											</div>
+										</label>
 								))}
 							</div>
 							<div className='app--footer'>
