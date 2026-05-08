@@ -303,7 +303,7 @@ function App() {
 									{escolasFiltradas.map((escola) => (
 										<div
 											key={escola.id}
-											onClick={() => setEscolaSelecionada(escola)}
+											onClick={() => setEscolaSelecionada(escolaSelecionada?.id === escola.id ? null : escola)}
 											className='app--search-list--unidade'
 										>
 											{escolaSelecionada?.id === escola.id ? <IconeCheck /> : <></>}
@@ -347,7 +347,7 @@ function App() {
 									{turmasFiltradas.map((turma) => (
 										<div
 											key={turma.id}
-											onClick={() => setTurmaSelecionada(turma)}
+											onClick={() => setTurmaSelecionada(turmaSelecionada?.id === turma.id ? null : turma)}
 											className='app--search-list--unidade'
 										>
 											{turmaSelecionada?.id === turma.id ? <IconeCheck /> : <></>}
