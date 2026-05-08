@@ -412,7 +412,12 @@ function App() {
 								<div className='app--buttonSecondary'>
 									<p>Adicionar aluno manualmente</p>
 								</div>
-								<div className='app--buttonMain' onClick={avancar}>
+								<div
+									className={alunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+									onClick={() => {
+										if (alunosPresentes.length > 0) avancar()
+									}}
+								>
 									<p>Avançar</p>
 								</div>
 							</div>
