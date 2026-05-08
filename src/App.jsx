@@ -274,11 +274,10 @@ function App() {
 									<p>A escola não está na lista</p>
 								</div>
 								<div
-									className='app--buttonMain'
+									className={escolaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
 										if (escolaSelecionada) avancar()
 									}}
-									style={{ opacity: escolaSelecionada ? 1 : 0.5, cursor: escolaSelecionada ? 'pointer' : 'not-allowed' }}
 								>
 									<p>Avançar</p>
 								</div>
