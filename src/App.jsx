@@ -125,6 +125,13 @@ function App() {
 		)
 	}
 
+	// define todos alunos como presentes
+	const iniciaTodosAlunosPresentes = () => {
+		if (turmaSelecionada) {
+			setAlunosPresentes(turmaSelecionada.alunos.map(aluno => aluno.id))
+		}
+	}
+
 	// preenche dados peso altura
 	const handleMudancaDados = (campo, valor) => {
 		setDadosAlunos(prev => ({
@@ -392,7 +399,7 @@ function App() {
 								</label>
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={avancar}>
+								<div className='app--buttonMain' onClick={() => {iniciaTodosAlunosPresentes(); avancar();}}>
 									<p>Avançar</p>
 								</div>
 							</div>
