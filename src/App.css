@@ -224,16 +224,19 @@ font-size: 2.1rem;
 	border: var(--input-border);
 	border-radius: 1.5rem;
 	padding: 1rem;
-	padding-top: 2rem;
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 0rem;
 	flex: 1;
 }
 
-.app--search-list p {
+.app--search-list--unidade {
 	font-size: 1rem;
 	cursor: pointer;
+	display: flex;
+	flex-direction: row;
+	padding: 1rem 0rem;
+	gap: 1rem;
 }
 
 .app--list {
@@ -296,6 +299,24 @@ font-size: 2.1rem;
 
 .app--buttonSecondary:active {
 	transform: scale(0.95);
+}
+
+.app--buttonMain__disabled {
+	color: var(--cor-frame);
+	background-color: var(--cor-botao);
+	font-weight: 600;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1rem;
+	font-size: 1.5rem;
+	border-radius: 2rem;
+	cursor: pointer;
+	text-align: center;
+	width: 100%;
+	transition: transform 0.1s ease;
+	opacity: 0.5;
+	cursor: default;
 }
 
 .app--buttonMain:hover {
@@ -381,6 +402,7 @@ font-size: 2.1rem;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
+	color: white;
 }
 
 .app--progress-step.completed {

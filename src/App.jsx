@@ -19,10 +19,10 @@ export function IconePesquisa() {
 	)
 }
 
-export function IconeCheck() {
+export function IconeCheck({ className }) {
 	return (
-		<svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M1.5 5.5L4.5 8.5L12.5 1.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+		<svg className={className} width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M1.5 5.5L4.5 8.5L12.5 1.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	)
 }
@@ -213,17 +213,24 @@ function App() {
 
 							<div className='app--search-container'>
 								<div className='app--search-bar'>
-									<input type="text" placeholder="Digite aqui para pesquisar" />
+									<input
+										type="text"
+										placeholder="Digite aqui para pesquisar"
+										value={buscaEscola}
+										onChange={(e) => setBuscaEscola(e.target.value)}
+									/>
 									<IconePesquisa />
 								</div>
 								<div className='app--search-list'>
 									{escolasFiltradas.map((escola) => (
-										<p
+										<div
 											key={escola.id}
 											onClick={() => setEscolaSelecionada(escola)}
+											className='app--search-list--unidade'
 										>
+											{escolaSelecionada?.id === escola.id ? <IconeCheck /> : <></>}
 											{escola.nome}
-										</p>
+										</div>
 									))}
 								</div>
 							</div>
@@ -232,7 +239,13 @@ function App() {
 								<div className='app--buttonSecondary'>
 									<p>A escola não está na lista</p>
 								</div>
-								<div className='app--buttonMain' onClick={avancar}>
+								<div
+									className='app--buttonMain'
+									onClick={() => {
+										if (escolaSelecionada) avancar()
+									}}
+									style={{ opacity: escolaSelecionada ? 1 : 0.5, cursor: escolaSelecionada ? 'pointer' : 'not-allowed' }}
+								>
 									<p>Avançar</p>
 								</div>
 							</div>
@@ -245,23 +258,35 @@ function App() {
 
 							<div className='app--search-container'>
 								<div className='app--search-bar'>
-									<input type="text" placeholder="Digite aqui para pesquisar" />
+									<input
+										type="text"
+										placeholder="Digite aqui para pesquisar"
+										value={buscaTurma}
+										onChange={(e) => setBuscaTurma(e.target.value)}
+									/>
 									<IconePesquisa />
 								</div>
 								<div className='app--search-list'>
 									{turmasFiltradas.map((turma) => (
-										<p
+										<div
 											key={turma.id}
 											onClick={() => setTurmaSelecionada(turma)}
+											className='app--search-list--unidade'
 										>
+											{turmaSelecionada?.id === turma.id ? <IconeCheck /> : <></>}
 											{turma.nome}
-										</p>
+										</div>
 									))}
 								</div>
 							</div>
 
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={avancar}>
+								<div
+									className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+									onClick={() => {
+										if (turmaSelecionada) avancar()
+									}}
+								>
 									<p>Avançar</p>
 								</div>
 							</div>
