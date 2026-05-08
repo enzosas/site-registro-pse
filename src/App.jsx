@@ -1,6 +1,7 @@
 import { use } from 'react'
 import './App.css'
 import { useState } from 'react'
+import db from './db.json'
 
 export function IconeVoltar({ onClick }) {
 	return (
@@ -53,6 +54,17 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 
 function App() {
 
+	// carrega as escolas mock do db.json
+	const [escolas, setEscolas] = useState(db.escolas)
+
+	// gerenciadores das escolas
+	const [buscaEscola, setBuscaEscola] = useState('')
+	const [escolaSelecionada, setEscolaSelecionada] = useState(null)
+
+	// gerenciadores das turmas
+	const [buscaTurma, setBuscaTurma] = useState('')
+	const [turmaSelecionada, setTurmaSelecionada] = useState(null)
+
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
 	const [etapa, setEtapa] = useState(1)
@@ -84,6 +96,16 @@ function App() {
 	const [telaSenha, setTelaSenha] = useState(false);
 
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	// funcao para escolher as escolas que aparecem ao digitar algum nome na barra de pesquisa
+	const escolasFiltradas = escolas.filter(escola =>
+		escola.nome.toLowerCase().includes(buscaEscola.toLowerCase())
+	)
+
+	// funcao para escolher as turmas que aparecem ao digitar algum nome na barra de pesquisa
+	const turmasFiltradas = escolaSelecionada?.turmas.filter(turma =>
+		turma.nome.toLowerCase().includes(buscaTurma.toLowerCase())
+	) || []
 
 	const renderizarConteudo = () => {
 		if (telaInicial) {
@@ -184,12 +206,14 @@ function App() {
 									<IconePesquisa />
 								</div>
 								<div className='app--search-list'>
-									<p>Escola 1</p>
-									<p>Escola 2</p>
-									<p>Escola 3</p>
-									<p>Escola 4</p>
-									<p>Escola 5</p>
-									<p>Escola 6</p>
+									{escolasFiltradas.map((escola) => (
+										<p
+											key={escola.id}
+											onClick={() => setEscolaSelecionada(escola)}
+										>
+											{escola.nome}
+										</p>
+									))}
 								</div>
 							</div>
 
@@ -214,11 +238,14 @@ function App() {
 									<IconePesquisa />
 								</div>
 								<div className='app--search-list'>
-									<p>Turma 21 2026</p>
-									<p>Turma 22 2026</p>
-									<p>Turma 31 2026</p>
-									<p>Turma 32 2026</p>
-									<p>Turma 33 2026</p>
+									{turmasFiltradas.map((turma) => (
+										<p
+											key={turma.id}
+											onClick={() => setTurmaSelecionada(turma)}
+										>
+											{turma.nome}
+										</p>
+									))}
 								</div>
 							</div>
 
