@@ -109,6 +109,9 @@ function App() {
 
 	// mesma coisa so que de ré
 	const voltar = () => {
+		if (etapa === 6) {
+			setAlunoAtualIndex(0)
+		}
 		setEtapa(etapa - 1)
 	}
 
@@ -455,7 +458,7 @@ function App() {
 							<div className='app--dados-aluno--footer'>
 								<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
 								<div className='app--buttonMain' onClick={proximoAluno}>
-									<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Finalizar' : 'Próximo'}</p>
+									<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
 								</div>
 							</div>
 						</>
