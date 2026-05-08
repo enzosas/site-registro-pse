@@ -291,6 +291,7 @@ font-size: 2.1rem;
 	text-align: center;
 	width: 100%;
 	transition: transform 0.1s ease;
+	user-select: none;
 }
 
 .app--buttonMain:active {
@@ -310,6 +311,7 @@ font-size: 2.1rem;
 	cursor: pointer;
 	text-align: center;
 	transition: transform 0.1s ease;
+	user-select: none;
 }
 
 .app--buttonSecondary:active {
@@ -341,6 +343,7 @@ font-size: 2.1rem;
 .app--botao-voltar {
 	flex-shrink: 0;
 	transition: transform 0.1s ease;
+	user-select: none;
 }
 
 .app--botao-voltar:hover {
