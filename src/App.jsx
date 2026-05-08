@@ -70,6 +70,12 @@ const eixosTematicosLista = [
 	{ id: 15, label: "15. Prevenção à toxoplasmose" }
 ]
 
+const formatarData = (data) => {
+	if (!data) return ''
+	const partes = data.split('-')
+	return `${partes[2]}/${partes[1]}/${partes[0]}`
+}
+
 function App() {
 	
 	// carrega as escolas mock do db.json
@@ -397,7 +403,7 @@ function App() {
 											/>
 											<div className='app--list--aluno-nascimento'>
 												{aluno.nome}
-												<p className='app--list--aluno-nascimento--nascimento'>{aluno.dataNascimento}</p>
+												<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
 											</div>
 										</label>
 								))}
