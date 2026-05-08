@@ -53,18 +53,21 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 }
 
 function App() {
-
+	
 	// carrega as escolas mock do db.json
 	const [escolas, setEscolas] = useState(db.escolas)
-
+	
 	// gerenciadores das escolas
 	const [buscaEscola, setBuscaEscola] = useState('')
 	const [escolaSelecionada, setEscolaSelecionada] = useState(null)
-
+	
 	// gerenciadores das turmas
 	const [buscaTurma, setBuscaTurma] = useState('')
 	const [turmaSelecionada, setTurmaSelecionada] = useState(null)
-
+	
+	// estado para controlar os alunos presentes
+	const [alunosPresentes, setAlunosPresentes] = useState([])
+	
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
 	const [etapa, setEtapa] = useState(1)
@@ -106,6 +109,14 @@ function App() {
 	const turmasFiltradas = escolaSelecionada?.turmas.filter(turma =>
 		turma.nome.toLowerCase().includes(buscaTurma.toLowerCase())
 	) || []
+
+	const toggleAluno = (idAluno) => {
+		setAlunosPresentes(prev =>
+			prev.includes(idAluno)
+				? prev.filter(id => id !== idAluno)
+				: [...prev, idAluno]
+		)
+	}
 
 	const renderizarConteudo = () => {
 		if (telaInicial) {
@@ -334,22 +345,16 @@ function App() {
 							<IconeVoltar className="icone-voltar" onClick={voltar} />
 							<p className='app--title'>Defina a lista de presença:</p>
 							<div className='app--list'>
-								<label>
-									<input type="checkbox" />
-									Aluno Importado 1
-								</label>
-								<label>
-									<input type="checkbox" />
-									Aluno Importado 2
-								</label>
-								<label>
-									<input type="checkbox" />
-									Aluno Importado 3
-								</label>
-								<label>
-									<input type="checkbox" />
-									Aluno Importado 4
-								</label>
+								{turmaSelecionada?.alunos.map((aluno) => (
+									<label key={aluno.id}>
+										<input
+											type="checkbox"
+											checked={alunosPresentes.includes(aluno.id)}
+											onChange={() => toggleAluno(aluno.id)}
+										/>
+										{aluno.nome}
+									</label>
+								))}
 							</div>
 							<div className='app--footer'>
 								<div className='app--buttonSecondary'>
