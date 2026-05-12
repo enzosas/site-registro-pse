@@ -133,6 +133,10 @@ function App() {
 
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+	const[telaAddEscola, setTelaEscola] = useState(false);
+
+	const[telaAddAluno, setTelaAddAluno] = useState(false);
+
 	// funcao para escolher as escolas que aparecem ao digitar algum nome na barra de pesquisa
 	const escolasFiltradas = escolas.filter(escola =>
 		escola.nome.toLowerCase().includes(buscaEscola.toLowerCase())
@@ -228,6 +232,48 @@ function App() {
 			)
 		}
 
+		else if(telaAddEscola) {
+			return(
+		<>
+			<div className='app--card'>
+				<div className='app--input-group'>
+					<IconeVoltar className="icone-voltar" onClick={() => setTelaEscola(false)} />
+					<div className='app--input-group'>
+						<label> Digite o nome da Escola </label>
+							<input type='text' />
+					<div className='app--buttonMain' onClick={() => setTelaEscola(false)}>
+						<label> Cadastrar Escola </label>
+						 </div>
+					</div>
+				</div>
+			</div>
+		</>
+			)
+		}
+
+		else if(telaAddAluno) {
+			return(
+		<>
+			<div className='app--card'>
+				<div className='app--input-group'> 	
+					<IconeVoltar className="icone-voltar" onClick={() => setTelaAddAluno(false)} />
+				<div className='app--input-group' >
+					<label> Nome </label>
+						<input type="text" />
+					<label> Idade </label>
+						<input type="text"/>
+					<label> Peso </label>
+						<input type="text"/>
+				<div className='app--buttonMain' OnClick={() => setTelaAddAluno(false)}>
+					<label> Adicionar Aluno </label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
+			)
+		}
+
 		else if (!isLoggedIn) {
 			return (
 				<>
@@ -314,7 +360,7 @@ function App() {
 							</div>
 
 							<div className='app--footer'>
-								<div className='app--buttonSecondary'>
+								<div className='app--buttonSecondary' onClick={() => setTelaEscola(true)}>
 									<p>A escola não está na lista</p>
 								</div>
 								<div
@@ -409,10 +455,11 @@ function App() {
 												<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
 											</div>
 										</label>
+										
 								))}
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonSecondary'>
+								<div className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
 									<p>Adicionar aluno manualmente</p>
 								</div>
 								<div
