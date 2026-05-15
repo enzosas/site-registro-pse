@@ -189,6 +189,9 @@ function App() {
 			voltar()
 		}
 	}
+	const pularPreenchimentoPesoAltura = () => {
+		avancar()
+	}
 
 	// controle dos eixos selecionados
 	const [eixosSelecionados, setEixosSelecionados] = useState([])
@@ -502,12 +505,20 @@ function App() {
 								/>
 							</div>
 
-							<div className='app--dados-aluno--footer'>
-								<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
-								<div className='app--buttonMain' onClick={proximoAluno}>
-									<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
+							<div className='app--footer'>
+								{alunoAtualIndex == 0 && (
+									<div className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
+										<p>Pular preenchimento de dados antropométricos</p>
+									</div>
+								)}
+								<div className='app--dados-aluno--footer'>
+									<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
+									<div className='app--buttonMain' onClick={proximoAluno}>
+										<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
+									</div>
 								</div>
 							</div>
+
 						</>
 					)}
 					{etapa === 7 && (
