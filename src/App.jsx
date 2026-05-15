@@ -246,8 +246,8 @@ function App() {
 		setTelaCadastroManual(false)
 	}
 
-	const handleGerarJson = () => {
-		const relatorioJSON = {
+	const obterRelatorioJSON = () => {
+		return {
 			data: `${dia}/${mes}/${ano}`,
 			escola: escolaSelecionada?.nome || '',
 			turma: turmaSelecionada?.nome || '',
@@ -264,8 +264,6 @@ function App() {
 					peso: dadosAlunos[aluno.id]?.peso || null
 				}))
 		}
-		console.log(JSON.stringify(relatorioJSON, null, 2))
-		avancar()
 	}
 
 	const renderizarConteudo = () => {
@@ -631,7 +629,16 @@ function App() {
 							<p className='app--title'>Tudo pronto!</p>
 
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={handleGerarJson}>
+								<div className='app--buttonSecondary' onClick={() => {
+									const dadosJSON = obterRelatorioJSON()
+									console.log(JSON.stringify(dadosJSON, null, 2))
+								}}>
+									<p>Log Json</p>
+								</div>
+								<div className='app--buttonMain'>
+									<p>Ver resumo</p>
+								</div>
+								<div className='app--buttonMain'>
 									<p>Gerar Relatório</p>
 								</div>
 							</div>
