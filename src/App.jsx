@@ -233,6 +233,19 @@ function App() {
 		setTelaAddAluno(false)
 	}
 
+	// variaveis para definicao manual do nome da escola e turma
+	const [telaCadastroManual, setTelaCadastroManual] = useState(false)
+	const [escolaManual, setEscolaManual] = useState('')
+	const [turmaManual, setTurmaManual] = useState('')
+
+	const handleSalvarManual = () => {
+		setEscolaSelecionada({ id: 'manual_escola', nome: escolaManual, turmas: [] })
+		setTurmaSelecionada({ id: 'manual_turma', nome: turmaManual, alunos: [] })
+		setAlunosPresentes([])
+		setEtapa(4)
+		setTelaCadastroManual(false)
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -277,6 +290,35 @@ function App() {
 								<div className='app--buttonMain' onClick={() => setTelaEscola(false)}>
 									<label> Cadastrar Escola </label>
 								</div>
+							</div>
+						</div>
+					</div>
+				</>
+			)
+		}
+
+		else if (telaCadastroManual) {
+			return (
+				<>
+					<div className='app--header-container'>
+						<p className='app--header'>Geração de Relatório</p>
+						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+					</div>
+					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+					<div className='app--card'>
+						<IconeVoltar className="icone-voltar" onClick={() => setTelaCadastroManual(false)} />
+						<p className='app--title'>Cadastro Manual</p>
+						<div className='app--input-group'>
+							<label> Nome da Escola </label>
+							<input type='text' value={escolaManual} onChange={(e) => setEscolaManual(e.target.value)} />
+						</div>
+						<div className='app--input-group'>
+							<label> Nome da Turma </label>
+							<input type='text' value={turmaManual} onChange={(e) => setTurmaManual(e.target.value)} />
+						</div>
+						<div className='app--footer'>
+							<div className='app--buttonMain' onClick={handleSalvarManual}>
+								<p>Avançar</p>
 							</div>
 						</div>
 					</div>
@@ -400,7 +442,7 @@ function App() {
 							</div>
 
 							<div className='app--footer'>
-								<div className='app--buttonSecondary' onClick={() => setTelaEscola(true)}>
+								<div className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
 									<p>A escola não está na lista</p>
 								</div>
 								<div
@@ -444,6 +486,9 @@ function App() {
 							</div>
 
 							<div className='app--footer'>
+								<div className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
+									<p>A turma não está na lista</p>
+								</div>
 								<div
 									className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
