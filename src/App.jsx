@@ -269,6 +269,44 @@ function App() {
 	// controla render tela resumo final
 	const [telaResumo, setTelaResumo] = useState(false)
 
+	// controla erro de area de transferencia
+	const [copiado, setCopiado] = useState(false)
+
+	const handleCopiarResumo = async () => {
+		const dados = obterRelatorioJSON()
+		const linhas = [
+			'Resumo da Visita',
+			'',
+			`Escola: ${dados.escola}`,
+			`Turma: ${dados.turma}`,
+			`Data: ${dados.data}`,
+			'',
+			'Eixos Selecionados:',
+			...dados.eixosTematicos.map(eixo => `- ${eixo}`),
+			'',
+			'Alunos:'
+		]
+
+		dados.alunosPresentes.forEach(aluno => {
+			let linhaAluno = `- ${aluno.nome} (${formatarData(aluno.dataNascimento)})`
+			if (aluno.peso || aluno.altura) {
+				const antropometria = []
+				if (aluno.peso) antropometria.push(`${aluno.peso}kg`)
+				if (aluno.altura) antropometria.push(`${aluno.altura}cm`)
+				linhaAluno += ` [${antropometria.join(' - ')}]`
+			}
+			linhas.push(linhaAluno)
+		})
+
+		try {
+			await navigator.clipboard.writeText(linhas.join('\n'))
+			setCopiado(true)
+			setTimeout(() => setCopiado(false), 2000)
+		} catch (erro) {
+			console.error('Erro ao copiar', erro)
+		}
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -454,6 +492,15 @@ function App() {
 										)}
 									</div>
 								))}
+							</div>
+						</div>
+						<div className='app--footer'>
+							<div className='app--buttonMain' onClick={() => {
+								const dadosJSON = obterRelatorioJSON()
+								console.log(JSON.stringify(dadosJSON, null, 2))
+								handleCopiarResumo();
+							}}>
+								<p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
 							</div>
 						</div>
 					</div>
@@ -682,13 +729,6 @@ function App() {
 							<p className='app--title'>Tudo pronto!</p>
 
 							<div className='app--footer'>
-								<div className='app--buttonSecondary' onClick={() => {
-									const dadosJSON = obterRelatorioJSON()
-									console.log(JSON.stringify(dadosJSON, null, 2))
-
-								}}>
-									<p>Log Json</p>
-								</div>
 								<div className='app--buttonMain' onClick={() => setTelaResumo(true)}>
 									<p>Ver resumo</p>
 								</div>
