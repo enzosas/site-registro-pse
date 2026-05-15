@@ -410,7 +410,7 @@ function App() {
 						</div>
 						<div className='app--footer'>
 							<div className='app--buttonMain' onClick={handleAdicionarAluno}>
-								<label> Adicionar Aluno </label>
+								<p> Adicionar Aluno </p>
 							</div>
 						</div>
 
