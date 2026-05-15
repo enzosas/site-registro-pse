@@ -1,5 +1,11 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
+const formatarData = (data) => {
+    if (!data) return ''
+    const partes = data.split('-')
+    return `${partes[2]}/${partes[1]}/${partes[0]}`
+}
+
 const styles = StyleSheet.create({
     page: {
         padding: 30,
@@ -74,7 +80,7 @@ export const RelatorioPDF = ({ dados }) => (
                 {dados.alunosPresentes.map((aluno, i) => (
                     <View key={i} style={styles.row}>
                         <Text style={styles.cellNome}>{aluno.nome}</Text>
-                        <Text style={styles.cellNasc}>{aluno.dataNascimento}</Text>
+                        <Text style={styles.cellNasc}>{formatarData(aluno.dataNascimento)}</Text>
                         <Text style={styles.cellPeso}>{aluno.peso ? `${aluno.peso}kg` : '-'}</Text>
                         <Text style={styles.cellAlt}>{aluno.altura ? `${aluno.altura}cm` : '-'}</Text>
                     </View>
