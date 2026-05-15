@@ -246,6 +246,28 @@ function App() {
 		setTelaCadastroManual(false)
 	}
 
+	const handleGerarJson = () => {
+		const relatorioJSON = {
+			data: `${dia}/${mes}/${ano}`,
+			escola: escolaSelecionada?.nome || '',
+			turma: turmaSelecionada?.nome || '',
+			eixosTematicos: eixosTematicosLista
+				.filter(eixo => eixosSelecionados.includes(eixo.id))
+				.map(eixo => eixo.label),
+			alunosPresentes: (turmaSelecionada?.alunos || [])
+				.filter(aluno => alunosPresentes.includes(aluno.id))
+				.map(aluno => ({
+					id: aluno.id,
+					nome: aluno.nome,
+					dataNascimento: aluno.dataNascimento,
+					altura: dadosAlunos[aluno.id]?.altura || null,
+					peso: dadosAlunos[aluno.id]?.peso || null
+				}))
+		}
+		console.log(JSON.stringify(relatorioJSON, null, 2))
+		avancar()
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -609,8 +631,8 @@ function App() {
 							<p className='app--title'>Tudo pronto!</p>
 
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={avancar}>
-									<p>Enviar Relatório</p>
+								<div className='app--buttonMain' onClick={handleGerarJson}>
+									<p>Gerar Relatório</p>
 								</div>
 							</div>
 						</>
