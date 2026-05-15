@@ -319,7 +319,7 @@ function App() {
 							<p>Gerar Relatório</p>
 						</div>
 					</div>
-					<img src="/pseLogo1.png" alt="Logo PSE" className="app--logo-pse" />
+					<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
 				</div>
 			)
 		}
@@ -365,7 +365,7 @@ function App() {
 				<>
 					<div className='app--header-container'>
 						<p className='app--header'>Geração de Relatório</p>
-						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<div className='app--card'>
@@ -394,7 +394,7 @@ function App() {
 				<>
 					<div className='app--header-container'>
 						<p className='app--header'>Geração de Relatório</p>
-						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<div className='app--card'>
@@ -457,7 +457,7 @@ function App() {
 				<>
 					<div className='app--header-container'>
 						<p className='app--header'>Geração de Relatório</p>
-						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<div className='app--card'>
@@ -514,7 +514,7 @@ function App() {
 			<>
 				<div className='app--header-container'>
 					<p className='app--header'>Geração de Relatório</p>
-					<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+					<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
