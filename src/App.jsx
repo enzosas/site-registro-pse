@@ -741,7 +741,7 @@ function App() {
 								>
 									{({ loading }) => (
 										<div className='app--buttonMain'>
-											<p>{loading ? 'A preparar...' : 'Gerar Relatório PDF'}</p>
+											<p>Gerar Relatório PDF</p>
 										</div>
 									)}
 								</PDFDownloadLink>
