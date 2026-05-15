@@ -77,18 +77,18 @@ const formatarData = (data) => {
 }
 
 function App() {
-	
+
 	// carrega as escolas mock do db.json
 	const [escolas, setEscolas] = useState(db.escolas)
-	
+
 	// gerenciadores das escolas
 	const [buscaEscola, setBuscaEscola] = useState('')
 	const [escolaSelecionada, setEscolaSelecionada] = useState(null)
-	
+
 	// gerenciadores das turmas
 	const [buscaTurma, setBuscaTurma] = useState('')
 	const [turmaSelecionada, setTurmaSelecionada] = useState(null)
-	
+
 	// estado para controlar os alunos presentes
 	const [alunosPresentes, setAlunosPresentes] = useState([])
 
@@ -97,7 +97,7 @@ function App() {
 	const [dadosAlunos, setDadosAlunos] = useState({})
 	const alunosSelecionados = turmaSelecionada?.alunos.filter(aluno => alunosPresentes.includes(aluno.id)) || []
 	const alunoAtual = alunosSelecionados[alunoAtualIndex]
-	
+
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
 	const [etapa, setEtapa] = useState(1)
@@ -133,9 +133,9 @@ function App() {
 
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const[telaAddEscola, setTelaEscola] = useState(false);
+	const [telaAddEscola, setTelaEscola] = useState(false);
 
-	const[telaAddAluno, setTelaAddAluno] = useState(false);
+	const [telaAddAluno, setTelaAddAluno] = useState(false);
 
 	// funcao para escolher as escolas que aparecem ao digitar algum nome na barra de pesquisa
 	const escolasFiltradas = escolas.filter(escola =>
@@ -203,6 +203,36 @@ function App() {
 		)
 	}
 
+	// variaveis para armazenar temporariamente dados do novo aluno
+	const [novoAlunoNome, setNovoAlunoNome] = useState('')
+	const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('')
+
+	// funcao para adicionar novo aluno
+	const handleAdicionarAluno = () => {
+		if (!novoAlunoNome || !turmaSelecionada) return
+
+		const partesData = novoAlunoDataNascimento.split('/')
+		const dataFormatada = `${partesData[2]}-${partesData[1]}-${partesData[0]}`
+
+		const novoAlunoId = Date.now()
+		const novoAluno = {
+			id: novoAlunoId,
+			nome: novoAlunoNome,
+			dataNascimento: dataFormatada
+		}
+
+		setTurmaSelecionada(prev => ({
+			...prev,
+			alunos: [...prev.alunos, novoAluno]
+		}))
+
+		setAlunosPresentes(prev => [...prev, novoAlunoId])
+
+		setNovoAlunoNome('')
+		setNovoAlunoDataNascimento('')
+		setTelaAddAluno(false)
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -217,63 +247,70 @@ function App() {
 				</div>
 			)
 		}
-		
+
 		else if (telaSenha) {
 			return (
-			<>
-				<div className='app--input-group'>
-					<div className='app--card'>
-						<IconeVoltar className="icone-voltar" onClick={() => setTelaSenha(false)} />
-						<div className='app--input-group'>
-							<label>Digite seu email</label>
-							<input type="text" />
-						</div>
-					</div>
-				</div>
-				
-			</>	
-			)
-		}
-
-		else if(telaAddEscola) {
-			return(
-		<>
-			<div className='app--card'>
-				<div className='app--input-group'>
-					<IconeVoltar className="icone-voltar" onClick={() => setTelaEscola(false)} />
+				<>
 					<div className='app--input-group'>
-						<label> Digite o nome da Escola </label>
-							<input type='text' />
-					<div className='app--buttonMain' onClick={() => setTelaEscola(false)}>
-						<label> Cadastrar Escola </label>
-						 </div>
+						<div className='app--card'>
+							<IconeVoltar className="icone-voltar" onClick={() => setTelaSenha(false)} />
+							<div className='app--input-group'>
+								<label>Digite seu email</label>
+								<input type="text" />
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-		</>
+
+				</>
 			)
 		}
 
-		else if(telaAddAluno) {
-			return(
-		<>
-			<div className='app--card'>
-				<div className='app--input-group'> 	
-					<IconeVoltar className="icone-voltar" onClick={() => setTelaAddAluno(false)} />
-				<div className='app--input-group' >
-					<label> Nome </label>
-						<input type="text" />
-					<label> Idade </label>
-						<input type="text"/>
-					<label> Peso </label>
-						<input type="text"/>
-				<div className='app--buttonMain' OnClick={() => setTelaAddAluno(false)}>
-					<label> Adicionar Aluno </label>
+		else if (telaAddEscola) {
+			return (
+				<>
+					<div className='app--card'>
+						<div className='app--input-group'>
+							<IconeVoltar className="icone-voltar" onClick={() => setTelaEscola(false)} />
+							<div className='app--input-group'>
+								<label> Digite o nome da Escola </label>
+								<input type='text' />
+								<div className='app--buttonMain' onClick={() => setTelaEscola(false)}>
+									<label> Cadastrar Escola </label>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-		</>
+				</>
+			)
+		}
+
+		else if (telaAddAluno) {
+			return (
+				<>
+					<div className='app--header-container'>
+						<p className='app--header'>Geração de Relatório</p>
+						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+					</div>
+					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+					<div className='app--card'>
+						<IconeVoltar className="icone-voltar" onClick={() => setTelaAddAluno(false)} />
+						<p className='app--title'>Adicionar aluno</p>
+						<div className='app--input-group'>
+							<label>Nome</label>
+							<input type="text" value={novoAlunoNome} onChange={(e) => setNovoAlunoNome(e.target.value)} placeholder="Digite aqui o nome completo" />
+						</div>
+						<div className='app--input-group'>
+							<label>Data de Nascimento</label>
+							<input type="text" value={novoAlunoDataNascimento} onChange={(e) => setNovoAlunoDataNascimento(e.target.value)} placeholder="DD/MM/AAAA" />
+						</div>
+						<div className='app--footer'>
+							<div className='app--buttonMain' onClick={handleAdicionarAluno}>
+								<label> Adicionar Aluno </label>
+							</div>
+						</div>
+
+					</div>
+				</>
 			)
 		}
 
@@ -379,7 +416,7 @@ function App() {
 					)}
 					{etapa === 3 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={() => {setTurmaSelecionada(null); voltar();}} />
+							<IconeVoltar className="icone-voltar" onClick={() => { setTurmaSelecionada(null); voltar(); }} />
 							<p className='app--title'>Selecione sua turma:</p>
 
 							<div className='app--search-container'>
@@ -435,7 +472,7 @@ function App() {
 								))}
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={() => {iniciaTodosAlunosPresentes(); avancar();}}>
+								<div className='app--buttonMain' onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}>
 									<p>Avançar</p>
 								</div>
 							</div>
@@ -447,18 +484,18 @@ function App() {
 							<p className='app--title'>Defina a lista de presença:</p>
 							<div className='app--list'>
 								{turmaSelecionada?.alunos.map((aluno) => (
-										<label key={aluno.id}>
-											<input
-												type="checkbox"
-												checked={alunosPresentes.includes(aluno.id)}
-												onChange={() => toggleAluno(aluno.id)}
-											/>
-											<div className='app--list--aluno-nascimento'>
-												{aluno.nome}
-												<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
-											</div>
-										</label>
-										
+									<label key={aluno.id}>
+										<input
+											type="checkbox"
+											checked={alunosPresentes.includes(aluno.id)}
+											onChange={() => toggleAluno(aluno.id)}
+										/>
+										<div className='app--list--aluno-nascimento'>
+											{aluno.nome}
+											<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
+										</div>
+									</label>
+
 								))}
 							</div>
 							<div className='app--footer'>
