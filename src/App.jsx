@@ -2,6 +2,8 @@ import { use } from 'react'
 import './App.css'
 import { useState } from 'react'
 import db from './db.json'
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { RelatorioPDF } from './RelatorioPDF';
 
 export function IconeVoltar({ onClick }) {
 	return (
@@ -732,9 +734,17 @@ function App() {
 								<div className='app--buttonMain' onClick={() => setTelaResumo(true)}>
 									<p>Ver resumo</p>
 								</div>
-								<div className='app--buttonMain'>
-									<p>Gerar Relatório</p>
-								</div>
+								<PDFDownloadLink
+									document={<RelatorioPDF dados={obterRelatorioJSON()} />}
+									fileName={`Relatorio_PSE_${dia}_${mes}_${ano}.pdf`}
+									style={{ textDecoration: 'none', display: 'block', width: '100%' }}
+								>
+									{({ loading }) => (
+										<div className='app--buttonMain'>
+											<p>{loading ? 'A preparar...' : 'Gerar Relatório PDF'}</p>
+										</div>
+									)}
+								</PDFDownloadLink>
 							</div>
 						</>
 					)}
