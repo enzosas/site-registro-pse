@@ -266,6 +266,9 @@ function App() {
 		}
 	}
 
+	// controla render tela resumo final
+	const [telaResumo, setTelaResumo] = useState(false)
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -401,6 +404,56 @@ function App() {
 							</div>
 							<div className='app--buttonMain' onClick={valida}>
 								<p>Entrar</p>
+							</div>
+						</div>
+					</div>
+				</>
+			)
+		}
+
+		else if (telaResumo) {
+			const dados = obterRelatorioJSON()
+			return (
+				<>
+					<div className='app--header-container'>
+						<p className='app--header'>Geração de Relatório</p>
+						<img src="/pseLogo2.png" alt="Logo" className="app--header-logo" />
+					</div>
+					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+					<div className='app--card'>
+						<IconeVoltar className="icone-voltar" onClick={() => setTelaResumo(false)} />
+						<p className='app--title'>Resumo da Visita</p>
+
+						<div className=''>
+							<p>Escola: {dados.escola}</p>
+							<p>Turma: {dados.turma}</p>
+							<p>Data: {dados.data}</p>
+						</div>
+
+						<div className=''>
+							<p className=''>Eixos Selecionados:</p>
+							<>
+								{dados.eixosTematicos.map((eixo, index) => (
+									<p key={index}>{eixo}</p>
+								))}
+							</>
+						</div>
+
+						<div className=''>
+							<p className=''>Alunos:</p>
+							<div className=''>
+								{dados.alunosPresentes.map((aluno) => (
+									<div key={aluno.id} className=''>
+											<span>{aluno.nome}</span>
+											<span className=''> {formatarData(aluno.dataNascimento)}</span>
+										{(aluno.peso || aluno.altura) && (
+											<>
+												{aluno.peso && <span> {aluno.peso}kg</span>}
+												{aluno.altura && <span> {aluno.altura}cm</span>}
+											</>
+										)}
+									</div>
+								))}
 							</div>
 						</div>
 					</div>
@@ -632,10 +685,11 @@ function App() {
 								<div className='app--buttonSecondary' onClick={() => {
 									const dadosJSON = obterRelatorioJSON()
 									console.log(JSON.stringify(dadosJSON, null, 2))
+
 								}}>
 									<p>Log Json</p>
 								</div>
-								<div className='app--buttonMain'>
+								<div className='app--buttonMain' onClick={() => setTelaResumo(true)}>
 									<p>Ver resumo</p>
 								</div>
 								<div className='app--buttonMain'>
