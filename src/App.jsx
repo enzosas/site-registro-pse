@@ -74,8 +74,7 @@ const eixosTematicosLista = [
 
 const formatarData = (data) => {
 	if (!data) return ''
-	const partes = data.split('-')
-	return `${partes[2]}/${partes[1]}/${partes[0]}`
+	return data
 }
 
 function App() {
@@ -214,7 +213,7 @@ function App() {
 		if (!novoAlunoNome || !turmaSelecionada) return
 
 		const partesData = novoAlunoDataNascimento.split('/')
-		const dataFormatada = `${partesData[2]}-${partesData[1]}-${partesData[0]}`
+		const dataFormatada = novoAlunoDataNascimento
 
 		const novoAlunoId = Date.now()
 		const novoAluno = {
