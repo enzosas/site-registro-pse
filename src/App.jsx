@@ -116,10 +116,21 @@ function App() {
 		setEtapa(etapa - 1)
 	}
 
-	const valida = () => {
-		setIsLoggedIn(true);
-	}
+	const [loginInput, setLoginInput] = useState('')
+	const [senhaInput, setSenhaInput] = useState('')
+	const [erroLogin, setErroLogin] = useState(false)
 
+	const valida = () => {
+		const userEnv = import.meta.env.VITE_USER
+		const passEnv = import.meta.env.VITE_PASS
+
+		if (loginInput === userEnv && senhaInput === passEnv) {
+			setIsLoggedIn(true)
+			setErroLogin(false)
+		} else {
+			setErroLogin(true)
+		}
+	}
 	// geracao automatica do dia de hoje para mostrar no preenchimento
 	// armazenamento da data da atividade
 	const hoje = new Date()
@@ -423,19 +434,28 @@ function App() {
 				<>
 					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
 					<div className='app--card'>
-						<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+						<IconeVoltar className="icone-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }} />
 						<p className='app--title'>Login</p>
 						<p>Programa Saúde nas Escolas</p>
 						<p>Santa Maria, RS</p>
 						<div className='login--input-group'>
 							<div className='app--input-group'>
-								<label>Login</label>
-								<input type="text" />
+								<label>login</label>
+								<input
+									type="text"
+									value={loginInput}
+									onChange={(e) => setLoginInput(e.target.value)}
+								/>
 							</div>
 							<div className='app--input-group'>
-								<label>Senha</label>
-								<input type="password" />
+								<label>senha</label>
+								<input
+									type="password"
+									value={senhaInput}
+									onChange={(e) => setSenhaInput(e.target.value)}
+								/>
 							</div>
+							{erroLogin && <p style={{ color: 'red', marginTop: '10px' }}>Credenciais inválidas</p>}
 						</div>
 						<div className='app--footer'>
 							<div className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
