@@ -1,3 +1,6 @@
+# Arquivo python que le uma pasta com as subpastas das escolas contendo os xlsx das turmas
+# Para usar, coloque esse arquivo no mesmo diretorio da pasta principal e altere os nomes de caminho
+
 import pandas as pd
 import json
 import os
