@@ -45,7 +45,7 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 				return (
 					<div key={passo} className="app--progress-step-container">
 						<div className={`app--progress-step ${statusClass}`}>
-							{statusClass === 'completed' && <IconeCheck />}
+							{statusClass === 'completed' && <IconeCheck bold/>}
 						</div>
 						{index < totalEtapas - 1 && (
 							<div className={`app--progress-line ${passo < etapaAtual ? 'completed' : 'pending'}`} />
