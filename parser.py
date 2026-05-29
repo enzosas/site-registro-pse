@@ -7,6 +7,7 @@ import os
 import warnings
 
 warnings.simplefilter("ignore", category=UserWarning)
+diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 
 # anotacoes das posicoes
 # coluna 5 = nomes
@@ -140,7 +141,7 @@ def processar_todas_pastas(diretorio_raiz):
     resultado_final = {"escolas": escolas_formatadas}
     
     # define o caminho de saida do json na pasta raiz e salva o arquivo
-    caminho_saida = os.path.join(diretorio_raiz, "banco_dados_completo.json")
+    caminho_saida = os.path.join(diretorio_atual, "banco_dados_completo.json")
     with open(caminho_saida, 'w', encoding='utf-8') as f:
         json.dump(resultado_final, f, indent=4, ensure_ascii=False)
         
@@ -148,5 +149,5 @@ def processar_todas_pastas(diretorio_raiz):
 
 
 # define as variaveis e executa
-pasta_pet_pse = r"c:\Users\enzos\OneDrive\Área de Trabalho\PET PSE"
-processar_todas_pastas(pasta_pet_pse)
+pasta_alvo = os.path.join(diretorio_atual, "PET PSE")
+processar_todas_pastas(pasta_alvo)
