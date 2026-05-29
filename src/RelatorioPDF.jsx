@@ -2,8 +2,7 @@ import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 const formatarData = (data) => {
     if (!data) return ''
-    const partes = data.split('-')
-    return `${partes[2]}/${partes[1]}/${partes[0]}`
+    return data
 }
 
 const styles = StyleSheet.create({
