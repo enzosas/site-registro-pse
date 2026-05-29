@@ -347,9 +347,9 @@ function App() {
 				<div className='app--column app--tela-inicial'>
 					<div className='app--tela-inicial-content'>
 						<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
-						<div className='app--buttonMain' onClick={() => setTelaInicial(false)}>
+						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
 							<p>Gerar Relatório</p>
-						</div>
+						</button>
 					</div>
 					<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
 				</div>
@@ -382,9 +382,9 @@ function App() {
 							<div className='app--input-group'>
 								<label> Digite o nome da Escola </label>
 								<input type='text' />
-								<div className='app--buttonMain' onClick={() => setTelaEscola(false)}>
+								<button className='app--buttonMain' onClick={() => setTelaEscola(false)}>
 									<label> Cadastrar Escola </label>
-								</div>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -412,9 +412,9 @@ function App() {
 							<input type='text' value={turmaManual} onChange={(e) => setTurmaManual(e.target.value)} />
 						</div>
 						<div className='app--footer'>
-							<div className='app--buttonMain' onClick={handleSalvarManual}>
+							<button className='app--buttonMain' onClick={handleSalvarManual}>
 								<p>Avançar</p>
-							</div>
+							</button>
 						</div>
 					</div>
 				</>
@@ -441,9 +441,9 @@ function App() {
 							<input type="text" value={novoAlunoDataNascimento} onChange={(e) => setNovoAlunoDataNascimento(e.target.value)} placeholder="DD/MM/AAAA" />
 						</div>
 						<div className='app--footer'>
-							<div className='app--buttonMain' onClick={handleAdicionarAluno}>
+							<button className='app--buttonMain' onClick={handleAdicionarAluno}>
 								<p> Adicionar Aluno </p>
-							</div>
+							</button>
 						</div>
 
 					</div>
@@ -539,13 +539,13 @@ function App() {
 							</div>
 						</div>
 						<div className='app--footer'>
-							<div className='app--buttonMain' onClick={() => {
+							<button className='app--buttonMain' onClick={() => {
 								const dadosJSON = obterRelatorioJSON()
 								console.log(JSON.stringify(dadosJSON, null, 2))
 								handleCopiarResumo();
 							}}>
 								<p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
-							</div>
+							</button>
 						</div>
 					</div>
 				</>
