@@ -136,7 +136,8 @@ function App() {
 	const [senhaInput, setSenhaInput] = useState('')
 	const [erroLogin, setErroLogin] = useState(false)
 
-	const validaLogin = async () => {
+	const validaLogin = async (e) => {
+		if (e) e.preventDefault();
 		const { data, error } = await supabase
 			.from('login')
 			.select('*')
@@ -454,7 +455,7 @@ function App() {
 			return (
 				<>
 					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
-					<div className='app--card'>
+					<form onSubmit={validaLogin} className='app--card'>
 						<IconeVoltar className="icone-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }} />
 						<p className='app--title'>Login</p>
 						<p>Programa Saúde nas Escolas</p>
@@ -479,14 +480,15 @@ function App() {
 							{erroLogin && <p style={{ color: 'red', marginTop: '10px' }}>Credenciais inválidas</p>}
 						</div>
 						<div className='app--footer'>
-							<div className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
+							<button type="button" className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
 								<p>Esqueci a senha</p>
-							</div>
-							<div className='app--buttonMain' onClick={validaLogin}>
+							</button>
+
+							<button type="submit" className='app--buttonMain'>
 								<p>Entrar</p>
-							</div>
+							</button>
 						</div>
-					</div>
+					</form>
 				</>
 			)
 		}
@@ -559,7 +561,7 @@ function App() {
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
 					{etapa === 1 && (
-						<>
+						<form onSubmit={(e) => { e.preventDefault(); avancar(); }} style={{ display: 'contents' }}>
 							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
 							<p className='app--title'>Digite a data da atividade:</p>
 							<div className='app--date-group'>
@@ -568,11 +570,11 @@ function App() {
 								<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' value={ano} onChange={(e) => setAno(e.target.value)} />
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={avancar}>
+								<button type="submit" className='app--buttonMain'>
 									<p>Avançar</p>
-								</div>
+								</button>
 							</div>
-						</>
+						</form>
 					)}
 					{etapa === 2 && (
 						<>
@@ -604,17 +606,17 @@ function App() {
 							</div>
 
 							<div className='app--footer'>
-								<div className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
+								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
 									<p>A escola não está na lista</p>
-								</div>
-								<div
+								</button>
+								<button
 									className={escolaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
 										if (escolaSelecionada) avancar()
 									}}
 								>
 									<p>Avançar</p>
-								</div>
+								</button>
 							</div>
 						</>
 					)}
@@ -648,17 +650,17 @@ function App() {
 							</div>
 
 							<div className='app--footer'>
-								<div className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
+								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
 									<p>A turma não está na lista</p>
-								</div>
-								<div
+								</button>
+								<button
 									className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
 										if (turmaSelecionada) avancar()
 									}}
 								>
 									<p>Avançar</p>
-								</div>
+								</button>
 							</div>
 						</>
 					)}
@@ -679,9 +681,9 @@ function App() {
 								))}
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}>
+								<button className='app--buttonMain' onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}>
 									<p>Avançar</p>
-								</div>
+								</button>
 							</div>
 						</>
 					)}
@@ -706,17 +708,17 @@ function App() {
 								))}
 							</div>
 							<div className='app--footer'>
-								<div className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
+								<button className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
 									<p>Adicionar aluno manualmente</p>
-								</div>
-								<div
+								</button>
+								<button
 									className={alunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
 										if (alunosPresentes.length > 0) avancar()
 									}}
 								>
 									<p>Avançar</p>
-								</div>
+								</button>
 							</div>
 						</>
 					)}
@@ -751,15 +753,15 @@ function App() {
 
 							<div className='app--footer'>
 								{alunoAtualIndex == 0 && (
-									<div className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
+									<button className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
 										<p>Pular preenchimento de dados antropométricos</p>
-									</div>
+									</button>
 								)}
 								<div className='app--dados-aluno--footer'>
 									<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
-									<div className='app--buttonMain' onClick={proximoAluno}>
+									<button className='app--buttonMain' onClick={proximoAluno}>
 										<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
-									</div>
+									</button>
 								</div>
 							</div>
 
@@ -771,18 +773,18 @@ function App() {
 							<p className='app--title'>Tudo pronto!</p>
 
 							<div className='app--footer'>
-								<div className='app--buttonMain' onClick={() => setTelaResumo(true)}>
+								<button className='app--buttonMain' onClick={() => setTelaResumo(true)}>
 									<p>Ver resumo</p>
-								</div>
+								</button>
 								<PDFDownloadLink
 									document={<RelatorioPDF dados={obterRelatorioJSON()} />}
 									fileName={`Relatorio_PSE_${dia}_${mes}_${ano}.pdf`}
 									style={{ textDecoration: 'none', display: 'block', width: '100%' }}
 								>
 									{({ loading }) => (
-										<div className='app--buttonMain'>
+										<button className='app--buttonMain'>
 											<p>Gerar Relatório PDF</p>
-										</div>
+										</button>
 									)}
 								</PDFDownloadLink>
 							</div>
