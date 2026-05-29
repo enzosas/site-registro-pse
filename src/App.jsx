@@ -264,7 +264,6 @@ function App() {
 
 		setNovoAlunoNome('')
 		setNovoAlunoDataNascimento('')
-		setTelaAddAluno(false)
 	}
 
 	// variaveis para definicao manual do nome da escola e turma
@@ -400,7 +399,14 @@ function App() {
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<div className='app--card'>
+					<form
+						className='app--card'
+						onSubmit={(e) => {
+							e.preventDefault();
+							if (!escolaManual.trim() || !turmaManual.trim()) return;
+							handleSalvarManual();
+						}}
+					>
 						<IconeVoltar className="icone-voltar" onClick={() => setTelaCadastroManual(false)} />
 						<p className='app--title'>Cadastro Manual</p>
 						<div className='app--input-group'>
@@ -412,11 +418,15 @@ function App() {
 							<input type='text' value={turmaManual} onChange={(e) => setTurmaManual(e.target.value)} />
 						</div>
 						<div className='app--footer'>
-							<button className='app--buttonMain' onClick={handleSalvarManual}>
+							<button
+								type="submit"
+								className={(!escolaManual.trim() || !turmaManual.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+								disabled={!escolaManual.trim() || !turmaManual.trim()}
+							>
 								<p>Avançar</p>
 							</button>
 						</div>
-					</div>
+					</form>
 				</>
 			)
 		}
@@ -429,24 +439,44 @@ function App() {
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<div className='app--card'>
+					<form
+						className='app--card'
+						onSubmit={(e) => {
+							e.preventDefault();
+							if (!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()) return;
+							handleAdicionarAluno();
+						}}
+					>
 						<IconeVoltar className="icone-voltar" onClick={() => setTelaAddAluno(false)} />
 						<p className='app--title'>Adicionar aluno</p>
 						<div className='app--input-group'>
 							<label>Nome</label>
-							<input type="text" value={novoAlunoNome} onChange={(e) => setNovoAlunoNome(e.target.value)} placeholder="Digite aqui o nome completo" />
+							<input
+								type="text"
+								value={novoAlunoNome}
+								onChange={(e) => setNovoAlunoNome(e.target.value)}
+								placeholder="Digite aqui o nome completo"
+							/>
 						</div>
 						<div className='app--input-group'>
 							<label>Data de Nascimento</label>
-							<input type="text" value={novoAlunoDataNascimento} onChange={(e) => setNovoAlunoDataNascimento(e.target.value)} placeholder="DD/MM/AAAA" />
+							<input
+								type="text"
+								value={novoAlunoDataNascimento}
+								onChange={(e) => setNovoAlunoDataNascimento(e.target.value)}
+								placeholder="DD/MM/AAAA"
+							/>
 						</div>
 						<div className='app--footer'>
-							<button className='app--buttonMain' onClick={handleAdicionarAluno}>
+							<button
+								type="submit"
+								className={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim() ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+								disabled={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()}
+							>
 								<p> Adicionar Aluno </p>
 							</button>
 						</div>
-
-					</div>
+					</form>
 				</>
 			)
 		}
