@@ -465,7 +465,7 @@ function App() {
 							handleAdicionarAluno();
 						}}
 					>
-						<button type="button" className="app--botao-voltar" onClick={() => telaAddAluno(false)}>
+						<button type="button" className="app--botao-voltar" onClick={() => setTelaAddAluno(false)}>
 							<IconeVoltar />
 						</button>
 						<p className='app--title'>Adicionar aluno</p>
@@ -628,7 +628,7 @@ function App() {
 							}}
 							style={{ display: 'contents' }}
 						>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaInicial(false)}>
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaInicial(true)}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Digite a data da atividade:</p>
