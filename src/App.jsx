@@ -6,9 +6,9 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
 
-export function IconeVoltar({ onClick }) {
+export function IconeVoltar() {
 	return (
-		<svg onClick={onClick} width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" className='app--botao-voltar'>
+		<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M20.625 11H1.375M1.375 11L11 20.625M1.375 11L11 1.375" stroke="#1E1E1E" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	)
@@ -139,19 +139,19 @@ function App() {
 	const [erroLogin, setErroLogin] = useState(false)
 
 	const validaLogin = async (e) => {
-		if (e) e.preventDefault();
-		const { data, error } = await supabase
-			.from('login')
-			.select('*')
-			.eq('login', loginInput)
-			.eq('senha', senhaInput)
+		if (e) e.preventDefault()
 
-		if (data && data.length > 0) {
+		const { data, error } = await supabase.auth.signInWithPassword({
+			email: loginInput,
+			password: senhaInput,
+		})
+
+		if (error) {
+			setErroLogin(true)
+		} else {
 			setIsLoggedIn(true)
 			setErroLogin(false)
 			buscarDados()
-		} else {
-			setErroLogin(true)
 		}
 	}
 
@@ -372,7 +372,9 @@ function App() {
 				<>
 					<div className='app--input-group'>
 						<div className='app--card'>
-							<IconeVoltar className="icone-voltar" onClick={() => setTelaSenha(false)} />
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaSenha(false)}>
+								<IconeVoltar />
+							</button>
 							<div className='app--input-group'>
 								<label>Digite seu email</label>
 								<input type="text" />
@@ -389,7 +391,9 @@ function App() {
 				<>
 					<div className='app--card'>
 						<div className='app--input-group'>
-							<IconeVoltar className="icone-voltar" onClick={() => setTelaEscola(false)} />
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaEscola(false)}>
+								<IconeVoltar />
+							</button>
 							<div className='app--input-group'>
 								<label> Digite o nome da Escola </label>
 								<input type='text' />
@@ -419,7 +423,9 @@ function App() {
 							handleSalvarManual();
 						}}
 					>
-						<IconeVoltar className="icone-voltar" onClick={() => setTelaCadastroManual(false)} />
+						<button type="button" className="app--botao-voltar" onClick={() => setTelaCadastroManual(false)}>
+							<IconeVoltar />
+						</button>
 						<p className='app--title'>Cadastro Manual</p>
 						<div className='app--input-group'>
 							<label> Nome da Escola </label>
@@ -459,7 +465,9 @@ function App() {
 							handleAdicionarAluno();
 						}}
 					>
-						<IconeVoltar className="icone-voltar" onClick={() => setTelaAddAluno(false)} />
+						<button type="button" className="app--botao-voltar" onClick={() => telaAddAluno(false)}>
+							<IconeVoltar />
+						</button>
 						<p className='app--title'>Adicionar aluno</p>
 						<div className='app--input-group'>
 							<label>Nome</label>
@@ -502,7 +510,9 @@ function App() {
 				<>
 					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
 					<form onSubmit={validaLogin} className='app--card'>
-						<IconeVoltar className="icone-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }} />
+						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }}>
+							<IconeVoltar />
+						</button>
 						<p className='app--title'>Login</p>
 						<p>Programa Saúde nas Escolas</p>
 						<p>Santa Maria, RS</p>
@@ -549,7 +559,9 @@ function App() {
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<div className='app--card'>
-						<IconeVoltar className="icone-voltar" onClick={() => setTelaResumo(false)} />
+						<button type="button" className="app--botao-voltar" onClick={() => setTelaResumo(false)}>
+							<IconeVoltar />
+						</button>
 						<p className='app--title'>Resumo da Visita</p>
 
 						<div className=''>
@@ -616,7 +628,9 @@ function App() {
 							}}
 							style={{ display: 'contents' }}
 						>
-							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaInicial(false)}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Digite a data da atividade:</p>
 							<div className='app--date-group'>
 								<input
@@ -657,7 +671,9 @@ function App() {
 					)}
 					{etapa === 2 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<button type="button" className="app--botao-voltar" onClick={voltar}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Selecione sua escola:</p>
 
 							<div className='app--search-container'>
@@ -701,7 +717,9 @@ function App() {
 					)}
 					{etapa === 3 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={() => { setTurmaSelecionada(null); voltar(); }} />
+							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltar(); }}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Selecione sua turma:</p>
 
 							<div className='app--search-container'>
@@ -745,7 +763,9 @@ function App() {
 					)}
 					{etapa === 4 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<button type="button" className="app--botao-voltar" onClick={voltar}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Defina os eixos temáticos:</p>
 							<div className='app--list'>
 								{eixosTematicosLista.map((eixo) => (
@@ -768,7 +788,9 @@ function App() {
 					)}
 					{etapa === 5 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<button type="button" className="app--botao-voltar" onClick={voltar}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Defina a lista de presença:</p>
 							<div className='app--list'>
 								{turmaSelecionada?.alunos.map((aluno) => (
@@ -803,7 +825,9 @@ function App() {
 					)}
 					{etapa === 6 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<button type="button" className="app--botao-voltar" onClick={voltar}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Preencha os dados de cada aluno:</p>
 
 							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosSelecionados.length}</p>
@@ -837,7 +861,9 @@ function App() {
 									</button>
 								)}
 								<div className='app--dados-aluno--footer'>
-									<IconeVoltar className="icone-voltar" onClick={alunoAnterior} />
+									<button type="button" className="app--botao-voltar" onClick={alunoAnterior}>
+										<IconeVoltar />
+									</button>
 									<button className='app--buttonMain' onClick={proximoAluno}>
 										<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
 									</button>
@@ -848,7 +874,9 @@ function App() {
 					)}
 					{etapa === 7 && (
 						<>
-							<IconeVoltar className="icone-voltar" onClick={voltar} />
+							<button type="button" className="app--botao-voltar" onClick={voltar}>
+								<IconeVoltar />
+							</button>
 							<p className='app--title'>Tudo pronto!</p>
 
 							<div className='app--footer'>
