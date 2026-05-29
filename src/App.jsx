@@ -786,7 +786,11 @@ function App() {
 								))}
 							</div>
 							<div className='app--footer'>
-								<button className='app--buttonMain' onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}>
+								<button
+									className={eixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+									onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}
+									disabled={eixosSelecionados.length === 0}
+								>
 									<p>Avançar</p>
 								</button>
 							</div>
