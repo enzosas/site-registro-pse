@@ -471,6 +471,18 @@ font-size: 2.1rem;
 	background-color: var(--cor-botao3);
 }
 
+.app--resumo--subtitle {
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1em;
+	margin-bottom: 0.25em;
+}
+
+.app--resumo span,
+.app--resumo p {
+	line-height: 1.25em;
+}
+
 @media (max-width: 1000px) {
   .app--column {
     width: 100%;

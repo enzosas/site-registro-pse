@@ -564,27 +564,33 @@ function App() {
 						</button>
 						<p className='app--title'>Resumo da Visita</p>
 
-						<div className=''>
-							<p>Escola: {dados.escola}</p>
-							<p>Turma: {dados.turma}</p>
-							<p>Data: {dados.data}</p>
-						</div>
 
-						<div className=''>
-							<p className=''>Eixos Selecionados:</p>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Escola</p>
+							<p>{dados.escola}</p>
+						</div>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Turma</p>
+							<p>{dados.turma}</p>
+						</div>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Data</p>
+							<p>{dados.data}</p>
+						</div>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Eixos Selecionados</p>
 							<>
 								{dados.eixosTematicos.map((eixo, index) => (
 									<p key={index}>{eixo}</p>
 								))}
 							</>
 						</div>
-
-						<div className=''>
-							<p className=''>Alunos:</p>
-							<div className=''>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Alunos</p>
+							<div className='app--resumo'>
 								{dados.alunosPresentes.map((aluno) => (
-									<div key={aluno.id} className=''>
-											<span>{aluno.nome}</span>
+									<div key={aluno.id} className='app--resumo'>
+											<span>{aluno.nome} - </span>
 											<span className=''> {formatarData(aluno.dataNascimento)}</span>
 										{(aluno.peso || aluno.altura) && (
 											<>
