@@ -4,11 +4,12 @@ import { useState } from 'react'
 import db from './db.json'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
+import { supabase } from './supabase';
 
 export function IconeVoltar({ onClick }) {
 	return (
 		<svg onClick={onClick} width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" className='app--botao-voltar'>
-			<path d="M20.625 11H1.375M1.375 11L11 20.625M1.375 11L11 1.375" stroke="#1E1E1E" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" />
+			<path d="M20.625 11H1.375M1.375 11L11 20.625M1.375 11L11 1.375" stroke="#1E1E1E" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	)
 }
@@ -16,7 +17,7 @@ export function IconeVoltar({ onClick }) {
 export function IconePesquisa() {
 	return (
 		<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M12.8 12.8L9.90005 9.89999M11.4667 6.13332C11.4667 9.07884 9.0789 11.4667 6.13338 11.4667C3.18786 11.4667 0.800049 9.07884 0.800049 6.13332C0.800049 3.1878 3.18786 0.799988 6.13338 0.799988C9.0789 0.799988 11.4667 3.1878 11.4667 6.13332Z" stroke="#1E1E1E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+			<path d="M12.8 12.8L9.90005 9.89999M11.4667 6.13332C11.4667 9.07884 9.0789 11.4667 6.13338 11.4667C3.18786 11.4667 0.800049 9.07884 0.800049 6.13332C0.800049 3.1878 3.18786 0.799988 6.13338 0.799988C9.0789 0.799988 11.4667 3.1878 11.4667 6.13332Z" stroke="#1E1E1E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	)
 }
@@ -80,7 +81,7 @@ const formatarData = (data) => {
 function App() {
 
 	// carrega as escolas mock do db.json
-	const [escolas, setEscolas] = useState(db.escolas)
+	const [escolas, setEscolas] = useState([])
 
 	// gerenciadores das escolas
 	const [buscaEscola, setBuscaEscola] = useState('')
@@ -116,21 +117,41 @@ function App() {
 		setEtapa(etapa - 1)
 	}
 
+	// funcao para buscar o json com as turmas no supabase
+	const buscarDados = async () => {
+		const { data, error } = await supabase
+			.from('dados')
+			.select('json')
+			.eq('id', 1)
+			.single()
+
+		if (error) {
+			console.error("Erro ao buscar dados do Supabase:", error)
+		} else {
+			setEscolas(data.json.escolas)
+		}
+	}
+
 	const [loginInput, setLoginInput] = useState('')
 	const [senhaInput, setSenhaInput] = useState('')
 	const [erroLogin, setErroLogin] = useState(false)
 
-	const valida = () => {
-		const userEnv = import.meta.env.VITE_USER
-		const passEnv = import.meta.env.VITE_PASS
+	const validaLogin = async () => {
+		const { data, error } = await supabase
+			.from('login')
+			.select('*')
+			.eq('login', loginInput)
+			.eq('senha', senhaInput)
 
-		if (loginInput === userEnv && senhaInput === passEnv) {
+		if (data && data.length > 0) {
 			setIsLoggedIn(true)
 			setErroLogin(false)
+			buscarDados()
 		} else {
 			setErroLogin(true)
 		}
 	}
+
 	// geracao automatica do dia de hoje para mostrar no preenchimento
 	// armazenamento da data da atividade
 	const hoje = new Date()
@@ -461,7 +482,7 @@ function App() {
 							<div className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
 								<p>Esqueci a senha</p>
 							</div>
-							<div className='app--buttonMain' onClick={valida}>
+							<div className='app--buttonMain' onClick={validaLogin}>
 								<p>Entrar</p>
 							</div>
 						</div>
