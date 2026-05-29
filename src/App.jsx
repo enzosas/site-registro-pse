@@ -1,6 +1,6 @@
 import { use } from 'react'
 import './App.css'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import db from './db.json'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
@@ -241,13 +241,14 @@ function App() {
 	const [novoAlunoNome, setNovoAlunoNome] = useState('')
 	const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('')
 
+	// cria a referência para o campo de nome
+	const nomeInputRef = useRef(null)
+
 	// funcao para adicionar novo aluno
 	const handleAdicionarAluno = () => {
 		if (!novoAlunoNome || !turmaSelecionada) return
 
-		const partesData = novoAlunoDataNascimento.split('/')
 		const dataFormatada = novoAlunoDataNascimento
-
 		const novoAlunoId = Date.now()
 		const novoAluno = {
 			id: novoAlunoId,
@@ -259,13 +260,17 @@ function App() {
 			...prev,
 			alunos: [...prev.alunos, novoAluno]
 		}))
-
 		setAlunosPresentes(prev => [...prev, novoAlunoId])
 
 		setNovoAlunoNome('')
 		setNovoAlunoDataNascimento('')
-	}
 
+		setTimeout(() => {
+			if (nomeInputRef.current) {
+				nomeInputRef.current.focus()
+			}
+		}, 10)
+	}
 	// variaveis para definicao manual do nome da escola e turma
 	const [telaCadastroManual, setTelaCadastroManual] = useState(false)
 	const [escolaManual, setEscolaManual] = useState('')
@@ -452,6 +457,7 @@ function App() {
 						<div className='app--input-group'>
 							<label>Nome</label>
 							<input
+								ref={nomeInputRef}
 								type="text"
 								value={novoAlunoNome}
 								onChange={(e) => setNovoAlunoNome(e.target.value)}
