@@ -22,10 +22,12 @@ export function IconePesquisa() {
 	)
 }
 
-export function IconeCheck({ className }) {
+export function IconeCheck({ className, bold = false }) {
 	return (
 		<svg className={className} width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M1.5 5.5L4.5 8.5L12.5 1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+			<path
+				d="M1.5 5.5L4.5 8.5L12.5 1.5" stroke="currentColor" strokeWidth={bold ? "3" : "1.5"} strokeLinecap="round" strokeLinejoin="round"
+			/>
 		</svg>
 	)
 }
@@ -241,6 +243,9 @@ function App() {
 	const [novoAlunoNome, setNovoAlunoNome] = useState('')
 	const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('')
 
+	// escreve se o aluno foi adicionado ao clicar
+	const [alunoAdicionadoAnim, setAlunoAdicionadoAnim] = useState(false)
+
 	// cria a referência para o campo de nome
 	const nomeInputRef = useRef(null)
 
@@ -265,6 +270,8 @@ function App() {
 		setNovoAlunoNome('')
 		setNovoAlunoDataNascimento('')
 
+		setAlunoAdicionadoAnim(true)
+		setTimeout(() => setAlunoAdicionadoAnim(false), 2000)
 		setTimeout(() => {
 			if (nomeInputRef.current) {
 				nomeInputRef.current.focus()
@@ -479,7 +486,10 @@ function App() {
 								className={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim() ? 'app--buttonMain__disabled' : 'app--buttonMain'}
 								disabled={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()}
 							>
-								<p> Adicionar Aluno </p>
+								<p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									{alunoAdicionadoAnim ? 'Aluno Adicionado' : 'Adicionar Aluno'}
+									{alunoAdicionadoAnim && <IconeCheck bold />}
+								</p>
 							</button>
 						</div>
 					</form>
