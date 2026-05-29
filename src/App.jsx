@@ -561,16 +561,49 @@ function App() {
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 				<div className='app--card'>
 					{etapa === 1 && (
-						<form onSubmit={(e) => { e.preventDefault(); avancar(); }} style={{ display: 'contents' }}>
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								// trava de segurança para o enter não enviar se faltar dados
+								if (!dia.trim() || !mes.trim() || !ano.trim()) return;
+								avancar();
+							}}
+							style={{ display: 'contents' }}
+						>
 							<IconeVoltar className="icone-voltar" onClick={() => setTelaInicial(true)} />
 							<p className='app--title'>Digite a data da atividade:</p>
 							<div className='app--date-group'>
-								<input type="text" placeholder="DD" maxLength="2" className='app--date-input' value={dia} onChange={(e) => setDia(e.target.value)} />
-								<input type="text" placeholder="MM" maxLength="2" className='app--date-input' value={mes} onChange={(e) => setMes(e.target.value)} />
-								<input type="text" placeholder="AAAA" maxLength="4" className='app--date-input' value={ano} onChange={(e) => setAno(e.target.value)} />
+								<input
+									type="text"
+									placeholder="DD"
+									maxLength="2"
+									className='app--date-input'
+									value={dia}
+									onChange={(e) => setDia(e.target.value)}
+								/>
+								<input
+									type="text"
+									placeholder="MM"
+									maxLength="2"
+									className='app--date-input'
+									value={mes}
+									onChange={(e) => setMes(e.target.value)}
+								/>
+								<input
+									type="text"
+									placeholder="AAAA"
+									maxLength="4"
+									className='app--date-input'
+									value={ano}
+									onChange={(e) => setAno(e.target.value)}
+								/>
 							</div>
 							<div className='app--footer'>
-								<button type="submit" className='app--buttonMain'>
+								<button
+									type="submit"
+									className={(!dia.trim() || !mes.trim() || !ano.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+									disabled={!dia.trim() || !mes.trim() || !ano.trim()}
+								>
 									<p>Avançar</p>
 								</button>
 							</div>
