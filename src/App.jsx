@@ -214,6 +214,9 @@ function App() {
 	const proximoAluno = () => {
 		if (alunoAtualIndex < alunosSelecionados.length - 1) {
 			setAlunoAtualIndex(alunoAtualIndex + 1)
+			setTimeout(() => {
+				if (alturaInputRef.current) alturaInputRef.current.focus()
+			}, 10)
 		} else {
 			avancar()
 		}
@@ -221,6 +224,9 @@ function App() {
 	const alunoAnterior = () => {
 		if (alunoAtualIndex > 0) {
 			setAlunoAtualIndex(alunoAtualIndex - 1)
+			setTimeout(() => {
+				if (alturaInputRef.current) alturaInputRef.current.focus()
+			}, 10)
 		} else {
 			voltar()
 		}
@@ -248,6 +254,9 @@ function App() {
 
 	// cria a referência para o campo de nome
 	const nomeInputRef = useRef(null)
+
+	// cria a referência para o campo de altura
+	const alturaInputRef = useRef(null)
 
 	// funcao para adicionar novo aluno
 	const handleAdicionarAluno = () => {
@@ -834,7 +843,13 @@ function App() {
 						</>
 					)}
 					{etapa === 6 && (
-						<>
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								proximoAluno();
+							}}
+							style={{ display: 'contents' }}
+						>
 							<button type="button" className="app--botao-voltar" onClick={voltar}>
 								<IconeVoltar />
 							</button>
@@ -847,6 +862,7 @@ function App() {
 							<div className='app--input-group'>
 								<label>Altura (cm)</label>
 								<input
+									ref={alturaInputRef}
 									type="number"
 									placeholder="Digite aqui a altura"
 									value={dadosAlunos[alunoAtual.id]?.altura || ''}
@@ -866,7 +882,7 @@ function App() {
 
 							<div className='app--footer'>
 								{alunoAtualIndex == 0 && (
-									<button className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
+									<button type="button" className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
 										<p>Pular preenchimento de dados antropométricos</p>
 									</button>
 								)}
@@ -874,13 +890,12 @@ function App() {
 									<button type="button" className="app--botao-voltar" onClick={alunoAnterior}>
 										<IconeVoltar />
 									</button>
-									<button className='app--buttonMain' onClick={proximoAluno}>
+									<button type="submit" className='app--buttonMain'>
 										<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
 									</button>
 								</div>
 							</div>
-
-						</>
+						</form>
 					)}
 					{etapa === 7 && (
 						<>
