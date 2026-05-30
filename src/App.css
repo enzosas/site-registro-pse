@@ -242,6 +242,11 @@ font-size: 2.1rem;
 	gap: 1rem;
 	stroke-width: 0.1rem;
 	align-items: center;
+	flex-shrink: 0;
+}
+
+.app--search-list--unidade svg {
+	flex-shrink: 0;
 }
 
 .app--list {
@@ -481,6 +486,10 @@ font-size: 2.1rem;
 .app--resumo span,
 .app--resumo p {
 	line-height: 1.25em;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 1000px) {
