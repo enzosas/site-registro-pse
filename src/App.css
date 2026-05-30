@@ -45,6 +45,7 @@
 	justify-content: center;
 	gap: 1rem;
 	width: 100%;
+	font-size: 1.25rem;
 }
 
 .app--header {
@@ -366,6 +367,7 @@ font-size: 2.1rem;
 	user-select: none;
 	cursor: pointer;
 	width: 1em;
+	font-size: 1.5rem;
 }
 
 .app--botao-voltar:hover {
@@ -378,6 +380,7 @@ font-size: 2.1rem;
 
 .app--contador {
 	color: var(--cor-botao2);
+	font-size: 1.25rem;
 }
 
 .app--nomeAluno {
