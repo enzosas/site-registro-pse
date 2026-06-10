@@ -137,9 +137,11 @@ function App() {
 	const [loginInput, setLoginInput] = useState('')
 	const [senhaInput, setSenhaInput] = useState('')
 	const [erroLogin, setErroLogin] = useState(false)
+	const [mensagemErro, setMensagemErro] = useState('')
 
 	const validaLogin = async (e) => {
 		if (e) e.preventDefault()
+		setMensagemErro('')
 
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email: loginInput,
@@ -147,10 +149,16 @@ function App() {
 		})
 
 		if (error) {
-			setErroLogin(true)
+			if (error.status === 400 || error.message.includes('Invalid login credentials')) {
+				setMensagemErro('credenciais inválidas')
+			} else if (error.status >= 500) {
+				setMensagemErro('servidor fora do ar. tente novamente mais tarde')
+			} else {
+				setMensagemErro('erro de conexão. verifique sua internet')
+			}
 		} else {
 			setIsLoggedIn(true)
-			setErroLogin(false)
+			setMensagemErro('')
 			buscarDados()
 		}
 	}
@@ -542,7 +550,7 @@ function App() {
 									onChange={(e) => setSenhaInput(e.target.value)}
 								/>
 							</div>
-							{erroLogin && <p style={{ color: 'red', marginTop: '10px' }}>Credenciais inválidas</p>}
+							{mensagemErro && <p style={{ color: 'red', marginTop: '10px' }}>{mensagemErro}</p>}
 						</div>
 						<div className='app--footer'>
 							<button type="button" className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
