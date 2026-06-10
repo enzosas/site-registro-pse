@@ -9,7 +9,8 @@
 }
 
 .app--column {
-	width: 33svw;
+	width: 100%;
+	max-width: 40rem;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
