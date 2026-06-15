@@ -182,14 +182,14 @@ function App() {
 	const [telaAddAluno, setTelaAddAluno] = useState(false);
 
 	// funcao para escolher as escolas que aparecem ao digitar algum nome na barra de pesquisa
-	const escolasFiltradas = escolas.filter(escola =>
-		escola.nome.toLowerCase().includes(buscaEscola.toLowerCase())
-	)
+	const escolasFiltradas = escolas
+		.filter(escola => escola.nome.toLowerCase().includes(buscaEscola.toLowerCase()))
+		.sort((a, b) => a.nome.localeCompare(b.nome))
 
 	// funcao para escolher as turmas que aparecem ao digitar algum nome na barra de pesquisa
-	const turmasFiltradas = escolaSelecionada?.turmas.filter(turma =>
-		turma.nome.toLowerCase().includes(buscaTurma.toLowerCase())
-	) || []
+	const turmasFiltradas = escolaSelecionada?.turmas
+		.filter(turma => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
+		.sort((a, b) => a.nome.localeCompare(b.nome)) || []
 
 	// remove ou adiciona o aluno presente
 	const toggleAluno = (idAluno) => {
