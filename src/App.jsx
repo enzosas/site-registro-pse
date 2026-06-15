@@ -369,6 +369,30 @@ function App() {
 		}
 	}
 
+	const formatarNome = (nome) => {
+		const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI']
+		const preposicoes = ['de', 'da', 'do', 'das', 'dos', 'e']
+		const regexRomano = /^(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$/i
+
+		return nome
+			.toLowerCase()
+			.split(' ')
+			.map((palavra, index) => {
+				const palavraMaiuscula = palavra.toUpperCase()
+
+				if (siglas.includes(palavraMaiuscula) || regexRomano.test(palavra)) {
+					return palavraMaiuscula
+				}
+
+				if (preposicoes.includes(palavra) && index !== 0) {
+					return palavra
+				}
+
+				return palavra.charAt(0).toUpperCase() + palavra.slice(1)
+			})
+			.join(' ')
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -717,7 +741,7 @@ function App() {
 											className='app--search-list--unidade'
 										>
 											{escolaSelecionada?.id === escola.id ? <IconeCheck /> : <></>}
-											{escola.nome}
+											{formatarNome(escola.nome)}
 										</div>
 									))}
 								</div>
@@ -763,7 +787,7 @@ function App() {
 											className='app--search-list--unidade'
 										>
 											{turmaSelecionada?.id === turma.id ? <IconeCheck /> : <></>}
-											{turma.nome}
+											{formatarNome(turma.nome)}
 										</div>
 									))}
 								</div>
