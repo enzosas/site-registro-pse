@@ -312,7 +312,7 @@ font-size: 2.1rem;
 
 .app--buttonSecondary {
 	color: var(--cor-botao2);
-	background-color: var(--cor-frame);
+	background-color: transparent;
 	font-weight: 500;
 	display: flex;
 	flex-direction: column;
@@ -490,6 +490,29 @@ font-size: 2.1rem;
 .app--resumo span,
 .app--resumo p {
 	line-height: 1.25em;
+}
+
+.app--ajuda--paragrafo {
+	margin-bottom: 0.5em;
+	text-align: justify;
+}
+
+.app--ajuda--subtitulo {
+	margin-bottom: 0.5em;
+	margin-top: 1em;
+	font-weight: 600;
+}
+
+.app--ajuda--titulo {
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1em;
+	margin-bottom: 0.25em;
+	margin-top: 1em;
+}
+
+.app--tela-inicial--ajuda {
+	font-size: 1.5rem;
 }
 
 * {

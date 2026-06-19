@@ -173,6 +173,8 @@ function App() {
 	// estado para controlar o render da tela inicial
 	const [telaInicial, setTelaInicial] = useState(true)
 
+	const [telaAjuda, setTelaAjuda] = useState(false)
+
 	const [telaSenha, setTelaSenha] = useState(false);
 
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -402,9 +404,46 @@ function App() {
 						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
 							<p>Gerar Relatório</p>
 						</button>
+						<button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={() => {setTelaAjuda(true); setTelaInicial(false)}}>
+							<p>Ajuda</p>
+						</button>
 					</div>
 					<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
 				</div>
+			)
+		}
+
+		if (telaAjuda) {
+			return (
+				<>
+					<form onSubmit={validaLogin} className='app--card'>
+						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setTelaAjuda(false); }}>
+							<IconeVoltar />
+						</button>
+						<p className='app--title'>Ajuda</p>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Sobre o app</p>
+							<p className='app--ajuda--paragrafo'>Este aplicativo foi criado para facilitar o registro das atividades do Programa Saúde na Escola (PSE), substituindo as antigas planilhas de papel usadas durante as visitas.</p>
+							<p className='app--ajuda--paragrafo'>Com ele, você consegue registrar rapidamente pelo celular quem estava presente,marcar os temas abordados na sala (como ações de nutrição ou saúde bucal) e já salvar os dados coletados na hora, como peso e altura. </p>
+							<p className='app--ajuda--paragrafo'>O objetivo é que você saia da escola com o relatório pronto para ser copiado ou salvo em pdf.</p>
+						</div>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Guia prático de preenchimento</p>
+							<p className='app--ajuda--subtitulo'>Escolas e turmas</p>
+							<p className='app--ajuda--paragrafo'>Selecione a escola e a turma pesquisando na lista. Caso não encontre, clique no botão secundário "a escola/turma não está na lista" no final da tela para fazer o cadastro manual.</p>
+							<p className='app--ajuda--subtitulo'>Eixos temáticos</p>
+							<p className='app--ajuda--paragrafo'>Você pode marcar mais de uma opção. Selecione todos os temas de saúde que foram abordados na sala durante a sua visita.</p>
+							<p className='app--ajuda--subtitulo'>Lista de presença e alunos novos</p>
+							<p className='app--ajuda--paragrafo'>A lista de alunos da turma vai aparecer automaticamente, basta marcar os presentes. Se houver algum aluno na sala que não está no sistema, clique em "adicionar aluno manualmente" no fim da tela e insira o nome e a data de nascimento dele.</p>
+							<p className='app--ajuda--subtitulo'>Peso e altura (antropometria)</p>
+							<p className='app--ajuda--paragrafo'>Este preenchimento não é obrigatório. Se a sua atividade for apenas educativa e você não for pesar ou medir os alunos, basta clicar no botão "pular preenchimento de dados antropométricos".</p>
+							<p className='app--ajuda--subtitulo'>Salvando o relatório</p>
+							<p className='app--ajuda--paragrafo'>Na última tela, você tem duas opções. "gerar relatório pdf" baixa o arquivo direto no seu celular. Se preferir, clique em "ver resumo" e depois em "copiar resumo" para colar os dados em texto direto no seu whatsapp ou e-mail.</p>
+							<p className='app--ajuda--subtitulo'>Suporte</p>
+							<p className='app--ajuda--paragrafo'>Em caso de erro no login ou dúvidas sobre o preenchimento, entre em contato com a coordenação do programa.</p>
+						</div>
+					</form>
+				</>
 			)
 		}
 
