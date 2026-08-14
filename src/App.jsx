@@ -1,7 +1,5 @@
-import { use } from 'react'
 import './App.css'
 import { useState, useRef } from 'react'
-import db from './db.json'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
@@ -98,7 +96,7 @@ function App() {
 
 	// estados do preenchimento do peso e altura
 	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
-	const [dadosAlunos, setDadosAlunos] = useState({})
+	const [antropometriaAlunos, setAntropometriaAlunos] = useState({})
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
@@ -134,10 +132,9 @@ function App() {
 
 	const [loginInput, setLoginInput] = useState('')
 	const [senhaInput, setSenhaInput] = useState('')
-	const [erroLogin, setErroLogin] = useState(false)
 	const [mensagemErro, setMensagemErro] = useState('')
 
-	const validaLogin = async (e) => {
+	const handleLogin = async (e) => {
 		if (e) e.preventDefault()
 		setMensagemErro('')
 
@@ -173,11 +170,11 @@ function App() {
 
 	const [telaAjuda, setTelaAjuda] = useState(false)
 
-	const [telaSenha, setTelaSenha] = useState(false);
+	const [telaEsqueciSenha, setTelaEsqueciSenha] = useState(false);
 
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const [telaAddEscola, setTelaEscola] = useState(false);
+	const [telaAddEscola, setTelaAddEscola] = useState(false);
 
 	const [telaAddAluno, setTelaAddAluno] = useState(false);
 
@@ -212,15 +209,15 @@ function App() {
 	}
 
 	// define todos alunos como presentes
-	const iniciaTodosAlunosPresentes = () => {
+	const marcarTodosPresentes = () => {
 		if (turmaSelecionada) {
 			setIdsAlunosPresentes(alunosOrdenados.map(aluno => aluno.id))
 		}
 	}
 
 	// preenche dados peso altura
-	const handleMudancaDados = (campo, valor) => {
-		setDadosAlunos(prev => ({
+	const handleAtualizarAntropometria = (campo, valor) => {
+		setAntropometriaAlunos(prev => ({
 			...prev,
 			[alunoAtualTelaAntropometria.id]: {
 				...prev[alunoAtualTelaAntropometria.id],
@@ -255,9 +252,9 @@ function App() {
 	}
 
 	// controle dos eixos selecionados
-	const [eixosSelecionados, setEixosSelecionados] = useState([])
+	const [idsEixosSelecionados, setIdsEixosSelecionados] = useState([])
 	const toggleEixo = (idEixo) => {
-		setEixosSelecionados(prev =>
+		setIdsEixosSelecionados(prev =>
 			prev.includes(idEixo)
 				? prev.filter(id => id !== idEixo)
 				: [...prev, idEixo]
@@ -319,13 +316,13 @@ function App() {
 		setTelaCadastroManual(false)
 	}
 
-	const obterRelatorioJSON = () => {
+	const gerarObjetoRelatorio = () => {
 		return {
 			data: `${dia}/${mes}/${ano}`,
 			escola: escolaSelecionada?.nome || '',
 			turma: turmaSelecionada?.nome || '',
 			eixosTematicos: eixosTematicosLista
-				.filter(eixo => eixosSelecionados.includes(eixo.id))
+				.filter(eixo => idsEixosSelecionados.includes(eixo.id))
 				.map(eixo => eixo.label),
 			alunosPresentes: (turmaSelecionada?.alunos || [])
 				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
@@ -333,8 +330,8 @@ function App() {
 					id: aluno.id,
 					nome: aluno.nome,
 					dataNascimento: aluno.dataNascimento,
-					altura: dadosAlunos[aluno.id]?.altura || null,
-					peso: dadosAlunos[aluno.id]?.peso || null
+					altura: antropometriaAlunos[aluno.id]?.altura || null,
+					peso: antropometriaAlunos[aluno.id]?.peso || null
 				}))
 		}
 	}
@@ -346,7 +343,7 @@ function App() {
 	const [copiado, setCopiado] = useState(false)
 
 	const handleCopiarResumo = async () => {
-		const dados = obterRelatorioJSON()
+		const dados = gerarObjetoRelatorio()
 		const linhas = [
 			'Resumo da Visita',
 			'',
@@ -425,7 +422,7 @@ function App() {
 		if (telaAjuda) {
 			return (
 				<>
-					<form onSubmit={validaLogin} className='app--card'>
+					<form onSubmit={handleLogin} className='app--card'>
 						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setTelaAjuda(false); }}>
 							<IconeVoltar />
 						</button>
@@ -456,12 +453,12 @@ function App() {
 			)
 		}
 
-		else if (telaSenha) {
+		else if (telaEsqueciSenha) {
 			return (
 				<>
 					<div className='app--input-group'>
 						<div className='app--card'>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaSenha(false)}>
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaEsqueciSenha(false)}>
 								<IconeVoltar />
 							</button>
 							<div className='app--input-group'>
@@ -480,13 +477,13 @@ function App() {
 				<>
 					<div className='app--card'>
 						<div className='app--input-group'>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaEscola(false)}>
+							<button type="button" className="app--botao-voltar" onClick={() => setTelaAddEscola(false)}>
 								<IconeVoltar />
 							</button>
 							<div className='app--input-group'>
 								<label> Digite o nome da Escola </label>
 								<input type='text' />
-								<button className='app--buttonMain' onClick={() => setTelaEscola(false)}>
+								<button className='app--buttonMain' onClick={() => setTelaAddEscola(false)}>
 									<label> Cadastrar Escola </label>
 								</button>
 							</div>
@@ -598,7 +595,7 @@ function App() {
 			return (
 				<>
 					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
-					<form onSubmit={validaLogin} className='app--card'>
+					<form onSubmit={handleLogin} className='app--card'>
 						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }}>
 							<IconeVoltar />
 						</button>
@@ -625,7 +622,7 @@ function App() {
 							{mensagemErro && <p style={{ color: 'red', marginTop: '10px' }}>{mensagemErro}</p>}
 						</div>
 						<div className='app--footer'>
-							<button type="button" className='app--buttonSecondary' onClick={() => setTelaSenha(true)}>
+							<button type="button" className='app--buttonSecondary' onClick={() => setTelaEsqueciSenha(true)}>
 								<p>Esqueci a senha</p>
 							</button>
 
@@ -639,7 +636,7 @@ function App() {
 		}
 
 		else if (telaResumo) {
-			const dados = obterRelatorioJSON()
+			const dados = gerarObjetoRelatorio()
 			return (
 				<>
 					<div className='app--header-container'>
@@ -693,7 +690,7 @@ function App() {
 						</div>
 						<div className='app--footer'>
 							<button className='app--buttonMain' onClick={() => {
-								const dadosJSON = obterRelatorioJSON()
+								const dadosJSON = gerarObjetoRelatorio()
 								console.log(JSON.stringify(dadosJSON, null, 2))
 								handleCopiarResumo();
 							}}>
@@ -867,7 +864,7 @@ function App() {
 									<label key={eixo.id}>
 										<input
 											type="checkbox"
-											checked={eixosSelecionados.includes(eixo.id)}
+											checked={idsEixosSelecionados.includes(eixo.id)}
 											onChange={() => toggleEixo(eixo.id)}
 										/>
 										{eixo.label}
@@ -876,9 +873,9 @@ function App() {
 							</div>
 							<div className='app--footer'>
 								<button
-									className={eixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-									onClick={() => { iniciaTodosAlunosPresentes(); avancar(); }}
-									disabled={eixosSelecionados.length === 0}
+									className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+									onClick={() => { marcarTodosPresentes(); avancar(); }}
+									disabled={idsEixosSelecionados.length === 0}
 								>
 									<p>Avançar</p>
 								</button>
@@ -945,8 +942,8 @@ function App() {
 									ref={alturaInputRef}
 									type="number"
 									placeholder="Digite aqui a altura"
-									value={dadosAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
-									onChange={(e) => handleMudancaDados('altura', e.target.value)}
+									value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
+									onChange={(e) => handleAtualizarAntropometria('altura', e.target.value)}
 								/>
 							</div>
 
@@ -955,8 +952,8 @@ function App() {
 								<input
 									type="number"
 									placeholder="Digite aqui o peso"
-									value={dadosAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
-									onChange={(e) => handleMudancaDados('peso', e.target.value)}
+									value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
+									onChange={(e) => handleAtualizarAntropometria('peso', e.target.value)}
 								/>
 							</div>
 
@@ -989,7 +986,7 @@ function App() {
 									<p>Ver resumo</p>
 								</button>
 								<PDFDownloadLink
-									document={<RelatorioPDF dados={obterRelatorioJSON()} />}
+									document={<RelatorioPDF dados={gerarObjetoRelatorio()} />}
 									fileName={`Relatorio_PSE_${dia}_${mes}_${ano}.pdf`}
 									style={{ textDecoration: 'none', display: 'block', width: '100%' }}
 								>
