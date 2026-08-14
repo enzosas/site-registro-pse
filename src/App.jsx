@@ -103,16 +103,25 @@ function App() {
 	const [etapa, setEtapa] = useState(1)
 
 	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
-	const avancar = () => {
-		setEtapa(etapa + 1)
+	const avancarEtapa = () => {
+		if (etapa === 5 && !temAntropometria) {
+			setEtapa(7)
+			return
+		}
+		setEtapa(prev => prev + 1)
 	}
 
 	// mesma coisa so que de ré
-	const voltar = () => {
+	const voltarEtapa = () => {
+		if (etapa === 7 && !temAntropometria) {
+			setEtapa(5)
+			return
+		}
+		
 		if (etapa === 6) {
 			setAlunoAtualIndex(0)
 		}
-		setEtapa(etapa - 1)
+		setEtapa(prev => prev - 1)
 	}
 
 	// funcao para buscar o json com as turmas no supabase
@@ -234,7 +243,7 @@ function App() {
 				if (alturaInputRef.current) alturaInputRef.current.focus()
 			}, 10)
 		} else {
-			avancar()
+			avancarEtapa()
 		}
 	}
 	const alunoAnterior = () => {
@@ -244,11 +253,11 @@ function App() {
 				if (alturaInputRef.current) alturaInputRef.current.focus()
 			}, 10)
 		} else {
-			voltar()
+			voltarEtapa()
 		}
 	}
 	const pularPreenchimentoPesoAltura = () => {
-		avancar()
+		avancarEtapa()
 	}
 
 	// controle dos eixos selecionados
@@ -260,6 +269,8 @@ function App() {
 				: [...prev, idEixo]
 		)
 	}
+
+	const temAntropometria = idsEixosSelecionados.includes(3)
 
 	// variaveis para armazenar temporariamente dados do novo aluno
 	const [novoAlunoNome, setNovoAlunoNome] = useState('')
@@ -716,7 +727,7 @@ function App() {
 								e.preventDefault();
 								// trava de segurança para o enter não enviar se faltar dados
 								if (!dia.trim() || !mes.trim() || !ano.trim()) return;
-								avancar();
+								avancarEtapa();
 							}}
 							style={{ display: 'contents' }}
 						>
@@ -763,7 +774,7 @@ function App() {
 					)}
 					{etapa === 2 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={voltar}>
+							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Selecione sua escola:</p>
@@ -799,7 +810,7 @@ function App() {
 								<button
 									className={escolaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
-										if (escolaSelecionada) avancar()
+										if (escolaSelecionada) avancarEtapa()
 									}}
 								>
 									<p>Avançar</p>
@@ -809,7 +820,7 @@ function App() {
 					)}
 					{etapa === 3 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltar(); }}>
+							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltarEtapa(); }}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Selecione sua turma:</p>
@@ -845,7 +856,7 @@ function App() {
 								<button
 									className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
-										if (turmaSelecionada) avancar()
+										if (turmaSelecionada) avancarEtapa()
 									}}
 								>
 									<p>Avançar</p>
@@ -855,7 +866,7 @@ function App() {
 					)}
 					{etapa === 4 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={voltar}>
+							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Defina os eixos temáticos:</p>
@@ -874,7 +885,7 @@ function App() {
 							<div className='app--footer'>
 								<button
 									className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-									onClick={() => { marcarTodosPresentes(); avancar(); }}
+									onClick={() => { marcarTodosPresentes(); avancarEtapa(); }}
 									disabled={idsEixosSelecionados.length === 0}
 								>
 									<p>Avançar</p>
@@ -884,7 +895,7 @@ function App() {
 					)}
 					{etapa === 5 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={voltar}>
+							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Defina a lista de presença:</p>
@@ -911,7 +922,7 @@ function App() {
 								<button
 									className={idsAlunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
-										if (idsAlunosPresentes.length > 0) avancar()
+										if (idsAlunosPresentes.length > 0) avancarEtapa()
 									}}
 								>
 									<p>Avançar</p>
@@ -927,7 +938,7 @@ function App() {
 							}}
 							style={{ display: 'contents' }}
 						>
-							<button type="button" className="app--botao-voltar" onClick={voltar}>
+							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Preencha os dados de cada aluno:</p>
@@ -976,7 +987,7 @@ function App() {
 					)}
 					{etapa === 7 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={voltar}>
+							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Tudo pronto!</p>
