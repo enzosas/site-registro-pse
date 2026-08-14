@@ -324,7 +324,7 @@ function App() {
 			eixosTematicos: eixosTematicosLista
 				.filter(eixo => idsEixosSelecionados.includes(eixo.id))
 				.map(eixo => eixo.label),
-			alunosPresentes: (turmaSelecionada?.alunos || [])
+			alunosPresentes: alunosOrdenados
 				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
 				.map(aluno => ({
 					id: aluno.id,
