@@ -243,10 +243,16 @@ function App() {
 				if (alturaInputRef.current) alturaInputRef.current.focus()
 			}, 10)
 		} else {
-			avancarEtapa()
+			const pendentes = obterAlunosPendentes()
+			if (pendentes.length > 0) {
+				setMostrarAlunosPendentes(true)
+			} else {
+				avancarEtapa()
+			}
 		}
 	}
 	const alunoAnterior = () => {
+		setMostrarAlunosPendentes(false)
 		if (alunoAtualIndex > 0) {
 			setAlunoAtualIndex(alunoAtualIndex - 1)
 			setTimeout(() => {
@@ -255,9 +261,6 @@ function App() {
 		} else {
 			voltarEtapa()
 		}
-	}
-	const pularPreenchimentoPesoAltura = () => {
-		avancarEtapa()
 	}
 
 	// controle dos eixos selecionados
@@ -420,6 +423,27 @@ function App() {
 			.join(' ')
 	}
 
+	const [mostrarAlunosPendentes, setMostrarAlunosPendentes] = useState(false)
+
+	const obterAlunosPendentes = () => {
+		return alunosPresentes.filter(aluno => {
+			const dados = antropometriaAlunos[aluno.id] || {}
+
+			if (temAntropometria) {
+				if (!dados.altura || !String(dados.altura).trim()) return true
+				if (!dados.peso || !String(dados.peso).trim()) return true
+			}
+
+			if (temVacinacao) {
+				if (!dados.vacinado) return true
+			}
+
+			return false
+		})
+	}
+
+	const [alunosPendentes, setAlunosPendentes] = useState({});
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -460,8 +484,8 @@ function App() {
 							<p className='app--ajuda--paragrafo'>Você pode marcar mais de uma opção. Selecione todos os temas de saúde que foram abordados na sala durante a sua visita.</p>
 							<p className='app--ajuda--subtitulo'>Lista de presença e alunos novos</p>
 							<p className='app--ajuda--paragrafo'>A lista de alunos da turma vai aparecer automaticamente, basta marcar os presentes. Se houver algum aluno na sala que não está no sistema, clique em "adicionar aluno manualmente" no fim da tela e insira o nome e a data de nascimento dele.</p>
-							<p className='app--ajuda--subtitulo'>Peso e altura (antropometria)</p>
-							<p className='app--ajuda--paragrafo'>Este preenchimento não é obrigatório. Se a sua atividade for apenas educativa e você não for pesar ou medir os alunos, basta clicar no botão "pular preenchimento de dados antropométricos".</p>
+							<p className='app--ajuda--subtitulo'>Peso, altura ou vacinação (antropometria)</p>
+							<p className='app--ajuda--paragrafo'>Se a sua atividade conter um ou mais eixos temáticos com estas atividaes, você deverá preencher, para cada aluno presente na atividade, em ordem alfabética, as informações solicitadas.</p>
 							<p className='app--ajuda--subtitulo'>Salvando o relatório</p>
 							<p className='app--ajuda--paragrafo'>Na última tela, você tem duas opções. "gerar relatório pdf" baixa o arquivo direto no seu celular. Se preferir, clique em "ver resumo" e depois em "copiar resumo" para colar os dados em texto direto no seu whatsapp ou e-mail.</p>
 							<p className='app--ajuda--subtitulo'>Suporte</p>
@@ -1017,10 +1041,26 @@ function App() {
 							)}
 							
 							<div className='app--footer'>
-								{alunoAtualIndex == 0 && (
-									<button type="button" className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>
-										<p>Pular preenchimento de dados antropométricos</p>
-									</button>
+								{mostrarAlunosPendentes && (
+									<>
+										<div className='app--tela-vacinacao--pendentes'>
+											Os seguintes alunos estão com dados faltando:
+										</div>
+										{obterAlunosPendentes().map((aluno) => {
+											const indexAluno = alunosPresentes.findIndex(a => a.id === aluno.id)
+											return (
+												<div
+													key={aluno.id}
+													onClick={() => {
+														setAlunoAtualIndex(indexAluno)
+														setMostrarAlunosPendentes(false)
+													}}
+												>
+													<span className='app--tela-vacinacao--pendentes'>{aluno.nome}</span>
+												</div>
+											)
+										})}
+									</>
 								)}
 								<div className='app--dados-aluno--footer'>
 									<button type="button" className="app--botao-voltar" onClick={alunoAnterior}>
