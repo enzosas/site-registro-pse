@@ -42,10 +42,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         backgroundColor: '#F9F9F9',
     },
-    cellNome: { width: '40%' },
-    cellNasc: { width: '25%' },
-    cellPeso: { width: '17.5%', textAlign: 'center' },
-    cellAlt: { width: '17.5%', textAlign: 'center' },
+    cellNome: { width: '35%' },
+    cellNasc: { width: '20%' },
+    cellPeso: { width: '15%', textAlign: 'center' },
+    cellAlt: { width: '15%', textAlign: 'center' },
+    cellVacina: { width: '15%', textAlign: 'center' },
 });
 
 export const RelatorioPDF = ({ dados }) => (
@@ -75,6 +76,7 @@ export const RelatorioPDF = ({ dados }) => (
                     <Text style={styles.cellNasc}>Nascimento</Text>
                     <Text style={styles.cellPeso}>Peso</Text>
                     <Text style={styles.cellAlt}>Altura</Text>
+                    <Text style={styles.cellVacina}>Vacina</Text>
                 </View>
                 {dados.alunosPresentes.map((aluno, i) => (
                     <View key={i} style={styles.row}>
@@ -82,6 +84,9 @@ export const RelatorioPDF = ({ dados }) => (
                         <Text style={styles.cellNasc}>{formatarData(aluno.dataNascimento)}</Text>
                         <Text style={styles.cellPeso}>{aluno.peso ? `${aluno.peso}kg` : '-'}</Text>
                         <Text style={styles.cellAlt}>{aluno.altura ? `${aluno.altura}cm` : '-'}</Text>
+                        <Text style={styles.cellVacina}>
+                            {aluno.vacinado === 'sim' ? 'Em dia' : aluno.vacinado === 'nao' ? 'Pendente' : '-'}
+                        </Text>
                     </View>
                 ))}
             </View>

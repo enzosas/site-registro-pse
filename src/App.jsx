@@ -104,7 +104,7 @@ function App() {
 
 	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
 	const avancarEtapa = () => {
-		if (etapa === 5 && !temAntropometria) {
+		if (etapa === 5 && !temAvaliacaoIndividual) {
 			setEtapa(7)
 			return
 		}
@@ -113,7 +113,7 @@ function App() {
 
 	// mesma coisa so que de ré
 	const voltarEtapa = () => {
-		if (etapa === 7 && !temAntropometria) {
+		if (etapa === 7 && !temAvaliacaoIndividual) {
 			setEtapa(5)
 			return
 		}
@@ -271,6 +271,10 @@ function App() {
 	}
 
 	const temAntropometria = idsEixosSelecionados.includes(3)
+	const temVacinacao = idsEixosSelecionados.includes(7)
+
+	// condição para exibir a Etapa 6 (se qualquer questionário individual estiver ativo)
+	const temAvaliacaoIndividual = temAntropometria || temVacinacao
 
 	// variaveis para armazenar temporariamente dados do novo aluno
 	const [novoAlunoNome, setNovoAlunoNome] = useState('')
@@ -342,11 +346,12 @@ function App() {
 					nome: aluno.nome,
 					dataNascimento: aluno.dataNascimento,
 					altura: antropometriaAlunos[aluno.id]?.altura || null,
-					peso: antropometriaAlunos[aluno.id]?.peso || null
+					peso: antropometriaAlunos[aluno.id]?.peso || null,
+					vacinado: antropometriaAlunos[aluno.id]?.vacinado || null
 				}))
 		}
 	}
-
+	
 	// controla render tela resumo final
 	const [telaResumo, setTelaResumo] = useState(false)
 
@@ -370,11 +375,14 @@ function App() {
 
 		dados.alunosPresentes.forEach(aluno => {
 			let linhaAluno = `- ${aluno.nome} (${formatarData(aluno.dataNascimento)})`
-			if (aluno.peso || aluno.altura) {
-				const antropometria = []
-				if (aluno.peso) antropometria.push(`${aluno.peso}kg`)
-				if (aluno.altura) antropometria.push(`${aluno.altura}cm`)
-				linhaAluno += ` [${antropometria.join(' - ')}]`
+
+			const detalhes = []
+			if (aluno.peso) detalhes.push(`${aluno.peso}kg`)
+			if (aluno.altura) detalhes.push(`${aluno.altura}cm`)
+			if (aluno.vacinado) detalhes.push(`Vacina: ${aluno.vacinado === 'sim' ? 'Em dia' : 'Pendente'}`)
+
+			if (detalhes.length > 0) {
+				linhaAluno += ` [${detalhes.join(' - ')}]`
 			}
 			linhas.push(linhaAluno)
 		})
@@ -690,10 +698,13 @@ function App() {
 											<span>{aluno.nome} - </span>
 											<span className=''> {formatarData(aluno.dataNascimento)}</span>
 										{(aluno.peso || aluno.altura) && (
-											<>
+											<> -
 												{aluno.peso && <span> {aluno.peso}kg</span>}
 												{aluno.altura && <span> {aluno.altura}cm</span>}
 											</>
+										)}
+										{aluno.vacinado && (
+											<span> - Vacina: {aluno.vacinado === 'sim' ? 'Em dia' : 'Pendente'}</span>
 										)}
 									</div>
 								))}
@@ -941,33 +952,70 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
+
 							<p className='app--title'>Preencha os dados de cada aluno:</p>
-
 							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosPresentes.length}</p>
+							<p className='app--nomeAluno'>{alunoAtualTelaAntropometria?.nome || ''}</p>
 
-							<p className='app--nomeAluno'>{alunoAtualTelaAntropometria.nome}</p>
+							{alunoAtualTelaAntropometria && temAntropometria && (
+								<>
+									<div className='app--input-group'>
+										<label>Altura (cm)</label>
+										<input
+											ref={alturaInputRef}
+											type="number"
+											placeholder="Digite aqui a altura"
+											value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
+											onChange={(e) => handleAtualizarAntropometria('altura', e.target.value)}
+										/>
+									</div>
+									<div className='app--input-group'>
+										<label>Peso (kg)</label>
+										<input
+											type="number"
+											placeholder="Digite aqui o peso"
+											value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
+											onChange={(e) => handleAtualizarAntropometria('peso', e.target.value)}
+										/>
+									</div>
+								</>
+							)}
 
-							<div className='app--input-group'>
-								<label>Altura (cm)</label>
-								<input
-									ref={alturaInputRef}
-									type="number"
-									placeholder="Digite aqui a altura"
-									value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
-									onChange={(e) => handleAtualizarAntropometria('altura', e.target.value)}
-								/>
-							</div>
-
-							<div className='app--input-group'>
-								<label>Peso (kg)</label>
-								<input
-									type="number"
-									placeholder="Digite aqui o peso"
-									value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
-									onChange={(e) => handleAtualizarAntropometria('peso', e.target.value)}
-								/>
-							</div>
-
+							{temVacinacao && (
+								<>
+									<div className='app--input-group'>
+										<label>Vacinação em dia?</label>
+										<div className='app--tela-vacinacao-grupo-botoes'>
+											<button
+												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === 'sim'
+														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
+														: ''
+												}`}
+												type="button"
+												onClick={() => {
+													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
+													handleAtualizarAntropometria('vacinado', valorAtual === 'sim' ? null : 'sim');
+												}}
+											>
+												Sim
+											</button>
+											<button
+												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === 'nao'
+														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
+														: ''
+												}`}
+												type="button"
+												onClick={() => {
+													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
+													handleAtualizarAntropometria('vacinado', valorAtual === 'nao' ? null : 'nao');
+												}}											>
+												Não
+											</button>
+										</div>
+									</div>
+								</>
+							)}
+							
 							<div className='app--footer'>
 								{alunoAtualIndex == 0 && (
 									<button type="button" className='app--buttonSecondary' onClick={() => pularPreenchimentoPesoAltura()}>

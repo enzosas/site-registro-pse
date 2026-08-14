@@ -97,6 +97,7 @@
     outline: none;
     background-color: transparent;
 	flex: 1;
+	height: 3rem;
 }
 
 .app--date-input:focus {
@@ -300,7 +301,7 @@ font-size: 2.1rem;
 	cursor: pointer;
 	text-align: center;
 	width: 100%;
-	transition: transform 0.1s ease;
+	transition: transform 0.1s ease, filter 0.2s ease;
 	user-select: none;
 	border: none;
 	font-family: inherit;
@@ -322,7 +323,7 @@ font-size: 2.1rem;
 	border-radius: 2rem;
 	cursor: pointer;
 	text-align: center;
-	transition: transform 0.1s ease;
+	transition: transform 0.1s ease, filter 0.2s ease;
 	user-select: none;
 	border: none;
 	font-family: inherit;
@@ -345,7 +346,7 @@ font-size: 2.1rem;
 	cursor: pointer;
 	text-align: center;
 	width: 100%;
-	transition: transform 0.1s ease;
+	transition: transform 0.1s ease, filter 0.2s ease;
 	opacity: 0.5;
 	cursor: default;
 	border: none;
@@ -364,7 +365,7 @@ font-size: 2.1rem;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	transition: transform 0.1s ease;
+	transition: transform 0.1s ease, filter 0.2s ease;
 	user-select: none;
 	cursor: pointer;
 	width: 1em;
@@ -411,6 +412,7 @@ font-size: 2.1rem;
 	outline: none;
 	background-color: transparent;
 	width: 100%;
+	height: 3rem;
 }
 
 .app--dados-aluno--footer {
@@ -515,8 +517,50 @@ font-size: 2.1rem;
 	font-size: 1.5rem;
 }
 
+.app--tela-vacinacao-grupo-botoes {
+	display: flex;
+	flex-direction: row;
+	gap: 1em;
+}
+
+.app--tela-vacinacao-grupo-botoes--botao {
+	border: var(--input-border);
+	border-radius: 0.5rem;
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	outline: none;
+	background-color: var(--cor-frame);
+	width: 100%;
+	transition: transform 0.1s ease, filter 0.2s ease, background-color 0.2s ease, border 0.2s ease;
+	cursor: pointer;
+	box-sizing: border-box;
+	height: 3rem;
+}
+
+.app--tela-vacinacao-grupo-botoes--botao__nao {
+	font-weight: 600;
+	background-color: var(--cor-negative);
+	color: var(--cor-frame);
+	border: 0.1rem solid transparent;
+}
+
+.app--tela-vacinacao-grupo-botoes--botao__sim {
+	font-weight: 600;
+	background-color: var(--cor-step);
+	color: var(--cor-frame);
+	border: 0.1rem solid transparent;
+}
+
+.app--tela-vacinacao-grupo-botoes--botao:active {
+	transform: scale(0.95);
+}
+
+.app--tela-vacinacao-grupo-botoes--botao:hover {
+	filter: brightness(0.975);
+}
+
 * {
-    -webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 1000px) {
