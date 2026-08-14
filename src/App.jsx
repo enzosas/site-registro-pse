@@ -94,13 +94,11 @@ function App() {
 	const [turmaSelecionada, setTurmaSelecionada] = useState(null)
 
 	// estado para controlar os alunos presentes
-	const [alunosPresentes, setAlunosPresentes] = useState([])
+	const [idsAlunosPresentes, setIdsAlunosPresentes] = useState([])
 
 	// estados do preenchimento do peso e altura
 	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
 	const [dadosAlunos, setDadosAlunos] = useState({})
-	const alunosSelecionados = turmaSelecionada?.alunos.filter(aluno => alunosPresentes.includes(aluno.id)) || []
-	const alunoAtual = alunosSelecionados[alunoAtualIndex]
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
@@ -193,9 +191,20 @@ function App() {
 		.filter(turma => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
 		.sort((a, b) => a.nome.localeCompare(b.nome)) || []
 
+	const alunosOrdenados = [...(turmaSelecionada?.alunos || [])].sort((a, b) =>
+		(a.nome || '').localeCompare(b.nome || '')
+	)
+
+	const alunosPresentes = alunosOrdenados.filter(aluno =>
+		idsAlunosPresentes.includes(aluno.id)
+	)
+
+	const alunoAtualTelaAntropometria = alunosPresentes[alunoAtualIndex]
+	
+
 	// remove ou adiciona o aluno presente
 	const toggleAluno = (idAluno) => {
-		setAlunosPresentes(prev =>
+		setIdsAlunosPresentes(prev =>
 			prev.includes(idAluno)
 				? prev.filter(id => id !== idAluno)
 				: [...prev, idAluno]
@@ -205,7 +214,7 @@ function App() {
 	// define todos alunos como presentes
 	const iniciaTodosAlunosPresentes = () => {
 		if (turmaSelecionada) {
-			setAlunosPresentes(turmaSelecionada.alunos.map(aluno => aluno.id))
+			setIdsAlunosPresentes(alunosOrdenados.map(aluno => aluno.id))
 		}
 	}
 
@@ -213,8 +222,8 @@ function App() {
 	const handleMudancaDados = (campo, valor) => {
 		setDadosAlunos(prev => ({
 			...prev,
-			[alunoAtual.id]: {
-				...prev[alunoAtual.id],
+			[alunoAtualTelaAntropometria.id]: {
+				...prev[alunoAtualTelaAntropometria.id],
 				[campo]: valor
 			}
 		}))
@@ -222,7 +231,7 @@ function App() {
 
 	// vai ou volta na tela do peso altura
 	const proximoAluno = () => {
-		if (alunoAtualIndex < alunosSelecionados.length - 1) {
+		if (alunoAtualIndex < alunosPresentes.length - 1) {
 			setAlunoAtualIndex(alunoAtualIndex + 1)
 			setTimeout(() => {
 				if (alturaInputRef.current) alturaInputRef.current.focus()
@@ -284,7 +293,7 @@ function App() {
 			...prev,
 			alunos: [...prev.alunos, novoAluno]
 		}))
-		setAlunosPresentes(prev => [...prev, novoAlunoId])
+		setIdsAlunosPresentes(prev => [...prev, novoAlunoId])
 
 		setNovoAlunoNome('')
 		setNovoAlunoDataNascimento('')
@@ -305,7 +314,7 @@ function App() {
 	const handleSalvarManual = () => {
 		setEscolaSelecionada({ id: 'manual_escola', nome: escolaManual, turmas: [] })
 		setTurmaSelecionada({ id: 'manual_turma', nome: turmaManual, alunos: [] })
-		setAlunosPresentes([])
+		setIdsAlunosPresentes([])
 		setEtapa(4)
 		setTelaCadastroManual(false)
 	}
@@ -319,7 +328,7 @@ function App() {
 				.filter(eixo => eixosSelecionados.includes(eixo.id))
 				.map(eixo => eixo.label),
 			alunosPresentes: (turmaSelecionada?.alunos || [])
-				.filter(aluno => alunosPresentes.includes(aluno.id))
+				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
 				.map(aluno => ({
 					id: aluno.id,
 					nome: aluno.nome,
@@ -883,11 +892,11 @@ function App() {
 							</button>
 							<p className='app--title'>Defina a lista de presença:</p>
 							<div className='app--list'>
-								{turmaSelecionada?.alunos.map((aluno) => (
+								{alunosOrdenados.map((aluno) => (
 									<label key={aluno.id}>
 										<input
 											type="checkbox"
-											checked={alunosPresentes.includes(aluno.id)}
+											checked={idsAlunosPresentes.includes(aluno.id)}
 											onChange={() => toggleAluno(aluno.id)}
 										/>
 										<div className='app--list--aluno-nascimento'>
@@ -903,9 +912,9 @@ function App() {
 									<p>Adicionar aluno manualmente</p>
 								</button>
 								<button
-									className={alunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+									className={idsAlunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
 									onClick={() => {
-										if (alunosPresentes.length > 0) avancar()
+										if (idsAlunosPresentes.length > 0) avancar()
 									}}
 								>
 									<p>Avançar</p>
@@ -926,9 +935,9 @@ function App() {
 							</button>
 							<p className='app--title'>Preencha os dados de cada aluno:</p>
 
-							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosSelecionados.length}</p>
+							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosPresentes.length}</p>
 
-							<p className='app--nomeAluno'>{alunoAtual.nome}</p>
+							<p className='app--nomeAluno'>{alunoAtualTelaAntropometria.nome}</p>
 
 							<div className='app--input-group'>
 								<label>Altura (cm)</label>
@@ -936,7 +945,7 @@ function App() {
 									ref={alturaInputRef}
 									type="number"
 									placeholder="Digite aqui a altura"
-									value={dadosAlunos[alunoAtual.id]?.altura || ''}
+									value={dadosAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
 									onChange={(e) => handleMudancaDados('altura', e.target.value)}
 								/>
 							</div>
@@ -946,7 +955,7 @@ function App() {
 								<input
 									type="number"
 									placeholder="Digite aqui o peso"
-									value={dadosAlunos[alunoAtual.id]?.peso || ''}
+									value={dadosAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
 									onChange={(e) => handleMudancaDados('peso', e.target.value)}
 								/>
 							</div>
@@ -962,7 +971,7 @@ function App() {
 										<IconeVoltar />
 									</button>
 									<button type="submit" className='app--buttonMain'>
-										<p>{alunoAtualIndex === alunosSelecionados.length - 1 ? 'Avançar' : 'Próximo'}</p>
+										<p>{alunoAtualIndex === alunosPresentes.length - 1 ? 'Avançar' : 'Próximo'}</p>
 									</button>
 								</div>
 							</div>
