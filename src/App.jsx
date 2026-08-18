@@ -56,24 +56,6 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 	)
 }
 
-const eixosTematicosLista = [
-	{ id: 1, label: "1. Saúde ambiental (ações de combate ao mosquito Aedes aegypti)" },
-	{ id: 2, label: "2. Promoção da atividade física (práticas corporais)" },
-	{ id: 3, label: "3. Alimentação saudável e prevenção da obesidade (antropometria)" },
-	{ id: 4, label: "4. Promoção da cultura de paz e direitos humanos" },
-	{ id: 5, label: "5. Prevenção das violências e dos acidentes" },
-	{ id: 6, label: "6. Prevenção de doenças negligenciadas" },
-	{ id: 7, label: "7. Verificação da situação vacinal" },
-	{ id: 8, label: "8. Saúde sexual e reprodutiva e prevenção do HIV/IST" },
-	{ id: 9, label: "9. Prevenção ao uso de álcool, tabaco e outras drogas" },
-	{ id: 10, label: "10. Saúde bucal (aplicação tópica de flúor/ escovação supervisionada)" },
-	{ id: 11, label: "11. Saúde auditiva" },
-	{ id: 12, label: "12. Saúde ocular" },
-	{ id: 13, label: "13. Prevenção à covid-19" },
-	{ id: 14, label: "14. Cuidados com higiene pessoal" },
-	{ id: 15, label: "15. Temática Local" }
-]
-
 const formatarData = (data) => {
 	if (!data) return ''
 	return data
@@ -97,7 +79,7 @@ function App() {
 
 	// estados do preenchimento do peso e altura
 	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
-	const [dadosAlunos, setAntropometriaAlunos] = useState({})
+	const [dadosAlunos, setDadosAlunos] = useState({})
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
@@ -226,8 +208,8 @@ function App() {
 	}
 
 	// preenche dados peso altura
-	const handleAtualizarAntropometria = (campo, valor) => {
-		setAntropometriaAlunos(prev => ({
+	const handleAtualizarDadosAluno = (campo, valor) => {
+		setDadosAlunos(prev => ({
 			...prev,
 			[alunoAtualTelaAntropometria.id]: {
 				...prev[alunoAtualTelaAntropometria.id],
@@ -283,10 +265,10 @@ function App() {
 		)
 	}
 
-	const temAntropometria = idsEixosSelecionados.includes(3)
-	const temVacinacao = idsEixosSelecionados.includes(7)
-	const temSaudeOcular = idsEixosSelecionados.includes(12)
-	const temEixoLocal = idsEixosSelecionados.includes(15)
+	const temAntropometria = idsEixosSelecionados.includes(Constantes.EIXOS_ID.ANTROPOMETRIA)
+	const temVacinacao = idsEixosSelecionados.includes(Constantes.EIXOS_ID.VACINACAO)
+	const temSaudeOcular = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_OCULAR)
+	const temEixoLocal = idsEixosSelecionados.includes(Constantes.EIXOS_ID.TEMATICA_LOCAL)
 
 	// condição para exibir a Etapa 6 (se qualquer questionário individual estiver ativo)
 	const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular
@@ -461,15 +443,14 @@ function App() {
 		})
 	}
 
-	const [alunosPendentes, setAlunosPendentes] = useState({});
 	const [nomeEixoLocal, setNomeEixoLocal] = useState('');
 	const [observacoes, setObservacoes] = useState('');
 
 	const formatarEixosTematicosSelecionados = () => {
-		return eixosTematicosLista
+		return Constantes.EIXOS_TEMATICOS
 			.filter(eixo => idsEixosSelecionados.includes(eixo.id))
 			.map(eixo => {
-				if (eixo.id === 15 && nomeEixoLocal.trim()) {
+				if (eixo.id === Constantes.EIXOS_ID.TEMATICA_LOCAL && nomeEixoLocal.trim()) {
 					return `${eixo.label}: ${nomeEixoLocal.trim()}`
 				}
 				return eixo.label
@@ -957,7 +938,7 @@ function App() {
 							<p className='app--title'>Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:</p>
 							<div className='app--tela-com-lista--gap'>
 								<div className='app--list'>
-									{eixosTematicosLista.map((eixo) => (
+									{Constantes.EIXOS_TEMATICOS.map((eixo) => (
 										<label key={eixo.id}>
 											<input
 												type="checkbox"
@@ -1066,7 +1047,7 @@ function App() {
 											type="number"
 											placeholder="Digite aqui a altura"
 											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
-											onChange={(e) => handleAtualizarAntropometria('altura', e.target.value)}
+											onChange={(e) => handleAtualizarDadosAluno('altura', e.target.value)}
 										/>
 									</div>
 									<div className='app--input-group'>
@@ -1075,7 +1056,7 @@ function App() {
 											type="number"
 											placeholder="Digite aqui o peso"
 											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
-											onChange={(e) => handleAtualizarAntropometria('peso', e.target.value)}
+											onChange={(e) => handleAtualizarDadosAluno('peso', e.target.value)}
 										/>
 									</div>
 								</>
@@ -1094,7 +1075,7 @@ function App() {
 												type="button"
 												onClick={() => {
 													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.POSITIVO.valor ? null : Constantes.OPCOES_VACINACAO.POSITIVO.valor);
+													handleAtualizarDadosAluno('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.POSITIVO.valor ? null : Constantes.OPCOES_VACINACAO.POSITIVO.valor);
 												}}
 											>
 												{Constantes.OPCOES_VACINACAO.POSITIVO.label}
@@ -1107,7 +1088,7 @@ function App() {
 												type="button"
 												onClick={() => {
 													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.NEGATIVO.valor ? null : Constantes.OPCOES_VACINACAO.NEGATIVO.valor);
+													handleAtualizarDadosAluno('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.NEGATIVO.valor ? null : Constantes.OPCOES_VACINACAO.NEGATIVO.valor);
 												}}											>
 												{Constantes.OPCOES_VACINACAO.NEGATIVO.label}
 											</button>
@@ -1129,7 +1110,7 @@ function App() {
 												type="button"
 												onClick={() => {
 													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
-													handleAtualizarAntropometria('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor);
+													handleAtualizarDadosAluno('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor);
 												}}
 											>
 												{Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.label}
@@ -1142,7 +1123,7 @@ function App() {
 												type="button"
 												onClick={() => {
 													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
-													handleAtualizarAntropometria('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor);
+													handleAtualizarDadosAluno('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor);
 												}}											
 											>
 												{Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.label}
