@@ -1,4 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { formatarVacinacao } from './constantes';
 
 const formatarData = (data) => {
     if (!data) return ''
@@ -85,7 +86,7 @@ export const RelatorioPDF = ({ dados }) => (
                         <Text style={styles.cellPeso}>{aluno.peso ? `${aluno.peso}kg` : '-'}</Text>
                         <Text style={styles.cellAlt}>{aluno.altura ? `${aluno.altura}cm` : '-'}</Text>
                         <Text style={styles.cellVacina}>
-                            {aluno.vacinado === 'sim' ? 'Em dia' : aluno.vacinado === 'nao' ? 'Pendente' : '-'}
+                            {formatarVacinacao(aluno.vacinado)}
                         </Text>
                     </View>
                 ))}

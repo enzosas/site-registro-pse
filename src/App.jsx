@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
+import { OPCOES_VACINACAO, formatarVacinacao } from './constantes';
 
 export function IconeVoltar() {
 	return (
@@ -382,7 +383,7 @@ function App() {
 			const detalhes = []
 			if (aluno.peso) detalhes.push(`${aluno.peso}kg`)
 			if (aluno.altura) detalhes.push(`${aluno.altura}cm`)
-			if (aluno.vacinado) detalhes.push(`Vacina: ${aluno.vacinado === 'sim' ? 'Em dia' : 'Pendente'}`)
+			if (aluno.vacinado) detalhes.push(`Vacina: ${formatarVacinacao(aluno.vacinado)}`)
 
 			if (detalhes.length > 0) {
 				linhaAluno += ` [${detalhes.join(' - ')}]`
@@ -728,7 +729,7 @@ function App() {
 											</>
 										)}
 										{aluno.vacinado && (
-											<span> - Vacina: {aluno.vacinado === 'sim' ? 'Em dia' : 'Pendente'}</span>
+											<span> - Vacina: {formatarVacinacao(aluno.vacinado)}</span>
 										)}
 									</div>
 								))}
@@ -1008,32 +1009,32 @@ function App() {
 							{temVacinacao && (
 								<>
 									<div className='app--input-group'>
-										<label>Vacinação em dia?</label>
+										<label>Situação do esquema vacinal:</label>
 										<div className='app--tela-vacinacao-grupo-botoes'>
 											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === 'sim'
+												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === OPCOES_VACINACAO.POSITIVO.valor
 														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
 														: ''
 												}`}
 												type="button"
 												onClick={() => {
 													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === 'sim' ? null : 'sim');
+													handleAtualizarAntropometria('vacinado', valorAtual === OPCOES_VACINACAO.POSITIVO.valor ? null : OPCOES_VACINACAO.POSITIVO.valor);
 												}}
 											>
-												Sim
+												{OPCOES_VACINACAO.POSITIVO.label}
 											</button>
 											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === 'nao'
+												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === OPCOES_VACINACAO.NEGATIVO.valor
 														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
 														: ''
 												}`}
 												type="button"
 												onClick={() => {
 													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === 'nao' ? null : 'nao');
+													handleAtualizarAntropometria('vacinado', valorAtual === OPCOES_VACINACAO.NEGATIVO.valor ? null : OPCOES_VACINACAO.NEGATIVO.valor);
 												}}											>
-												Não
+												{OPCOES_VACINACAO.NEGATIVO.label}
 											</button>
 										</div>
 									</div>
