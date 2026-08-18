@@ -924,10 +924,10 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
-							<p className='app--title'>Defina os eixos temáticos:</p>
-							<div className='app--list'>
+							<p className='app--title'>Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:</p>
+							<div className='app--list--eixo'>
 								{eixosTematicosLista.map((eixo) => (
-									<label key={eixo.id}>
+									<label key={eixo.id} className='app--list--eixo--unidade'>
 										<input
 											type="checkbox"
 											checked={idsEixosSelecionados.includes(eixo.id)}
@@ -936,20 +936,20 @@ function App() {
 										{eixo.label}
 									</label>
 								))}
+								{temEixoLocal && (
+									<>
+										<div className='app--input-group'>
+											<label>Nome da temática local</label>
+											<input
+												type="text"
+												placeholder="Digite aqui o nome da temática"
+												value={nomeEixoLocal}
+												onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
+											/>
+										</div>
+									</>
+								)}
 							</div>
-							{temEixoLocal && (
-								<>
-									<div className='app--input-group'>
-										<label>Nome da temática</label>
-										<input
-											type="text"
-											placeholder="Digite aqui o nome da temática"
-											value={nomeEixoLocal}
-											onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
-										/>
-									</div>
-								</>
-							)}
 							
 							<div className='app--footer'>
 								<button

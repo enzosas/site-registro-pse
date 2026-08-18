@@ -271,12 +271,18 @@ font-size: 2.1rem;
 	color: var(--cor-botao2);
 }
 
-.app--list label {
+.app--list--eixo {
+    display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	margin-bottom: 1rem;
+}
+
+.app--list--eixo--unidade {
     display: flex;
     align-items: center;
     gap: 1rem;
 	font-size: 1rem;
-	padding: 1rem 0rem;
 	font-size: 1.25rem;
 }
 
