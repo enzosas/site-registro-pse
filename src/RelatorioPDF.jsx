@@ -68,6 +68,9 @@ export const RelatorioPDF = ({ dados }) => (
                 {dados.eixosTematicos.map((eixo, i) => (
                     <Text key={i}>{eixo}</Text>
                 ))}
+                {dados.observacoes && (
+                    <Text>Observações: {dados.observacoes}</Text>
+                )}
             </View>
 
             <View style={styles.section}>

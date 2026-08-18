@@ -241,6 +241,10 @@ function App() {
 		setNomeEixoLocal(valor);
 	}
 
+	const handleAtualizarObservacoes = (valor) => {
+		setObservacoes(valor);
+	}
+
 	// vai ou volta na tela do peso altura
 	const proximoAluno = () => {
 		if (alunoAtualIndex < alunosPresentes.length - 1) {
@@ -347,6 +351,7 @@ function App() {
 			escola: escolaSelecionada?.nome || '',
 			turma: turmaSelecionada?.nome || '',
 			eixosTematicos: formatarEixosTematicosSelecionados(),
+			observacoes: observacoes,
 			alunosPresentes: alunosOrdenados
 				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
 				.map(aluno => ({
@@ -377,6 +382,7 @@ function App() {
 			'',
 			'Eixos Selecionados:',
 			...dados.eixosTematicos.map(eixo => `- ${eixo}`),
+			`Observações: ${dados.observacoes}`,
 			'',
 			'Alunos:'
 		]
@@ -449,6 +455,7 @@ function App() {
 
 	const [alunosPendentes, setAlunosPendentes] = useState({});
 	const [nomeEixoLocal, setNomeEixoLocal] = useState('');
+	const [observacoes, setObservacoes] = useState('');
 
 	const formatarEixosTematicosSelecionados = () => {
 		return eixosTematicosLista
@@ -733,14 +740,17 @@ function App() {
 									<p key={index}>{eixo}</p>
 								))}
 							</>
+							{observacoes && (
+								<p>Observações: {dados.observacoes}</p>
+							)}
 						</div>
 						<div className='app--resumo'>
 							<p className='app--resumo--subtitle'>Alunos</p>
 							<div className='app--resumo'>
 								{dados.alunosPresentes.map((aluno) => (
 									<div key={aluno.id} className='app--resumo'>
-											<span>{aluno.nome} - </span>
-											<span className=''> {formatarData(aluno.dataNascimento)}</span>
+										<span>{aluno.nome} - </span>
+										<span className=''> {formatarData(aluno.dataNascimento)}</span>
 										{(aluno.peso || aluno.altura) && (
 											<> -
 												{aluno.peso && <span> {aluno.peso}kg</span>}
@@ -936,11 +946,11 @@ function App() {
 										{eixo.label}
 									</label>
 								))}
-							</div>
+							</div>	
 							{temEixoLocal && (
 								<>
 									<div className='app--input-group'>
-										<label>Nome da temática</label>
+										<label>Nome da temática local</label>
 										<input
 											type="text"
 											placeholder="Digite aqui o nome da temática"
@@ -950,7 +960,15 @@ function App() {
 									</div>
 								</>
 							)}
-							
+							<div className='app--input-group'>
+								<label>Observações</label>
+								<input
+									type="text"
+									placeholder="Digite aqui quaisquer observações"
+									value={observacoes}
+									onChange={(e) => handleAtualizarObservacoes(e.target.value)}
+								/>
+							</div>
 							<div className='app--footer'>
 								<button
 									className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}

@@ -280,6 +280,21 @@ font-size: 2.1rem;
 	font-size: 1.25rem;
 }
 
+.app--list--alunos {
+    display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	margin-bottom: 1rem;
+}
+
+.app--list--alunos--unidade {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+	font-size: 1rem;
+	font-size: 1.25rem;
+}
+
 .app--footer {
 	margin-top: auto;
 	display: flex;
