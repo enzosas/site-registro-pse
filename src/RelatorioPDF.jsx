@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { formatarVacinacao } from './constantes';
+import * as Constantes from './constantes';
 
 const formatarData = (data) => {
     if (!data) return ''
@@ -84,6 +84,7 @@ export const RelatorioPDF = ({ dados }) => (
                     <Text style={styles.cellPeso}>Peso</Text>
                     <Text style={styles.cellAlt}>Altura</Text>
                     <Text style={styles.cellVacina}>Vacina</Text>
+                    <Text style={styles.cellVacina}>Visão</Text>
                 </View>
                 {dados.alunosPresentes.map((aluno, i) => (
                     <View key={i} style={styles.row}>
@@ -92,7 +93,10 @@ export const RelatorioPDF = ({ dados }) => (
                         <Text style={styles.cellPeso}>{aluno.peso ? `${aluno.peso}kg` : '-'}</Text>
                         <Text style={styles.cellAlt}>{aluno.altura ? `${aluno.altura}cm` : '-'}</Text>
                         <Text style={styles.cellVacina}>
-                            {formatarVacinacao(aluno.vacinado)}
+                            {Constantes.formatarVacinacao(aluno.vacinado)}
+                        </Text>
+                        <Text style={styles.cellVacina}>
+                            {Constantes.formatarSaudeOcular(aluno.saudeOcular)}
                         </Text>
                     </View>
                 ))}

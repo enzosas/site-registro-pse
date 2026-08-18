@@ -3,7 +3,7 @@ import { useState, useRef } from 'react'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
-import { OPCOES_VACINACAO, formatarVacinacao } from './constantes';
+import * as Constantes from './constantes';
 
 export function IconeVoltar() {
 	return (
@@ -97,7 +97,7 @@ function App() {
 
 	// estados do preenchimento do peso e altura
 	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
-	const [antropometriaAlunos, setAntropometriaAlunos] = useState({})
+	const [dadosAlunos, setAntropometriaAlunos] = useState({})
 
 	// guarda a etapa do processo de preenchimento do registro
 	// define a etapa para mostrar na tela
@@ -285,10 +285,11 @@ function App() {
 
 	const temAntropometria = idsEixosSelecionados.includes(3)
 	const temVacinacao = idsEixosSelecionados.includes(7)
+	const temSaudeOcular = idsEixosSelecionados.includes(12)
 	const temEixoLocal = idsEixosSelecionados.includes(15)
 
 	// condição para exibir a Etapa 6 (se qualquer questionário individual estiver ativo)
-	const temAvaliacaoIndividual = temAntropometria || temVacinacao
+	const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular
 
 	// variaveis para armazenar temporariamente dados do novo aluno
 	const [novoAlunoNome, setNovoAlunoNome] = useState('')
@@ -358,9 +359,11 @@ function App() {
 					id: aluno.id,
 					nome: aluno.nome,
 					dataNascimento: aluno.dataNascimento,
-					altura: antropometriaAlunos[aluno.id]?.altura || null,
-					peso: antropometriaAlunos[aluno.id]?.peso || null,
-					vacinado: antropometriaAlunos[aluno.id]?.vacinado || null
+					altura: dadosAlunos[aluno.id]?.altura || null,
+					peso: dadosAlunos[aluno.id]?.peso || null,
+					vacinado: dadosAlunos[aluno.id]?.vacinado || null,
+					saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
+
 				}))
 		}
 	}
@@ -393,7 +396,8 @@ function App() {
 			const detalhes = []
 			if (aluno.peso) detalhes.push(`${aluno.peso}kg`)
 			if (aluno.altura) detalhes.push(`${aluno.altura}cm`)
-			if (aluno.vacinado) detalhes.push(`Vacina: ${formatarVacinacao(aluno.vacinado)}`)
+			if (aluno.vacinado) detalhes.push(`Vacina: ${Constantes.formatarVacinacao(aluno.vacinado)}`)
+			if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Constantes.formatarSaudeOcular(aluno.saudeOcular)}`)
 
 			if (detalhes.length > 0) {
 				linhaAluno += ` [${detalhes.join(' - ')}]`
@@ -438,7 +442,7 @@ function App() {
 
 	const obterAlunosPendentes = () => {
 		return alunosPresentes.filter(aluno => {
-			const dados = antropometriaAlunos[aluno.id] || {}
+			const dados = dadosAlunos[aluno.id] || {}
 
 			if (temAntropometria) {
 				if (!dados.altura || !String(dados.altura).trim()) return true
@@ -447,6 +451,10 @@ function App() {
 
 			if (temVacinacao) {
 				if (!dados.vacinado) return true
+			}
+
+			if (temSaudeOcular) {
+				if (!dados.saudeOcular) return true
 			}
 
 			return false
@@ -767,7 +775,10 @@ function App() {
 											</>
 										)}
 										{aluno.vacinado && (
-											<span> - Vacina: {formatarVacinacao(aluno.vacinado)}</span>
+											<span> - Vacina: {Constantes.formatarVacinacao(aluno.vacinado)}</span>
+										)}
+										{aluno.saudeOcular && (
+											<span> - Saúde Ocular: {Constantes.formatarSaudeOcular(aluno.saudeOcular)}</span>
 										)}
 									</div>
 								))}
@@ -1054,7 +1065,7 @@ function App() {
 											ref={alturaInputRef}
 											type="number"
 											placeholder="Digite aqui a altura"
-											value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
+											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
 											onChange={(e) => handleAtualizarAntropometria('altura', e.target.value)}
 										/>
 									</div>
@@ -1063,7 +1074,7 @@ function App() {
 										<input
 											type="number"
 											placeholder="Digite aqui o peso"
-											value={antropometriaAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
+											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
 											onChange={(e) => handleAtualizarAntropometria('peso', e.target.value)}
 										/>
 									</div>
@@ -1076,29 +1087,65 @@ function App() {
 										<label>Situação do esquema vacinal:</label>
 										<div className='app--tela-vacinacao-grupo-botoes'>
 											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === OPCOES_VACINACAO.POSITIVO.valor
+												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado === Constantes.OPCOES_VACINACAO.POSITIVO.valor
 														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
 														: ''
 												}`}
 												type="button"
 												onClick={() => {
-													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === OPCOES_VACINACAO.POSITIVO.valor ? null : OPCOES_VACINACAO.POSITIVO.valor);
+													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
+													handleAtualizarAntropometria('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.POSITIVO.valor ? null : Constantes.OPCOES_VACINACAO.POSITIVO.valor);
 												}}
 											>
-												{OPCOES_VACINACAO.POSITIVO.label}
+												{Constantes.OPCOES_VACINACAO.POSITIVO.label}
 											</button>
 											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado === OPCOES_VACINACAO.NEGATIVO.valor
+												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado === Constantes.OPCOES_VACINACAO.NEGATIVO.valor
 														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
 														: ''
 												}`}
 												type="button"
 												onClick={() => {
-													const valorAtual = antropometriaAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarAntropometria('vacinado', valorAtual === OPCOES_VACINACAO.NEGATIVO.valor ? null : OPCOES_VACINACAO.NEGATIVO.valor);
+													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
+													handleAtualizarAntropometria('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.NEGATIVO.valor ? null : Constantes.OPCOES_VACINACAO.NEGATIVO.valor);
 												}}											>
-												{OPCOES_VACINACAO.NEGATIVO.label}
+												{Constantes.OPCOES_VACINACAO.NEGATIVO.label}
+											</button>
+										</div>
+									</div>
+								</>
+							)}
+
+							{temSaudeOcular && (
+								<>
+									<div className='app--input-group'>
+										<label>Avaliação da saúde ocular:</label>
+										<div className='app--tela-vacinacao-grupo-botoes'>
+											<button
+												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor
+														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
+														: ''
+												}`}
+												type="button"
+												onClick={() => {
+													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
+													handleAtualizarAntropometria('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor);
+												}}
+											>
+												{Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.label}
+											</button>
+											<button
+												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor
+														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
+														: ''
+												}`}
+												type="button"
+												onClick={() => {
+													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
+													handleAtualizarAntropometria('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor);
+												}}											
+											>
+												{Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.label}
 											</button>
 										</div>
 									</div>
