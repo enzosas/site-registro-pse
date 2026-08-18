@@ -924,7 +924,7 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
-							<p className='app--title'>Defina os eixos temáticos:</p>
+							<p className='app--title'>Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:</p>
 							<div className='app--list'>
 								{eixosTematicosLista.map((eixo) => (
 									<label key={eixo.id}>
