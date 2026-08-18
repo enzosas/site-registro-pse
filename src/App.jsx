@@ -498,25 +498,34 @@ function App() {
 						</button>
 						<p className='app--title'>Ajuda</p>
 						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Sobre o app</p>
-							<p className='app--ajuda--paragrafo'>Este aplicativo foi criado para facilitar o registro das atividades do Programa Saúde na Escola (PSE), substituindo as antigas planilhas de papel usadas durante as visitas.</p>
-							<p className='app--ajuda--paragrafo'>Com ele, você consegue registrar rapidamente pelo celular quem estava presente,marcar os temas abordados na sala (como ações de nutrição ou saúde bucal) e já salvar os dados coletados na hora, como peso e altura. </p>
-							<p className='app--ajuda--paragrafo'>O objetivo é que você saia da escola com o relatório pronto para ser copiado ou salvo em pdf.</p>
+							<p className='app--resumo--subtitle'>Bem vindo!</p>
+							<p className='app--ajuda--paragrafo'>Este aplicativo foi criado para tornar o registro das ações do Programa Saúde na Escola (PSE) mais simples, rápido e organizado.</p>
+							<p className='app--ajuda--paragrafo'>Durante a atividade, você pode:</p>
+							<p className='app--ajuda--paragrafo'>•   Registrar a presença dos participantes</p>
+							<p className='app--ajuda--paragrafo'>•   Selecionar os eixos temáticos abordados</p>
+							<p className='app--ajuda--paragrafo'>•   Informar os dados coletados, como peso e altura</p>
+							<p className='app--ajuda--paragrafo'>•   Salvar todas as informações diretamente pelo celular</p>
+							<p className='app--ajuda--paragrafo'>Ao finalizar, o aplicativo gera automaticamente um relatório, que pode ser copiado ou salvo em PDF para facilitar o registro das ações.</p>
+							<p className='app--ajuda--paragrafo'>Assim, você economiza tempo, reduz o uso de papel e mantém os registros das atividades organizados e padronizados.</p>
 						</div>
 						<div className='app--resumo'>
 							<p className='app--resumo--subtitle'>Guia prático de preenchimento</p>
-							<p className='app--ajuda--subtitulo'>Escolas e turmas</p>
-							<p className='app--ajuda--paragrafo'>Selecione a escola e a turma pesquisando na lista. Caso não encontre, clique no botão secundário "a escola/turma não está na lista" no final da tela para fazer o cadastro manual.</p>
+							<p className='app--ajuda--subtitulo'>Escola e turma</p>
+							<p className='app--ajuda--paragrafo'>Selecione a escola e a turma pesquisando na lista. Se não encontrar, clique em "A escola/turma não está na lista" para realizar o cadastro manual.</p>
 							<p className='app--ajuda--subtitulo'>Eixos temáticos</p>
-							<p className='app--ajuda--paragrafo'>Você pode marcar mais de uma opção. Selecione todos os temas de saúde que foram abordados na sala durante a sua visita.</p>
-							<p className='app--ajuda--subtitulo'>Lista de presença e alunos novos</p>
-							<p className='app--ajuda--paragrafo'>A lista de alunos da turma vai aparecer automaticamente, basta marcar os presentes. Se houver algum aluno na sala que não está no sistema, clique em "adicionar aluno manualmente" no fim da tela e insira o nome e a data de nascimento dele.</p>
-							<p className='app--ajuda--subtitulo'>Peso, altura ou vacinação (antropometria)</p>
-							<p className='app--ajuda--paragrafo'>Se a sua atividade conter um ou mais eixos temáticos com estas atividaes, você deverá preencher, para cada aluno presente na atividade, em ordem alfabética, as informações solicitadas.</p>
-							<p className='app--ajuda--subtitulo'>Salvando o relatório</p>
-							<p className='app--ajuda--paragrafo'>Na última tela, você tem duas opções. "gerar relatório pdf" baixa o arquivo direto no seu celular. Se preferir, clique em "ver resumo" e depois em "copiar resumo" para colar os dados em texto direto no seu whatsapp ou e-mail.</p>
+							<p className='app--ajuda--paragrafo'>Selecione um ou mais eixos temáticos abordados durante a atividade. Marque todas as opções que correspondem aos temas trabalhados na visita.</p>
+							<p className='app--ajuda--subtitulo'>Lista de presença</p>
+							<p className='app--ajuda--paragrafo'>A lista de estudantes da turma será exibida automaticamente. Basta marcar os participantes presentes.</p>
+							<p className='app--ajuda--paragrafo'>Caso algum estudante não esteja na lista, clique em "Adicionar estudante manualmente" e informe o nome e a data de nascimento.</p>
+							<p className='app--ajuda--subtitulo'>Coleta de dados</p>
+							<p className='app--ajuda--paragrafo'>Se a sua atividade conter um ou mais eixos temáticos com este tipo de atividade, você deverá preencher, para cada aluno presente na atividade, em ordem alfabética, as informações solicitadas.</p>
+							<p className='app--ajuda--subtitulo'>Gerando o relatório</p>
+							<p className='app--ajuda--paragrafo'>Ao finalizar o preenchimento, escolha uma das opções:</p>
+							<p className='app--ajuda--paragrafo'>•  Gerar relatório em PDF: salva o relatório no seu dispositivo.</p>
+							<p className='app--ajuda--paragrafo'>•  Ver resumo: exibe um resumo da atividade.</p>
+							<p className='app--ajuda--paragrafo'>•  Copiar resumo: copia o texto para ser colado em aplicativos como WhatsApp, e-mail ou outros sistemas.</p>
 							<p className='app--ajuda--subtitulo'>Suporte</p>
-							<p className='app--ajuda--paragrafo'>Em caso de erro no login ou dúvidas sobre o preenchimento, entre em contato com a coordenação do programa.</p>
+							<p className='app--ajuda--paragrafo'>Em caso de dificuldades de acesso, erros no aplicativo ou dúvidas sobre o preenchimento, entre em contato com a coordenação do Programa Saúde na Escola (PSE) pelo e-mail: enzo.silveira@ufsm.br</p>
 						</div>
 					</form>
 				</>
