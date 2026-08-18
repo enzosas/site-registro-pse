@@ -475,7 +475,7 @@ function App() {
 					<div className='app--tela-inicial-content'>
 						<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
 						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
-							<p>Gerar Relatório</p>
+							<p>Começar</p>
 						</button>
 						<button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={() => {setTelaAjuda(true); setTelaInicial(false)}}>
 							<p>Ajuda</p>
@@ -567,7 +567,7 @@ function App() {
 			return (
 				<>
 					<div className='app--header-container'>
-						<p className='app--header'>Geração de Relatório</p>
+						<p className='app--header'>Geração de Registro</p>
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
@@ -609,7 +609,7 @@ function App() {
 			return (
 				<>
 					<div className='app--header-container'>
-						<p className='app--header'>Geração de Relatório</p>
+						<p className='app--header'>Geração de Registro</p>
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
@@ -710,7 +710,7 @@ function App() {
 			return (
 				<>
 					<div className='app--header-container'>
-						<p className='app--header'>Geração de Relatório</p>
+						<p className='app--header'>Geração de Registro</p>
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
@@ -781,7 +781,7 @@ function App() {
 		else return (
 			<>
 				<div className='app--header-container'>
-					<p className='app--header'>Geração de Relatório</p>
+					<p className='app--header'>Geração de Registro</p>
 					<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
