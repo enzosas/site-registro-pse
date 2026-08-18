@@ -466,7 +466,7 @@ function App() {
 			return (
 				<div className='app--column app--tela-inicial'>
 					<div className='app--tela-inicial-content'>
-						<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
+						<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
 						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
 							<p>Gerar Relatório</p>
 						</button>
@@ -474,7 +474,10 @@ function App() {
 							<p>Ajuda</p>
 						</button>
 					</div>
-					<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
+					<div className='app--tela-inicial--rodape-imagens'>
+						<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
+						<img src={`${import.meta.env.BASE_URL}ufsmLogo.png`} alt="Logo PSE" className="app--logo-pse" />
+					</div>
 				</div>
 			)
 		}
@@ -654,7 +657,7 @@ function App() {
 		else if (!isLoggedIn) {
 			return (
 				<>
-					<p className='app--title app--title__tela-inicial'>Relatório PSE<br />Online</p>
+					<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
 					<form onSubmit={handleLogin} className='app--card'>
 						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }}>
 							<IconeVoltar />

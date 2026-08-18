@@ -564,6 +564,12 @@ font-size: 2.1rem;
 	color: var(--cor-negative);
 }
 
+.app--tela-inicial--rodape-imagens {
+	display: flex;
+	flex-direction: row;
+	gap: 2rem;
+}
+
 * {
 	-webkit-tap-highlight-color: transparent;
 }
