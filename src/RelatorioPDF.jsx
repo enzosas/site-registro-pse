@@ -43,6 +43,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         backgroundColor: '#F9F9F9',
     },
+    footer: {
+        marginTop: 10,
+    },
     cellNome: { width: '35%' },
     cellNasc: { width: '20%' },
     cellPeso: { width: '15%', textAlign: 'center' },
@@ -60,7 +63,7 @@ export const RelatorioPDF = ({ dados }) => (
             <View style={styles.section}>
                 <Text>Escola: {dados.escola}</Text>
                 <Text>Turma: {dados.turma}</Text>
-                <Text>Data: {dados.data}</Text>
+                <Text>Data da atividade: {dados.data}</Text>
             </View>
 
             <View style={styles.section}>
@@ -93,6 +96,10 @@ export const RelatorioPDF = ({ dados }) => (
                         </Text>
                     </View>
                 ))}
+                <View style={styles.footer}>
+                    <Text style={styles.footer}>Quantidade de alunos: {dados.alunosPresentes?.length || 0}</Text>
+                    <Text style={styles.footer}>Relatório gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</Text>
+                </View>
             </View>
         </Page>
     </Document>
