@@ -859,7 +859,7 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltarEtapa(); }}>
 								<IconeVoltar />
 							</button>
-							<p className='app--title'>Selecione sua turma:</p>
+							<p className='app--title'>Selecione a turma que foi realizada a atividade:</p>
 
 							<div className='app--search-container'>
 								<div className='app--search-bar'>
