@@ -71,7 +71,7 @@ const eixosTematicosLista = [
 	{ id: 12, label: "12. Saúde ocular" },
 	{ id: 13, label: "13. Prevenção à covid-19" },
 	{ id: 14, label: "14. Cuidados com higiene pessoal" },
-	{ id: 15, label: "15. Prevenção à toxoplasmose" }
+	{ id: 15, label: "15. Temática Local" }
 ]
 
 const formatarData = (data) => {
@@ -236,6 +236,11 @@ function App() {
 		}))
 	}
 
+	// atualiza o nome do eixo local
+	const handleAtualizarNomeEixoLocal = (valor) => {
+		setNomeEixoLocal(valor);
+	}
+
 	// vai ou volta na tela do peso altura
 	const proximoAluno = () => {
 		if (alunoAtualIndex < alunosPresentes.length - 1) {
@@ -276,6 +281,7 @@ function App() {
 
 	const temAntropometria = idsEixosSelecionados.includes(3)
 	const temVacinacao = idsEixosSelecionados.includes(7)
+	const temEixoLocal = idsEixosSelecionados.includes(15)
 
 	// condição para exibir a Etapa 6 (se qualquer questionário individual estiver ativo)
 	const temAvaliacaoIndividual = temAntropometria || temVacinacao
@@ -340,9 +346,7 @@ function App() {
 			data: `${dia}/${mes}/${ano}`,
 			escola: escolaSelecionada?.nome || '',
 			turma: turmaSelecionada?.nome || '',
-			eixosTematicos: eixosTematicosLista
-				.filter(eixo => idsEixosSelecionados.includes(eixo.id))
-				.map(eixo => eixo.label),
+			eixosTematicos: formatarEixosTematicosSelecionados(),
 			alunosPresentes: alunosOrdenados
 				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
 				.map(aluno => ({
@@ -444,6 +448,18 @@ function App() {
 	}
 
 	const [alunosPendentes, setAlunosPendentes] = useState({});
+	const [nomeEixoLocal, setNomeEixoLocal] = useState('');
+
+	const formatarEixosTematicosSelecionados = () => {
+		return eixosTematicosLista
+			.filter(eixo => idsEixosSelecionados.includes(eixo.id))
+			.map(eixo => {
+				if (eixo.id === 15 && nomeEixoLocal.trim()) {
+					return `${eixo.label}: ${nomeEixoLocal.trim()}`
+				}
+				return eixo.label
+			})
+	}
 
 	const renderizarConteudo = () => {
 		if (telaInicial) {
@@ -710,7 +726,7 @@ function App() {
 						<div className='app--resumo'>
 							<p className='app--resumo--subtitle'>Eixos Selecionados</p>
 							<>
-								{dados.eixosTematicos.map((eixo, index) => (
+								{formatarEixosTematicosSelecionados().map((eixo, index) => (
 									<p key={index}>{eixo}</p>
 								))}
 							</>
@@ -918,6 +934,20 @@ function App() {
 									</label>
 								))}
 							</div>
+							{temEixoLocal && (
+								<>
+									<div className='app--input-group'>
+										<label>Nome da temática</label>
+										<input
+											type="text"
+											placeholder="Digite aqui o nome da temática"
+											value={nomeEixoLocal}
+											onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
+										/>
+									</div>
+								</>
+							)}
+							
 							<div className='app--footer'>
 								<button
 									className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
