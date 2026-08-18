@@ -664,7 +664,7 @@ function App() {
 				<>
 					<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
 					<form onSubmit={handleLogin} className='app--card'>
-						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setErroLogin(false); }}>
+						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setMensagemErro(''); }}>
 							<IconeVoltar />
 						</button>
 						<p className='app--title'>Login</p>
