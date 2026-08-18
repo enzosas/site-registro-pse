@@ -935,48 +935,50 @@ function App() {
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:</p>
-							<div className='app--list'>
-								{eixosTematicosLista.map((eixo) => (
-									<label key={eixo.id}>
-										<input
-											type="checkbox"
-											checked={idsEixosSelecionados.includes(eixo.id)}
-											onChange={() => toggleEixo(eixo.id)}
-										/>
-										{eixo.label}
-									</label>
-								))}
-							</div>	
-							{temEixoLocal && (
-								<>
-									<div className='app--input-group'>
-										<label>Nome da temática local</label>
-										<input
-											type="text"
-											placeholder="Digite aqui o nome da temática"
-											value={nomeEixoLocal}
-											onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
-										/>
-									</div>
-								</>
-							)}
-							<div className='app--input-group'>
-								<label>Observações</label>
-								<input
-									type="text"
-									placeholder="Digite aqui quaisquer observações"
-									value={observacoes}
-									onChange={(e) => handleAtualizarObservacoes(e.target.value)}
-								/>
-							</div>
-							<div className='app--footer'>
-								<button
-									className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-									onClick={() => { marcarTodosPresentes(); avancarEtapa(); }}
-									disabled={idsEixosSelecionados.length === 0}
-								>
-									<p>Avançar</p>
-								</button>
+							<div className='app--tela-com-lista--gap'>
+								<div className='app--list'>
+									{eixosTematicosLista.map((eixo) => (
+										<label key={eixo.id}>
+											<input
+												type="checkbox"
+												checked={idsEixosSelecionados.includes(eixo.id)}
+												onChange={() => toggleEixo(eixo.id)}
+											/>
+											{eixo.label}
+										</label>
+									))}
+								</div>	
+								{temEixoLocal && (
+									<>
+										<div className='app--input-group'>
+											<label>Nome da temática local</label>
+											<input
+												type="text"
+												placeholder="Digite aqui o nome da temática"
+												value={nomeEixoLocal}
+												onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
+											/>
+										</div>
+									</>
+								)}
+								<div className='app--input-group'>
+									<label>Observações</label>
+									<input
+										type="text"
+										placeholder="Digite aqui quaisquer observações"
+										value={observacoes}
+										onChange={(e) => handleAtualizarObservacoes(e.target.value)}
+									/>
+								</div>
+								<div className='app--footer'>
+									<button
+										className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+										onClick={() => { marcarTodosPresentes(); avancarEtapa(); }}
+										disabled={idsEixosSelecionados.length === 0}
+									>
+										<p>Avançar</p>
+									</button>
+								</div>
 							</div>
 						</>
 					)}
@@ -986,34 +988,36 @@ function App() {
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Defina a lista de presença:</p>
-							<div className='app--list'>
-								{alunosOrdenados.map((aluno) => (
-									<label key={aluno.id}>
-										<input
-											type="checkbox"
-											checked={idsAlunosPresentes.includes(aluno.id)}
-											onChange={() => toggleAluno(aluno.id)}
-										/>
-										<div className='app--list--aluno-nascimento'>
-											{aluno.nome}
-											<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
-										</div>
-									</label>
+							<div className='app--tela-com-lista--gap'>
+								<div className='app--list'>
+									{alunosOrdenados.map((aluno) => (
+										<label key={aluno.id}>
+											<input
+												type="checkbox"
+												checked={idsAlunosPresentes.includes(aluno.id)}
+												onChange={() => toggleAluno(aluno.id)}
+											/>
+											<div className='app--list--aluno-nascimento'>
+												{aluno.nome}
+												<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
+											</div>
+										</label>
 
-								))}
-							</div>
-							<div className='app--footer'>
-								<button className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
-									<p>Adicionar aluno manualmente</p>
-								</button>
-								<button
-									className={idsAlunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
-									onClick={() => {
-										if (idsAlunosPresentes.length > 0) avancarEtapa()
-									}}
-								>
-									<p>Avançar</p>
-								</button>
+									))}
+								</div>
+								<div className='app--footer'>
+									<button className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
+										<p>Adicionar aluno manualmente</p>
+									</button>
+									<button
+										className={idsAlunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+										onClick={() => {
+											if (idsAlunosPresentes.length > 0) avancarEtapa()
+										}}
+									>
+										<p>Avançar</p>
+									</button>
+								</div>
 							</div>
 						</>
 					)}

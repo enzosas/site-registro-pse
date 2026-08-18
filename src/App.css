@@ -256,6 +256,14 @@ font-size: 2.1rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0rem;
+	margin-top: -1rem;
+	margin-bottom: -1rem;
+}
+
+.app--tela-com-lista--gap {
+	display: flex;
+	gap: 2rem;
+	flex-direction: column;
 }
 
 .app--list--aluno-nascimento {
@@ -277,21 +285,6 @@ font-size: 2.1rem;
     gap: 1rem;
 	font-size: 1rem;
 	padding: 1rem 0rem;
-	font-size: 1.25rem;
-}
-
-.app--list--alunos {
-    display: flex;
-	flex-direction: column;
-	gap: 2rem;
-	margin-bottom: 1rem;
-}
-
-.app--list--alunos--unidade {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-	font-size: 1rem;
 	font-size: 1.25rem;
 }
 
@@ -320,6 +313,10 @@ font-size: 2.1rem;
 	user-select: none;
 	border: none;
 	font-family: inherit;
+}
+
+.app--buttonMain__margin {
+	margin-top: 1rem;
 }
 
 .app--buttonMain:active {
@@ -583,6 +580,13 @@ font-size: 2.1rem;
 	display: flex;
 	flex-direction: row;
 	gap: 2rem;
+}
+
+.app--tela-eixos--grupo-inputs {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-bottom: 1rem;
 }
 
 * {
