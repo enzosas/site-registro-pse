@@ -660,7 +660,7 @@ function App() {
 							<IconeVoltar />
 						</button>
 						<p className='app--title'>Login</p>
-						<p>Programa Saúde nas Escolas</p>
+						<p>Programa Saúde na Escola</p>
 						<p>Santa Maria, RS</p>
 						<div className='login--input-group'>
 							<div className='app--input-group'>
