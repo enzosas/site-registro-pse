@@ -374,7 +374,7 @@ function App() {
 	const handleCopiarResumo = async () => {
 		const dados = gerarObjetoRelatorio()
 		const linhas = [
-			'Resumo da Visita',
+			'Resumo da Atividade',
 			'',
 			`Escola: ${dados.escola}`,
 			`Turma: ${dados.turma}`,
@@ -718,7 +718,7 @@ function App() {
 						<button type="button" className="app--botao-voltar" onClick={() => setTelaResumo(false)}>
 							<IconeVoltar />
 						</button>
-						<p className='app--title'>Resumo da Visita</p>
+						<p className='app--title'>Resumo da Atividade</p>
 
 
 						<div className='app--resumo'>
