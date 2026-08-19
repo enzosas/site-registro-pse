@@ -601,4 +601,8 @@ font-size: 2.1rem;
 		min-height: 100svh;
 		height: auto;
 	}
+	
+	.app--header-container {
+		display: none;
+	}
 }
