@@ -548,6 +548,16 @@ function App() {
 		telaEsqueciSenha
 	]);
 
+	const todosEstaoPresentes = turmaSelecionada && alunosOrdenados.length > 0 && idsAlunosPresentes.length === alunosOrdenados.length;
+
+	const alternarPresencaTodos = () => {
+		if (todosEstaoPresentes) {
+			setIdsAlunosPresentes([])
+		} else {
+			setIdsAlunosPresentes(alunosOrdenados.map(aluno => aluno.id))
+		}
+	}
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -1052,6 +1062,9 @@ function App() {
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Defina a lista de presença:</p>
+							<button className='app--buttonSecondary app--buttonSecondary__left-anchor' onClick={alternarPresencaTodos}>
+								<p>{todosEstaoPresentes ? 'Desmarcar todos' : 'Marcar todos'}</p>
+							</button>
 							<div className='app--tela-com-lista--gap'>
 								<div className='app--list'>
 									{alunosOrdenados.map((aluno) => (
