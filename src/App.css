@@ -110,7 +110,8 @@
 	gap: 1rem;
 	width: 100%;
 	flex: 1;
-	min-height: 0;
+	min-height: 16em;
+	max-height: 24em;
 }
 
 .app--search-bar {
@@ -594,11 +595,10 @@ font-size: 2.1rem;
 }
 
 @media (max-width: 1000px) {
-  .app--column {
-    width: 100%;
-  }
-  .app--background {
-	padding: 1rem;
-	padding-top: 2rem;
-  }
+	.app--background {
+		padding: 1rem;
+		padding-top: 2rem;
+		min-height: 100svh;
+		height: auto;
+	}
 }

@@ -945,7 +945,7 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltarEtapa(); }}>
 								<IconeVoltar />
 							</button>
-							<p className='app--title'>Selecione a turma que foi realizada a atividade:</p>
+							<p className='app--title'>Selecione a turma em que foi realizada a atividade:</p>
 
 							<SearchableList
 								busca={buscaTurma}
