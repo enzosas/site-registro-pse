@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     footer: {
         marginTop: 10,
     },
-    cellNome: { 
+    cellNome: {
         flex: 1,
     },
     cellSecundaria: {

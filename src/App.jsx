@@ -44,7 +44,7 @@ export function BarraProgresso({ etapaAtual, totalEtapas }) {
 				return (
 					<div key={passo} className="app--progress-step-container">
 						<div className={`app--progress-step ${statusClass}`}>
-							{statusClass === 'completed' && <IconeCheck bold/>}
+							{statusClass === 'completed' && <IconeCheck bold />}
 						</div>
 						{index < totalEtapas - 1 && (
 							<div className={`app--progress-line ${passo < etapaAtual ? 'completed' : 'pending'}`} />
@@ -68,11 +68,10 @@ function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
 			<div className='app--tela-vacinacao-grupo-botoes'>
 				<button
 					type="button"
-					className={`app--tela-vacinacao-grupo-botoes--botao ${
-						valorAtual === opcoes.POSITIVO.valor
+					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.POSITIVO.valor
 							? 'app--tela-vacinacao-grupo-botoes--botao__sim'
 							: ''
-					}`}
+						}`}
 					onClick={() =>
 						onChange(valorAtual === opcoes.POSITIVO.valor ? null : opcoes.POSITIVO.valor)
 					}
@@ -81,11 +80,10 @@ function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
 				</button>
 				<button
 					type="button"
-					className={`app--tela-vacinacao-grupo-botoes--botao ${
-						valorAtual === opcoes.NEGATIVO.valor
+					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.NEGATIVO.valor
 							? 'app--tela-vacinacao-grupo-botoes--botao__nao'
 							: ''
-					}`}
+						}`}
 					onClick={() =>
 						onChange(valorAtual === opcoes.NEGATIVO.valor ? null : opcoes.NEGATIVO.valor)
 					}
@@ -171,7 +169,7 @@ function App() {
 			setEtapa(5)
 			return
 		}
-		
+
 		if (etapa === 6) {
 			setAlunoAtualIndex(0)
 			setMostrarAlunosPendentes(false);
@@ -261,7 +259,7 @@ function App() {
 	)
 
 	const alunoAtualTelaAntropometria = alunosPresentes[alunoAtualIndex]
-	
+
 
 	// remove ou adiciona o aluno presente
 	const toggleAluno = (idAluno) => {
@@ -420,7 +418,7 @@ function App() {
 				}))
 		}
 	}
-	
+
 	// controla render tela resumo final
 	const [telaResumo, setTelaResumo] = useState(false)
 
@@ -567,7 +565,7 @@ function App() {
 						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
 							<p>Começar</p>
 						</button>
-						<button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={() => {setTelaAjuda(true); setTelaInicial(false)}}>
+						<button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={() => { setTelaAjuda(true); setTelaInicial(false) }}>
 							<p>Ajuda</p>
 						</button>
 					</div>
@@ -974,7 +972,7 @@ function App() {
 					)}
 					{etapa === 3 && (
 						<>
-							<button type="button" className="app--botao-voltar" onClick={() => {setTurmaSelecionada(null); voltarEtapa(); }}>
+							<button type="button" className="app--botao-voltar" onClick={() => { setTurmaSelecionada(null); voltarEtapa(); }}>
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Selecione a turma em que foi realizada a atividade:</p>
@@ -1021,7 +1019,7 @@ function App() {
 											{eixo.label}
 										</label>
 									))}
-								</div>	
+								</div>
 								{temEixoLocal && (
 									<>
 										<div className='app--input-group'>
@@ -1155,9 +1153,9 @@ function App() {
 									onChange={(novoValor) => handleAtualizarDadosAluno('saudeOcular', novoValor)}
 								/>
 							)}
-							
+
 							<div className='app--footer'>
-								{mostrarAlunosPendentes && obterAlunosPendentes().length > 0 &&  (
+								{mostrarAlunosPendentes && obterAlunosPendentes().length > 0 && (
 									<>
 										<div className='app--tela-vacinacao--pendentes'>
 											Os seguintes alunos estão com dados faltando:
