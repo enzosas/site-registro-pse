@@ -61,7 +61,7 @@ const formatarData = (data) => {
 	return data
 }
 
-export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
+function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
 	return (
 		<div className='app--input-group'>
 			<label>{label}</label>
@@ -90,6 +90,41 @@ export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
 			</div>
 		</div>
 	);
+}
+
+function SearchableList({
+	busca,
+	onBuscaChange,
+	itens,
+	itemSelecionado,
+	onSelecionarItem,
+	formatarNome
+}) {
+	return (
+		<div className='app--search-container'>
+			<div className='app--search-bar'>
+				<input
+					type="text"
+					placeholder="Digite aqui para pesquisar"
+					value={busca}
+					onChange={(e) => onBuscaChange(e.target.value)}
+				/>
+				<IconePesquisa />
+			</div>
+			<div className='app--search-list'>
+				{itens.map((item) => (
+					<div
+						key={item.id}
+						onClick={() => onSelecionarItem(itemSelecionado?.id === item.id ? null : item)}
+						className='app--search-list--unidade'
+					>
+						{itemSelecionado?.id === item.id ? <IconeCheck /> : <></>}
+						{formatarNome(item.nome)}
+					</div>
+				))}
+			</div>
+		</div>
+	)
 }
 
 function App() {
@@ -876,29 +911,14 @@ function App() {
 							</button>
 							<p className='app--title'>Selecione sua escola:</p>
 
-							<div className='app--search-container'>
-								<div className='app--search-bar'>
-									<input
-										type="text"
-										placeholder="Digite aqui para pesquisar"
-										value={buscaEscola}
-										onChange={(e) => setBuscaEscola(e.target.value)}
-									/>
-									<IconePesquisa />
-								</div>
-								<div className='app--search-list'>
-									{escolasFiltradas.map((escola) => (
-										<div
-											key={escola.id}
-											onClick={() => setEscolaSelecionada(escolaSelecionada?.id === escola.id ? null : escola)}
-											className='app--search-list--unidade'
-										>
-											{escolaSelecionada?.id === escola.id ? <IconeCheck /> : <></>}
-											{formatarNome(escola.nome)}
-										</div>
-									))}
-								</div>
-							</div>
+							<SearchableList
+								busca={buscaEscola}
+								onBuscaChange={setBuscaEscola}
+								itens={escolasFiltradas}
+								itemSelecionado={escolaSelecionada}
+								onSelecionarItem={setEscolaSelecionada}
+								formatarNome={formatarNome}
+							/>
 
 							<div className='app--footer'>
 								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
@@ -922,29 +942,14 @@ function App() {
 							</button>
 							<p className='app--title'>Selecione a turma que foi realizada a atividade:</p>
 
-							<div className='app--search-container'>
-								<div className='app--search-bar'>
-									<input
-										type="text"
-										placeholder="Digite aqui para pesquisar"
-										value={buscaTurma}
-										onChange={(e) => setBuscaTurma(e.target.value)}
-									/>
-									<IconePesquisa />
-								</div>
-								<div className='app--search-list'>
-									{turmasFiltradas.map((turma) => (
-										<div
-											key={turma.id}
-											onClick={() => setTurmaSelecionada(turmaSelecionada?.id === turma.id ? null : turma)}
-											className='app--search-list--unidade'
-										>
-											{turmaSelecionada?.id === turma.id ? <IconeCheck /> : <></>}
-											{formatarNome(turma.nome)}
-										</div>
-									))}
-								</div>
-							</div>
+							<SearchableList
+								busca={buscaTurma}
+								onBuscaChange={setBuscaTurma}
+								itens={turmasFiltradas}
+								itemSelecionado={turmaSelecionada}
+								onSelecionarItem={setTurmaSelecionada}
+								formatarNome={formatarNome}
+							/>
 
 							<div className='app--footer'>
 								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
