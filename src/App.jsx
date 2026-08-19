@@ -61,6 +61,37 @@ const formatarData = (data) => {
 	return data
 }
 
+export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
+	return (
+		<div className='app--input-group'>
+			<label>{label}</label>
+			<div className='app--tela-vacinacao-grupo-botoes'>
+				<button
+					type="button"
+					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.POSITIVO.valor ? opcoes.POSITIVO.classe : ''
+						}`}
+					onClick={() =>
+						onChange(valorAtual === opcoes.POSITIVO.valor ? null : opcoes.POSITIVO.valor)
+					}
+				>
+					{opcoes.POSITIVO.label}
+				</button>
+
+				<button
+					type="button"
+					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.NEGATIVO.valor ? opcoes.NEGATIVO.classe : ''
+						}`}
+					onClick={() =>
+						onChange(valorAtual === opcoes.NEGATIVO.valor ? null : opcoes.NEGATIVO.valor)
+					}
+				>
+					{opcoes.NEGATIVO.label}
+				</button>
+			</div>
+		</div>
+	);
+}
+
 function App() {
 
 	// carrega as escolas mock do db.json
@@ -1063,74 +1094,21 @@ function App() {
 							)}
 
 							{temVacinacao && (
-								<>
-									<div className='app--input-group'>
-										<label>Situação do esquema vacinal:</label>
-										<div className='app--tela-vacinacao-grupo-botoes'>
-											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado === Constantes.OPCOES_VACINACAO.POSITIVO.valor
-														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
-														: ''
-												}`}
-												type="button"
-												onClick={() => {
-													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarDadosAluno('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.POSITIVO.valor ? null : Constantes.OPCOES_VACINACAO.POSITIVO.valor);
-												}}
-											>
-												{Constantes.OPCOES_VACINACAO.POSITIVO.label}
-											</button>
-											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado === Constantes.OPCOES_VACINACAO.NEGATIVO.valor
-														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
-														: ''
-												}`}
-												type="button"
-												onClick={() => {
-													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado;
-													handleAtualizarDadosAluno('vacinado', valorAtual === Constantes.OPCOES_VACINACAO.NEGATIVO.valor ? null : Constantes.OPCOES_VACINACAO.NEGATIVO.valor);
-												}}											>
-												{Constantes.OPCOES_VACINACAO.NEGATIVO.label}
-											</button>
-										</div>
-									</div>
-								</>
+								<OpcaoBinariaGroup
+									label="Situação do esquema vacinal:"
+									opcoes={Constantes.OPCOES_VACINACAO}
+									valorAtual={dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado}
+									onChange={(novoValor) => handleAtualizarAntropometria('vacinado', novoValor)}
+								/>
 							)}
 
 							{temSaudeOcular && (
-								<>
-									<div className='app--input-group'>
-										<label>Avaliação da saúde ocular:</label>
-										<div className='app--tela-vacinacao-grupo-botoes'>
-											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor
-														? 'app--tela-vacinacao-grupo-botoes--botao__sim'
-														: ''
-												}`}
-												type="button"
-												onClick={() => {
-													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
-													handleAtualizarDadosAluno('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.valor);
-												}}
-											>
-												{Constantes.OPCOES_SAUDE_OCULAR.POSITIVO.label}
-											</button>
-											<button
-												className={`app--tela-vacinacao-grupo-botoes--botao ${dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor
-														? 'app--tela-vacinacao-grupo-botoes--botao__nao'
-														: ''
-												}`}
-												type="button"
-												onClick={() => {
-													const valorAtual = dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular;
-													handleAtualizarDadosAluno('saudeOcular', valorAtual === Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor ? null : Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.valor);
-												}}											
-											>
-												{Constantes.OPCOES_SAUDE_OCULAR.NEGATIVO.label}
-											</button>
-										</div>
-									</div>
-								</>
+								<OpcaoBinariaGroup
+									label="Avaliação da saúde ocular:"
+									opcoes={Constantes.OPCOES_SAUDE_OCULAR}
+									valorAtual={dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular}
+									onChange={(novoValor) => handleAtualizarAntropometria('saudeOcular', novoValor)}
+								/>
 							)}
 							
 							<div className='app--footer'>
