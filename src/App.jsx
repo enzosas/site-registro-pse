@@ -174,6 +174,7 @@ function App() {
 		
 		if (etapa === 6) {
 			setAlunoAtualIndex(0)
+			setMostrarAlunosPendentes(false);
 		}
 		setEtapa(prev => prev - 1)
 	}
@@ -315,7 +316,6 @@ function App() {
 		}
 	}
 	const alunoAnterior = () => {
-		setMostrarAlunosPendentes(false)
 		if (alunoAtualIndex > 0) {
 			setAlunoAtualIndex(alunoAtualIndex - 1)
 			setTimeout(() => {
@@ -1157,7 +1157,7 @@ function App() {
 							)}
 							
 							<div className='app--footer'>
-								{mostrarAlunosPendentes && (
+								{mostrarAlunosPendentes && obterAlunosPendentes().length > 0 &&  (
 									<>
 										<div className='app--tela-vacinacao--pendentes'>
 											Os seguintes alunos estão com dados faltando:
