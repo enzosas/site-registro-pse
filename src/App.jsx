@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
@@ -528,6 +528,26 @@ function App() {
 			})
 	}
 
+	const cardRef = useRef(null)
+	const bgRef = useRef(null)
+
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'instant' });
+
+		if (cardRef.current) {
+			cardRef.current.scrollTop = 0;
+		}
+	}, [
+		etapa,
+		alunoAtualIndex,
+		telaInicial,
+		telaAjuda,
+		telaResumo,
+		telaCadastroManual,
+		telaAddAluno,
+		telaEsqueciSenha
+	]);
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -552,7 +572,7 @@ function App() {
 		if (telaAjuda) {
 			return (
 				<>
-					<form onSubmit={handleLogin} className='app--card'>
+					<form onSubmit={handleLogin} className='app--card' ref={cardRef}>
 						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setTelaAjuda(false); }}>
 							<IconeVoltar />
 						</button>
@@ -596,7 +616,7 @@ function App() {
 			return (
 				<>
 					<div className='app--input-group'>
-						<div className='app--card'>
+						<div className='app--card' ref={cardRef}>
 							<button type="button" className="app--botao-voltar" onClick={() => setTelaEsqueciSenha(false)}>
 								<IconeVoltar />
 							</button>
@@ -614,7 +634,7 @@ function App() {
 		else if (telaAddEscola) {
 			return (
 				<>
-					<div className='app--card'>
+					<div className='app--card' ref={cardRef}>
 						<div className='app--input-group'>
 							<button type="button" className="app--botao-voltar" onClick={() => setTelaAddEscola(false)}>
 								<IconeVoltar />
@@ -642,6 +662,7 @@ function App() {
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<form
 						className='app--card'
+						ref={cardRef}
 						onSubmit={(e) => {
 							e.preventDefault();
 							if (!escolaManual.trim() || !turmaManual.trim()) return;
@@ -684,6 +705,7 @@ function App() {
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
 					<form
 						className='app--card'
+						ref={cardRef}
 						onSubmit={(e) => {
 							e.preventDefault();
 							if (!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()) return;
@@ -734,7 +756,7 @@ function App() {
 			return (
 				<>
 					<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
-					<form onSubmit={handleLogin} className='app--card'>
+					<form onSubmit={handleLogin} className='app--card' ref={cardRef}>
 						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setMensagemErro(''); }}>
 							<IconeVoltar />
 						</button>
@@ -783,7 +805,7 @@ function App() {
 						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
 					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<div className='app--card'>
+					<div className='app--card' ref={cardRef}>
 						<button type="button" className="app--botao-voltar" onClick={() => setTelaResumo(false)}>
 							<IconeVoltar />
 						</button>
@@ -857,7 +879,7 @@ function App() {
 					<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 				</div>
 				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-				<div className='app--card'>
+				<div className='app--card' ref={cardRef}>
 					{etapa === 1 && (
 						<form
 							onSubmit={(e) => {
@@ -1186,7 +1208,7 @@ function App() {
 
 	return (
 		<>
-			<div className='app--background'>
+			<div className='app--background' ref={bgRef}>
 				<div className='app--column'>
 					{renderizarConteudo()}
 				</div>
