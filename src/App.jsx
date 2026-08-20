@@ -556,6 +556,41 @@ function App() {
 		}
 	}
 
+	const reiniciarRegistro = () => {
+		setEtapa(1);
+		setAlunoAtualIndex(0);
+
+		setEscolaSelecionada(null);
+		setBuscaEscola('');
+		setTurmaSelecionada(null);
+		setBuscaTurma('');
+
+		setEscolaManual('');
+		setTurmaManual('');
+		setNovoAlunoNome('');
+		setNovoAlunoDataNascimento('');
+
+		setIdsEixosSelecionados([]);
+		setNomeEixoLocal('');
+		setObservacoes('');
+
+		setIdsAlunosPresentes([]);
+		setDadosAlunos({});
+		setMostrarAlunosPendentes(false);
+
+		setTelaResumo(false);
+		setTelaCadastroManual(false);
+		setTelaAddAluno(false);
+		setTelaAddEscola(false);
+		setTelaAjuda(false);
+		setTelaEsqueciSenha(false);
+
+		const dataAtual = new Date();
+		setDia(String(dataAtual.getDate()).padStart(2, '0'));
+		setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
+		setAno(String(dataAtual.getFullYear()));
+	};
+
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
@@ -1193,6 +1228,9 @@ function App() {
 								<IconeVoltar />
 							</button>
 							<p className='app--title'>Tudo pronto!</p>
+							<button className='app--buttonSecondary app--buttonSecondary__left-anchor' onClick={reiniciarRegistro}>
+								<p>Iniciar novo registro</p>
+							</button>
 
 							<div className='app--footer'>
 								<button className='app--buttonMain' onClick={() => setTelaResumo(true)}>
@@ -1209,7 +1247,9 @@ function App() {
 										</button>
 									)}
 								</PDFDownloadLink>
+								
 							</div>
+							
 						</>
 					)}
 				</div>
