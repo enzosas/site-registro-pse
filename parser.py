@@ -82,26 +82,24 @@ def extrair_nome_turma_arquivo(nome_arquivo: str) -> str:
     # 1. Remove a extensão .xlsx se houver
     texto = re.sub(r"\.xlsx$", "", nome_arquivo, flags=re.IGNORECASE).strip()
 
-    # 2. Remove sufixos de download/cópia como (1), (2), (copia), etc., no final
+    # 2. Remove sufixos de download/cópia como (1), (2), (copia), etc.
     texto = re.sub(r"\s*\(\d+\)\s*$", "", texto).strip()
 
-    # 3. Remove o sufixo final 'EducarWEB' (com ou sem espaços antes)
-    texto = re.sub(r"\s*EducarWEB\s*$", "", texto, flags=re.IGNORECASE).strip()
+    # 3. Remove o sufixo final 'EducarWEB' ou variações com 'Emitido Pelo'
+    texto = re.sub(r"\s*(?:Emitido\s+Pelo\s+)?Educar\s*WEB\s*$", "", texto, flags=re.IGNORECASE).strip()
 
-    # 4. Padrão: remove o prefixo 'Relatorio ...'
-    # Se houver hífen (ex: "Relatorio Edcu. Infantil - Pré-escola..."), pega o que vem após o hífen
-    if " - " in texto:
-        texto = texto.split(" - ", 1)[1]
-    else:
-        # Se não houver hífen, remove prefixos conhecidos como 'Relatorio Anos Finais', 'Relatorio Anos Iniciais', etc.
-        texto = re.sub(
-            r"^Relatorio\s+(?:Anos\s+Finais|Anos\s+Iniciais|Ensino\s+Fundamental|Educ[a-z\.\s]+)?",
-            "",
-            texto,
-            flags=re.IGNORECASE,
-        )
+    # 4. Remove o prefixo inicial padrão ('Relatorio ...')
+    texto = re.sub(
+        r"^Relatorio\s+(?:Anos\s+Finais|Anos\s+Iniciais|Ensino\s+Fundamental|Edcu?\.?\s*Infantil|Educ[a-z\.\s]+)?\s*",
+        "",
+        texto,
+        flags=re.IGNORECASE,
+    ).strip()
 
-    return texto.strip()
+    # 5. Se sobrou um hífen no começo (ex: "- Pré-escola..."), remove
+    texto = re.sub(r"^[-–—]\s*", "", texto).strip()
+
+    return texto
 
 
 # funcao que varre os arquivos e une os dados
@@ -111,7 +109,7 @@ def processar_todas_pastas(diretorio_raiz):
     
     # percorre a arvore de pastas
     for pasta_atual, subpastas, arquivos in os.walk(diretorio_raiz):
-
+        
         # CASO 1: Subpasta de nivel 1 contem outras subpastas (nivel 2)
         if pasta_atual != diretorio_raiz and subpastas:
             for sub in list(subpastas):
@@ -139,7 +137,7 @@ def processar_todas_pastas(diretorio_raiz):
                                 turmas_extraidas[0]["nome"] = novo_nome_turma
 
                                 # Agrupa a escola no banco de dados
-                                escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola),None)
+                                escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
 
                                 if escola_existente:
                                     escola_existente["turmas"].extend(turmas_extraidas)
@@ -170,6 +168,12 @@ def processar_todas_pastas(diretorio_raiz):
                         # extrai info do arquivo
                         nome_escola, turmas_extraidas = extrair_dados_planilha(caminho_completo)
                         
+                        # Se contiver apenas 1 turma, usa o nome do arquivo
+                        if len(turmas_extraidas) == 1:
+                            novo_nome = extrair_nome_turma_arquivo(arquivo)
+                            if novo_nome:
+                                turmas_extraidas[0]["nome"] = novo_nome
+
                         # verifica se a escola ja existe na lista
                         escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
                         
@@ -186,14 +190,6 @@ def processar_todas_pastas(diretorio_raiz):
                     except Exception as e:
                         nome_pasta = os.path.basename(pasta_atual)
                         print(f"erro ao processar '{arquivo}' na pasta '{nome_pasta}': {e}")
-        
-        
-        
-        
-        
-        
-        
-
 
     # define identificadores iniciais
     escola_id = 1
