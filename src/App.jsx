@@ -226,6 +226,8 @@ function App() {
 	const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'))
 	const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'))
 	const [ano, setAno] = useState(String(hoje.getFullYear()))
+	const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState('')
+	const [Registrador, setRegistrador] = useState('')
 
 	// estado para controlar o render da tela inicial
 	const [telaInicial, setTelaInicial] = useState(true)
@@ -402,6 +404,8 @@ function App() {
 			data: `${dia}/${mes}/${ano}`,
 			escola: escolaSelecionada?.nome || '',
 			turma: turmaSelecionada?.nome || '',
+			profissionaisResponsaveis: profissionaisResponsaveis,
+			Registrador: Registrador,
 			eixosTematicos: formatarEixosTematicosSelecionados(),
 			observacoes: observacoes,
 			alunosPresentes: alunosOrdenados
@@ -432,13 +436,13 @@ function App() {
 			'',
 			`Escola: ${dados.escola}`,
 			`Turma: ${dados.turma}`,
-			`Data: ${dados.data}`,
+			`Data de realização: ${dados.data}`,
 			'',
 			'Eixos Selecionados:',
 			...dados.eixosTematicos.map(eixo => `- ${eixo}`),
 			`Observações: ${dados.observacoes}`,
 			'',
-			'Alunos:'
+			'Alunos que participaram da ação:'
 		]
 
 		dados.alunosPresentes.forEach(aluno => {
@@ -854,6 +858,14 @@ function App() {
 						</button>
 						<p className='app--title'>Resumo da Atividade</p>
 
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'>Registrado por</p>
+							<p>{dados.Registrador}</p>
+						</div>
+						<div className='app--resumo'>
+							<p className='app--resumo--subtitle'> Responsáveis pela ação</p>
+							<p>{dados.profissionaisResponsaveis} </p>
+						</div>
 
 						<div className='app--resumo'>
 							<p className='app--resumo--subtitle'>Escola</p>
@@ -864,7 +876,7 @@ function App() {
 							<p>{dados.turma}</p>
 						</div>
 						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Data</p>
+							<p className='app--resumo--subtitle'>Data de realização da ação</p>
 							<p>{dados.data}</p>
 						</div>
 						<div className='app--resumo'>
@@ -879,7 +891,7 @@ function App() {
 							)}
 						</div>
 						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Alunos</p>
+							<p className='app--resumo--subtitle'>Alunos que participaram da ação</p>
 							<div className='app--resumo'>
 								{dados.alunosPresentes.map((aluno) => (
 									<div key={aluno.id} className='app--resumo'>
@@ -963,17 +975,39 @@ function App() {
 									onChange={(e) => setAno(e.target.value)}
 								/>
 							</div>
+							<p className='app--title'>Profissionais que realizaram a ação</p>
+							<div className='app--date-group'>
+								<input
+									type = "text"
+									placeholder="Digite"
+									maxLength="300"
+									className='app--date-input'
+									value={profissionaisResponsaveis}
+									onChange={(e) => setProfissionaisResponsaveis(e.target.value)}
+								/>
+							</div>
+							<p className='app--title'>Nome do Registrador</p>
+							<div className='app--date-group'>
+								<input
+									type = "text"
+									placeholder="Digite"
+									maxLength="300"
+									className='app--date-input'
+									value={Registrador}
+									onChange={(e) => setRegistrador(e.target.value)}
+								/>
+							</div>
 							<div className='app--footer'>
 								<button
 									type="submit"
-									className={(!dia.trim() || !mes.trim() || !ano.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-									disabled={!dia.trim() || !mes.trim() || !ano.trim()}
+									className={(!dia.trim() || !mes.trim() || !ano.trim() || !profissionaisResponsaveis.trim() || !Registrador.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+									disabled={!dia.trim() || !mes.trim() || !ano.trim() || !profissionaisResponsaveis.trim() || !Registrador.trim()}
 								>
 									<p>Avançar</p>
 								</button>
 							</div>
 						</form>
-					)}
+					)}	
 					{etapa === 2 && (
 						<>
 							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
@@ -1069,10 +1103,10 @@ function App() {
 									</>
 								)}
 								<div className='app--input-group'>
-									<label>Observações</label>
+									<label>Descrição da atividade realizada</label>
 									<input
 										type="text"
-										placeholder="Digite aqui quaisquer observações"
+										placeholder="Descreva brevemente a atividade realizada"
 										value={observacoes}
 										onChange={(e) => handleAtualizarObservacoes(e.target.value)}
 									/>
@@ -1094,7 +1128,7 @@ function App() {
 							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
 								<IconeVoltar />
 							</button>
-							<p className='app--title'>Defina a lista de presença:</p>
+							<p className='app--title'>Selecione os alunos que participaram da ação:</p>
 							<button className='app--buttonSecondary app--buttonSecondary__left-anchor' onClick={alternarPresencaTodos}>
 								<p>{todosEstaoPresentes ? 'Desmarcar todos' : 'Marcar todos'}</p>
 							</button>

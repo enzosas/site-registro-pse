@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
 export const RelatorioPDF = ({ dados }) => {
 
     const alunos = dados.alunosPresentes || [];
-
     const temPeso = alunos.some((a) => a.peso);
     const temAltura = alunos.some((a) => a.altura);
     const temVacina = alunos.some((a) => a.vacinado);
@@ -73,6 +72,8 @@ export const RelatorioPDF = ({ dados }) => {
                 </View>
 
                 <View style={styles.section}>
+                    <Text>Registrado por: {dados.Registrador} </Text>
+                    <Text> Profissionais que realizaram a ação: {dados.profissionaisResponsaveis} </Text>
                     <Text>Escola: {dados.escola}</Text>
                     <Text>Turma: {dados.turma}</Text>
                     <Text>Data da atividade: {dados.data}</Text>
