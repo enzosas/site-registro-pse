@@ -9,6 +9,11 @@ import { BarraProgresso } from './components/BarraProgresso';
 import { formatarData, formatarNome } from './utils/formatadores';
 import { OpcaoBinariaGroup } from './components/OpcaoBinariaGroup';
 import { SearchableList } from './components/SearchableList';
+import { TelaInicial } from './telas/TelaInicial';
+import { TelaAjuda } from './telas/TelaAjuda';
+import { TelaLogin } from './telas/TelaLogin';
+import { TelaCadastroManual } from './telas/TelaCadastroManual';
+import { TelaAddAluno } from './telas/TelaAddAluno';
 
 function App() {
 
@@ -454,249 +459,112 @@ function App() {
 	const renderizarConteudo = () => {
 		if (telaInicial) {
 			return (
-				<div className='app--column app--tela-inicial'>
-					<div className='app--tela-inicial-content'>
-						<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
-						<button className='app--buttonMain' onClick={() => setTelaInicial(false)}>
-							<p>Começar</p>
-						</button>
-						<button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={() => { setTelaAjuda(true); setTelaInicial(false) }}>
-							<p>Ajuda</p>
-						</button>
-					</div>
-					<div className='app--tela-inicial--rodape-imagens'>
-						<img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
-						<img src={`${import.meta.env.BASE_URL}ufsmLogo.png`} alt="Logo PSE" className="app--logo-pse" />
-					</div>
-				</div>
-			)
+				<TelaInicial
+					onComecar={() => setTelaInicial(false)}
+					onAjuda={() => {
+						setTelaAjuda(true);
+						setTelaInicial(false);
+					}}
+				/>
+			);
 		}
 
 		if (telaAjuda) {
 			return (
-				<>
-					<form onSubmit={handleLogin} className='app--card' ref={cardRef}>
-						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setTelaAjuda(false); }}>
-							<IconeVoltar />
-						</button>
-						<p className='app--title'>Ajuda</p>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Bem vindo!</p>
-							<p className='app--ajuda--paragrafo'>Este aplicativo foi criado para tornar o registro das ações do Programa Saúde na Escola (PSE) mais simples, rápido e organizado.</p>
-							<p className='app--ajuda--paragrafo'>Durante a atividade, você pode:</p>
-							<p className='app--ajuda--paragrafo'>•   Registrar a presença dos participantes</p>
-							<p className='app--ajuda--paragrafo'>•   Selecionar os eixos temáticos abordados</p>
-							<p className='app--ajuda--paragrafo'>•   Informar os dados coletados, como peso e altura</p>
-							<p className='app--ajuda--paragrafo'>•   Salvar todas as informações diretamente pelo celular</p>
-							<p className='app--ajuda--paragrafo'>Ao finalizar, o aplicativo gera automaticamente um relatório, que pode ser copiado ou salvo em PDF para facilitar o registro das ações.</p>
-							<p className='app--ajuda--paragrafo'>Assim, você economiza tempo, reduz o uso de papel e mantém os registros das atividades organizados e padronizados.</p>
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Guia prático de preenchimento</p>
-							<p className='app--ajuda--subtitulo'>Escola e turma</p>
-							<p className='app--ajuda--paragrafo'>Selecione a escola e a turma pesquisando na lista. Se não encontrar, clique em "A escola/turma não está na lista" para realizar o cadastro manual.</p>
-							<p className='app--ajuda--subtitulo'>Eixos temáticos</p>
-							<p className='app--ajuda--paragrafo'>Selecione um ou mais eixos temáticos abordados durante a atividade. Marque todas as opções que correspondem aos temas trabalhados na visita.</p>
-							<p className='app--ajuda--subtitulo'>Lista de presença</p>
-							<p className='app--ajuda--paragrafo'>A lista de estudantes da turma será exibida automaticamente. Basta marcar os participantes presentes.</p>
-							<p className='app--ajuda--paragrafo'>Caso algum estudante não esteja na lista, clique em "Adicionar estudante manualmente" e informe o nome e a data de nascimento.</p>
-							<p className='app--ajuda--subtitulo'>Coleta de dados</p>
-							<p className='app--ajuda--paragrafo'>Se a sua atividade conter um ou mais eixos temáticos com este tipo de atividade, você deverá preencher, para cada aluno presente na atividade, em ordem alfabética, as informações solicitadas.</p>
-							<p className='app--ajuda--subtitulo'>Gerando o relatório</p>
-							<p className='app--ajuda--paragrafo'>Ao finalizar o preenchimento, escolha uma das opções:</p>
-							<p className='app--ajuda--paragrafo'>•  Gerar relatório em PDF: salva o relatório no seu dispositivo.</p>
-							<p className='app--ajuda--paragrafo'>•  Ver resumo: exibe um resumo da atividade.</p>
-							<p className='app--ajuda--paragrafo'>•  Copiar resumo: copia o texto para ser colado em aplicativos como WhatsApp, e-mail ou outros sistemas.</p>
-							<p className='app--ajuda--subtitulo'>Suporte</p>
-							<p className='app--ajuda--paragrafo'>Em caso de dificuldades de acesso, erros no aplicativo ou dúvidas sobre o preenchimento, entre em contato com a coordenação do Programa Saúde na Escola (PSE) pelo e-mail: enzo.silveira@ufsm.br</p>
-						</div>
-					</form>
-				</>
-			)
+				<TelaAjuda
+					onVoltar={() => {
+						setTelaInicial(true);
+						setTelaAjuda(false);
+					}}
+					cardRef={cardRef}
+				/>
+			);
 		}
 
-		else if (telaEsqueciSenha) {
+		if (telaEsqueciSenha) {
 			return (
-				<>
-					<div className='app--input-group'>
-						<div className='app--card' ref={cardRef}>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaEsqueciSenha(false)}>
-								<IconeVoltar />
-							</button>
-							<div className='app--input-group'>
-								<label>Digite seu email</label>
-								<input type="text" />
-							</div>
-						</div>
-					</div>
-
-				</>
-			)
-		}
-
-		else if (telaAddEscola) {
-			return (
-				<>
+				<div className='app--input-group'>
 					<div className='app--card' ref={cardRef}>
-						<div className='app--input-group'>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaAddEscola(false)}>
-								<IconeVoltar />
-							</button>
-							<div className='app--input-group'>
-								<label> Digite o nome da Escola </label>
-								<input type='text' />
-								<button className='app--buttonMain' onClick={() => setTelaAddEscola(false)}>
-									<label> Cadastrar Escola </label>
-								</button>
-							</div>
-						</div>
-					</div>
-				</>
-			)
-		}
-
-		else if (telaCadastroManual) {
-			return (
-				<>
-					<div className='app--header-container'>
-						<p className='app--header'>Geração de Registro</p>
-						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
-					</div>
-					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<form
-						className='app--card'
-						ref={cardRef}
-						onSubmit={(e) => {
-							e.preventDefault();
-							if (!escolaManual.trim() || !turmaManual.trim()) return;
-							handleSalvarManual();
-						}}
-					>
-						<button type="button" className="app--botao-voltar" onClick={() => setTelaCadastroManual(false)}>
+						<button type="button" className="app--botao-voltar" onClick={() => setTelaEsqueciSenha(false)}>
 							<IconeVoltar />
 						</button>
-						<p className='app--title'>Cadastro Manual</p>
 						<div className='app--input-group'>
-							<label> Nome da Escola </label>
-							<input type='text' value={escolaManual} onChange={(e) => setEscolaManual(e.target.value)} />
+							<label>Digite seu email</label>
+							<input type="text" />
 						</div>
-						<div className='app--input-group'>
-							<label> Nome da Turma </label>
-							<input type='text' value={turmaManual} onChange={(e) => setTurmaManual(e.target.value)} />
-						</div>
-						<div className='app--footer'>
-							<button
-								type="submit"
-								className={(!escolaManual.trim() || !turmaManual.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-								disabled={!escolaManual.trim() || !turmaManual.trim()}
-							>
-								<p>Avançar</p>
-							</button>
-						</div>
-					</form>
-				</>
-			)
-		}
-
-		else if (telaAddAluno) {
-			return (
-				<>
-					<div className='app--header-container'>
-						<p className='app--header'>Geração de Registro</p>
-						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
 					</div>
-					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<form
-						className='app--card'
-						ref={cardRef}
-						onSubmit={(e) => {
-							e.preventDefault();
-							if (!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()) return;
-							handleAdicionarAluno();
-						}}
-					>
-						<button type="button" className="app--botao-voltar" onClick={() => setTelaAddAluno(false)}>
-							<IconeVoltar />
-						</button>
-						<p className='app--title'>Adicionar aluno</p>
-						<div className='app--input-group'>
-							<label>Nome</label>
-							<input
-								ref={nomeInputRef}
-								type="text"
-								value={novoAlunoNome}
-								onChange={(e) => setNovoAlunoNome(e.target.value)}
-								placeholder="Digite aqui o nome completo"
-							/>
-						</div>
-						<div className='app--input-group'>
-							<label>Data de Nascimento</label>
-							<input
-								type="text"
-								value={novoAlunoDataNascimento}
-								onChange={(e) => setNovoAlunoDataNascimento(e.target.value)}
-								placeholder="DD/MM/AAAA"
-							/>
-						</div>
-						<div className='app--footer'>
-							<button
-								type="submit"
-								className={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim() ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-								disabled={!novoAlunoNome.trim() || !novoAlunoDataNascimento.trim()}
-							>
-								<p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-									{alunoAdicionadoAnim ? 'Aluno Adicionado' : 'Adicionar Aluno'}
-									{alunoAdicionadoAnim && <IconeCheck bold />}
-								</p>
-							</button>
-						</div>
-					</form>
-				</>
-			)
+				</div>
+			);
 		}
 
-		else if (!isLoggedIn) {
+		if (telaAddEscola) {
 			return (
-				<>
-					<p className='app--title app--title__tela-inicial'>Registro PSE<br />Online</p>
-					<form onSubmit={handleLogin} className='app--card' ref={cardRef}>
-						<button type="button" className="app--botao-voltar" onClick={() => { setTelaInicial(true); setMensagemErro(''); }}>
+				<div className='app--card' ref={cardRef}>
+					<div className='app--input-group'>
+						<button type="button" className="app--botao-voltar" onClick={() => setTelaAddEscola(false)}>
 							<IconeVoltar />
 						</button>
-						<p className='app--title'>Login</p>
-						<p>Programa Saúde na Escola</p>
-						<p>Santa Maria, RS</p>
-						<div className='login--input-group'>
-							<div className='app--input-group'>
-								<label>login</label>
-								<input
-									type="text"
-									value={loginInput}
-									onChange={(e) => setLoginInput(e.target.value)}
-								/>
-							</div>
-							<div className='app--input-group'>
-								<label>senha</label>
-								<input
-									type="password"
-									value={senhaInput}
-									onChange={(e) => setSenhaInput(e.target.value)}
-								/>
-							</div>
-							{mensagemErro && <p style={{ color: 'red', marginTop: '10px' }}>{mensagemErro}</p>}
-						</div>
-						<div className='app--footer'>
-							<button type="button" className='app--buttonSecondary' onClick={() => setTelaEsqueciSenha(true)}>
-								<p>Esqueci a senha</p>
+						<div className='app--input-group'>
+							<label> Digite o nome da Escola </label>
+							<input type='text' />
+							<button className='app--buttonMain' onClick={() => setTelaAddEscola(false)}>
+								<label> Cadastrar Escola </label>
 							</button>
+						</div>
+					</div>
+				</div>
+			);
+		}
 
-							<button type="submit" className='app--buttonMain'>
-								<p>Entrar</p>
-							</button>
-						</div>
-					</form>
-				</>
-			)
+		if (telaCadastroManual) {
+			return (
+				<TelaCadastroManual
+					etapa={etapa}
+					escolaManual={escolaManual}
+					setEscolaManual={setEscolaManual}
+					turmaManual={turmaManual}
+					setTurmaManual={setTurmaManual}
+					onSalvarManual={handleSalvarManual}
+					onVoltar={() => setTelaCadastroManual(false)}
+					cardRef={cardRef}
+				/>
+			);
+		}
+
+		if (telaAddAluno) {
+			return (
+				<TelaAddAluno
+					etapa={etapa}
+					novoAlunoNome={novoAlunoNome}
+					setNovoAlunoNome={setNovoAlunoNome}
+					novoAlunoDataNascimento={novoAlunoDataNascimento}
+					setNovoAlunoDataNascimento={setNovoAlunoDataNascimento}
+					alunoAdicionadoAnim={alunoAdicionadoAnim}
+					onAdicionarAluno={handleAdicionarAluno}
+					onVoltar={() => setTelaAddAluno(false)}
+					nomeInputRef={nomeInputRef}
+					cardRef={cardRef}
+				/>
+			);
+		}
+
+		if (!isLoggedIn) {
+			return (
+				<TelaLogin
+					loginInput={loginInput}
+					setLoginInput={setLoginInput}
+					senhaInput={senhaInput}
+					setSenhaInput={setSenhaInput}
+					mensagemErro={mensagemErro}
+					handleLogin={handleLogin}
+					onVoltar={() => {
+						setTelaInicial(true);
+						setMensagemErro('');
+					}}
+					onEsqueciSenha={() => setTelaEsqueciSenha(true)}
+					cardRef={cardRef}
+				/>
+			);
 		}
 
 		else if (telaResumo) {
