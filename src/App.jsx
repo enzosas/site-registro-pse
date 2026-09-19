@@ -1,7 +1,5 @@
 import './App.css'
 import { useState, useRef, useEffect } from 'react'
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { RelatorioPDF } from './RelatorioPDF';
 import { supabase } from './supabase';
 import * as Constantes from './constantes';
 import { IconeVoltar, IconePesquisa, IconeCheck } from './components/Icones';
@@ -21,6 +19,8 @@ import { Etapa2Escola } from './etapas/Etapa2Escola';
 import { Etapa3Turma } from './etapas/Etapa3Turma';
 import { Etapa4Eixos } from './etapas/Etapa4Eixos';
 import { Etapa5Presenca } from './etapas/Etapa5Presenca';
+import { Etapa6ColetaDados } from './etapas/Etapa6ColetaDados';
+import { Etapa7Conclusao } from './etapas/Etapa7Conclusao';
 
 function App() {
 
@@ -670,125 +670,38 @@ function App() {
 						/>
 					)}
 					{etapa === 6 && (
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								proximoAluno();
+						<Etapa6ColetaDados
+							alunoAtualIndex={alunoAtualIndex}
+							alunosPresentes={alunosPresentes}
+							alunoAtual={alunoAtualTelaAntropometria}
+							dadosAlunos={dadosAlunos}
+							handleAtualizarDadosAluno={handleAtualizarDadosAluno}
+							temAntropometria={temAntropometria}
+							temVacinacao={temVacinacao}
+							temSaudeOcular={temSaudeOcular}
+							alturaInputRef={alturaInputRef}
+							mostrarAlunosPendentes={mostrarAlunosPendentes}
+							obterAlunosPendentes={obterAlunosPendentes}
+							onSelecionarAlunoPendente={(id) => {
+								const indexAluno = alunosPresentes.findIndex(a => a.id === id);
+								setAlunoAtualIndex(indexAluno);
+								setMostrarAlunosPendentes(false);
 							}}
-							style={{ display: 'contents' }}
-						>
-							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
-								<IconeVoltar />
-							</button>
-
-							<p className='app--title'>Preencha os dados de cada aluno:</p>
-							<p className='app--contador'>{alunoAtualIndex + 1}/{alunosPresentes.length}</p>
-							<p className='app--nomeAluno'>{alunoAtualTelaAntropometria?.nome || ''}</p>
-
-							{alunoAtualTelaAntropometria && temAntropometria && (
-								<>
-									<div className='app--input-group'>
-										<label>Altura (cm)</label>
-										<input
-											ref={alturaInputRef}
-											type="number"
-											placeholder="Digite aqui a altura"
-											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.altura || ''}
-											onChange={(e) => handleAtualizarDadosAluno('altura', e.target.value)}
-										/>
-									</div>
-									<div className='app--input-group'>
-										<label>Peso (kg)</label>
-										<input
-											type="number"
-											placeholder="Digite aqui o peso"
-											value={dadosAlunos[alunoAtualTelaAntropometria.id]?.peso || ''}
-											onChange={(e) => handleAtualizarDadosAluno('peso', e.target.value)}
-										/>
-									</div>
-								</>
-							)}
-
-							{temVacinacao && (
-								<OpcaoBinariaGroup
-									label="Situação do esquema vacinal:"
-									opcoes={Constantes.OPCOES_VACINACAO}
-									valorAtual={dadosAlunos[alunoAtualTelaAntropometria.id]?.vacinado}
-									onChange={(novoValor) => handleAtualizarDadosAluno('vacinado', novoValor)}
-								/>
-							)}
-
-							{temSaudeOcular && (
-								<OpcaoBinariaGroup
-									label="Avaliação da saúde ocular:"
-									opcoes={Constantes.OPCOES_SAUDE_OCULAR}
-									valorAtual={dadosAlunos[alunoAtualTelaAntropometria.id]?.saudeOcular}
-									onChange={(novoValor) => handleAtualizarDadosAluno('saudeOcular', novoValor)}
-								/>
-							)}
-
-							<div className='app--footer'>
-								{mostrarAlunosPendentes && obterAlunosPendentes().length > 0 && (
-									<>
-										<div className='app--tela-vacinacao--pendentes'>
-											Os seguintes alunos estão com dados faltando:
-										</div>
-										{obterAlunosPendentes().map((aluno) => {
-											const indexAluno = alunosPresentes.findIndex(a => a.id === aluno.id)
-											return (
-												<div
-													key={aluno.id}
-													onClick={() => {
-														setAlunoAtualIndex(indexAluno)
-														setMostrarAlunosPendentes(false)
-													}}
-												>
-													<span className='app--tela-vacinacao--pendentes'>{aluno.nome}</span>
-												</div>
-											)
-										})}
-									</>
-								)}
-								<div className='app--dados-aluno--footer'>
-									<button type="button" className="app--botao-voltar" onClick={alunoAnterior}>
-										<IconeVoltar />
-									</button>
-									<button type="submit" className='app--buttonMain'>
-										<p>{alunoAtualIndex === alunosPresentes.length - 1 ? 'Avançar' : 'Próximo'}</p>
-									</button>
-								</div>
-							</div>
-						</form>
+							onProximo={proximoAluno}
+							onAnterior={alunoAnterior}
+							onVoltar={voltarEtapa}
+						/>
 					)}
 					{etapa === 7 && (
-						<>
-							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Tudo pronto!</p>
-							<button className='app--buttonSecondary app--buttonSecondary__left-anchor' onClick={reiniciarRegistro}>
-								<p>Iniciar novo registro</p>
-							</button>
-
-							<div className='app--footer'>
-								<button className='app--buttonMain' onClick={() => setTelaResumo(true)}>
-									<p>Ver resumo</p>
-								</button>
-								<PDFDownloadLink
-									document={<RelatorioPDF dados={gerarObjetoRelatorio()} />}
-									fileName={`Relatorio_PSE_${dia}_${mes}_${ano}.pdf`}
-									style={{ textDecoration: 'none', display: 'block', width: '100%' }}
-								>
-									{({ loading }) => (
-										<button className='app--buttonMain'>
-											<p>Gerar Relatório PDF</p>
-										</button>
-									)}
-								</PDFDownloadLink>
-								
-							</div>
-							
-						</>
+						<Etapa7Conclusao
+							dia={dia}
+							mes={mes}
+							ano={ano}
+							dadosRelatorio={gerarObjetoRelatorio()}
+							onVerResumo={() => setTelaResumo(true)}
+							onReiniciarRegistro={reiniciarRegistro}
+							onVoltar={voltarEtapa}
+						/>
 					)}
 				</div>
 			</>
