@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { autenticarUsuario, carregarEscolasDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import { formatarData } from '../utils/formatadores';
 import { TELAS } from '../constantes';
@@ -73,42 +73,26 @@ export function useRegistroPSE() {
 
     // Busca inicial dos dados no Supabase
     const buscarDados = async () => {
-        const { data, error } = await supabase
-            .from('dados')
-            .select('json')
-            .eq('id', 1)
-            .single();
-
-        if (error) {
-            console.error('Erro ao buscar dados do Supabase:', error);
-        } else {
-            setEscolas(data.json.escolas);
-        }
+        const escolasCarregadas = await carregarEscolasDB();
+        setEscolas(escolasCarregadas);
     };
 
     // Login
     const handleLogin = async (e) => {
         if (e) e.preventDefault();
         setMensagemErro('');
-        const { error } = await supabase.auth.signInWithPassword({
-            email: loginInput,
-            password: senhaInput,
-        });
 
-        if (error) {
-            if (error.status === 400 || error.message?.includes('Invalid login credentials')) {
-                setMensagemErro('credenciais inválidas');
-            } else if (error.status >= 500) {
-                setMensagemErro('servidor fora do ar. tente novamente mais tarde');
-            } else {
-                setMensagemErro('erro de conexão. verifique sua internet');
-            }
-        } else {
-            setIsLoggedIn(true);
-            setMensagemErro('');
-            buscarDados();
-            setTelaAtiva(TELAS.ETAPAS);
+        const resultado = await autenticarUsuario(loginInput, senhaInput);
+
+        if (!resultado.sucesso) {
+            setMensagemErro(resultado.erro);
+            return;
         }
+
+        setIsLoggedIn(true);
+        setMensagemErro('');
+        await buscarDados();
+        setTelaAtiva(TELAS.ETAPAS);
     };
 
     // Computed values: Eixos
