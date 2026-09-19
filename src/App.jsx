@@ -16,6 +16,9 @@ import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
 import { HeaderRegistro } from './components/HeaderRegistro';
 import { TelaResumo } from './telas/TelaResumo';
+import { Etapa1Data } from './etapas/Etapa1Data';
+import { Etapa2Escola } from './etapas/Etapa2Escola';
+import { Etapa3Turma } from './etapas/Etapa3Turma';
 
 function App() {
 
@@ -592,139 +595,49 @@ function App() {
 				<HeaderRegistro etapaAtual={etapa} />
 				<div className='app--card' ref={cardRef}>
 					{etapa === 1 && (
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								// trava de segurança para o enter não enviar se faltar dados
-								if (!dia.trim() || !mes.trim() || !ano.trim()) return;
-								avancarEtapa();
-							}}
-							style={{ display: 'contents' }}
-						>
-							<button type="button" className="app--botao-voltar" onClick={() => setTelaInicial(true)}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Digite a data da atividade:</p>
-							<div className='app--date-group'>
-								<input
-									type="text"
-									placeholder="DD"
-									maxLength="2"
-									className='app--date-input'
-									value={dia}
-									onChange={(e) => setDia(e.target.value)}
-								/>
-								<input
-									type="text"
-									placeholder="MM"
-									maxLength="2"
-									className='app--date-input'
-									value={mes}
-									onChange={(e) => setMes(e.target.value)}
-								/>
-								<input
-									type="text"
-									placeholder="AAAA"
-									maxLength="4"
-									className='app--date-input'
-									value={ano}
-									onChange={(e) => setAno(e.target.value)}
-								/>
-							</div>
-							<p className='app--title'>Profissionais que realizaram a ação</p>
-							<div className='app--date-group'>
-								<input
-									type = "text"
-									placeholder="Digite"
-									maxLength="300"
-									className='app--date-input'
-									value={profissionaisResponsaveis}
-									onChange={(e) => setProfissionaisResponsaveis(e.target.value)}
-								/>
-							</div>
-							<p className='app--title'>Nome do Registrador</p>
-							<div className='app--date-group'>
-								<input
-									type = "text"
-									placeholder="Digite"
-									maxLength="300"
-									className='app--date-input'
-									value={Registrador}
-									onChange={(e) => setRegistrador(e.target.value)}
-								/>
-							</div>
-							<div className='app--footer'>
-								<button
-									type="submit"
-									className={(!dia.trim() || !mes.trim() || !ano.trim() || !profissionaisResponsaveis.trim() || !Registrador.trim()) ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-									disabled={!dia.trim() || !mes.trim() || !ano.trim() || !profissionaisResponsaveis.trim() || !Registrador.trim()}
-								>
-									<p>Avançar</p>
-								</button>
-							</div>
-						</form>
-					)}	
+						<Etapa1Data
+							dia={dia}
+							setDia={setDia}
+							mes={mes}
+							setMes={setMes}
+							ano={ano}
+							setAno={setAno}
+							profissionaisResponsaveis={profissionaisResponsaveis}
+							setProfissionaisResponsaveis={setProfissionaisResponsaveis}
+							Registrador={Registrador}
+							setRegistrador={setRegistrador}
+							onAvancar={avancarEtapa}
+							onVoltar={() => setTelaInicial(true)}
+						/>
+					)}
 					{etapa === 2 && (
-						<>
-							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Selecione sua escola:</p>
-
-							<SearchableList
-								busca={buscaEscola}
-								onBuscaChange={setBuscaEscola}
-								itens={escolasFiltradas}
-								itemSelecionado={escolaSelecionada}
-								onSelecionarItem={setEscolaSelecionada}
-								formatarNome={formatarNome}
-							/>
-
-							<div className='app--footer'>
-								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
-									<p>A escola não está na lista</p>
-								</button>
-								<button
-									className={escolaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
-									onClick={() => {
-										if (escolaSelecionada) avancarEtapa()
-									}}
-								>
-									<p>Avançar</p>
-								</button>
-							</div>
-						</>
+						<Etapa2Escola
+							buscaEscola={buscaEscola}
+							setBuscaEscola={setBuscaEscola}
+							escolasFiltradas={escolasFiltradas}
+							escolaSelecionada={escolaSelecionada}
+							setEscolaSelecionada={setEscolaSelecionada}
+							formatarNome={formatarNome}
+							onAvancar={avancarEtapa}
+							onVoltar={voltarEtapa}
+							onCadastroManual={() => setTelaCadastroManual(true)}
+						/>
 					)}
 					{etapa === 3 && (
-						<>
-							<button type="button" className="app--botao-voltar" onClick={() => { setTurmaSelecionada(null); voltarEtapa(); }}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Selecione a turma em que foi realizada a atividade:</p>
-
-							<SearchableList
-								busca={buscaTurma}
-								onBuscaChange={setBuscaTurma}
-								itens={turmasFiltradas}
-								itemSelecionado={turmaSelecionada}
-								onSelecionarItem={setTurmaSelecionada}
-								formatarNome={formatarNome}
-							/>
-
-							<div className='app--footer'>
-								<button className='app--buttonSecondary' onClick={() => setTelaCadastroManual(true)}>
-									<p>A turma não está na lista</p>
-								</button>
-								<button
-									className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
-									onClick={() => {
-										if (turmaSelecionada) avancarEtapa()
-									}}
-								>
-									<p>Avançar</p>
-								</button>
-							</div>
-						</>
+						<Etapa3Turma
+							buscaTurma={buscaTurma}
+							setBuscaTurma={setBuscaTurma}
+							turmasFiltradas={turmasFiltradas}
+							turmaSelecionada={turmaSelecionada}
+							setTurmaSelecionada={setTurmaSelecionada}
+							formatarNome={formatarNome}
+							onAvancar={avancarEtapa}
+							onVoltar={() => {
+								setTurmaSelecionada(null);
+								voltarEtapa();
+							}}
+							onCadastroManual={() => setTelaCadastroManual(true)}
+						/>
 					)}
 					{etapa === 4 && (
 						<>
