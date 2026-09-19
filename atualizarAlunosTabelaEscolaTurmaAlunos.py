@@ -60,7 +60,7 @@ warnings.simplefilter("ignore", category=UserWarning)
 load_dotenv()
 
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("VITE_SUPABASE_KEY")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Variáveis VITE_SUPABASE_URL ou VITE_SUPABASE_KEY não foram encontradas no .env")
 
