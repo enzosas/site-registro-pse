@@ -135,7 +135,20 @@ def varrer_arquivos_pastas(diretorio_raiz):
     banco_dados = {"escolas": []}
 
     for pasta_atual, subpastas, arquivos in os.walk(diretorio_raiz):
+        subpastas_com_xlsx = False
         if pasta_atual != diretorio_raiz and subpastas:
+            for sub in subpastas:
+                caminho_sub = os.path.join(pasta_atual, sub)
+                if os.path.isdir(caminho_sub):
+                    tem_xlsx = any(
+                        f.endswith(".xlsx") and not f.startswith("~$")
+                        for f in os.listdir(caminho_sub)
+                    )
+                    if tem_xlsx:
+                        subpastas_com_xlsx = True
+                        break
+
+        if pasta_atual != diretorio_raiz and subpastas_com_xlsx:
             for sub in list(subpastas):
                 caminho_sub = os.path.join(pasta_atual, sub)
                 for item in os.listdir(caminho_sub):
@@ -143,27 +156,39 @@ def varrer_arquivos_pastas(diretorio_raiz):
                         caminho_arquivo = os.path.join(caminho_sub, item)
                         try:
                             nome_escola, turmas_extraidas = extrair_dados_planilha(caminho_arquivo)
+                            
                             if not nome_escola or str(nome_escola).strip().lower() in ("nan", "none", ""):
                                 continue
+
+                            if not turmas_extraidas:
+                                continue
+
                             if len(turmas_extraidas) == 1:
                                 turmas_extraidas[0]["nome"] = extrair_nome_turma_arquivo(item)
 
-                                escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
-                                if escola_existente:
-                                    escola_existente["turmas"].extend(turmas_extraidas)
-                                else:
-                                    banco_dados["escolas"].append({"nome": nome_escola, "turmas": turmas_extraidas})
+                            escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
+                            if escola_existente:
+                                escola_existente["turmas"].extend(turmas_extraidas)
+                            else:
+                                banco_dados["escolas"].append({"nome": nome_escola, "turmas": turmas_extraidas})
                         except Exception as e:
                             print(f"Erro em '{item}': {e}")
+
             subpastas.clear()
+
         else:
             for arquivo in arquivos:
                 if arquivo.endswith(".xlsx") and not arquivo.startswith("~$"):
                     caminho_completo = os.path.join(pasta_atual, arquivo)
                     try:
                         nome_escola, turmas_extraidas = extrair_dados_planilha(caminho_completo)
+
                         if not nome_escola or str(nome_escola).strip().lower() in ("nan", "none", ""):
                             continue
+
+                        if not turmas_extraidas:
+                            continue
+
                         if len(turmas_extraidas) == 1:
                             novo_nome = extrair_nome_turma_arquivo(arquivo)
                             if novo_nome:
