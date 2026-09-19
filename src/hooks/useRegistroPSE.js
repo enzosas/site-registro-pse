@@ -2,19 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../supabase';
 import * as Constantes from '../constantes';
 import { formatarData } from '../utils/formatadores';
+import { TELAS } from '../constantes';
 
 export function useRegistroPSE() {
     // Dados do Supabase
     const [escolas, setEscolas] = useState([]);
 
     // Estados de navegação e telas
-    const [telaInicial, setTelaInicial] = useState(true);
-    const [telaAjuda, setTelaAjuda] = useState(false);
-    const [telaEsqueciSenha, setTelaEsqueciSenha] = useState(false);
-    const [telaAddEscola, setTelaAddEscola] = useState(false);
-    const [telaAddAluno, setTelaAddAluno] = useState(false);
-    const [telaCadastroManual, setTelaCadastroManual] = useState(false);
-    const [telaResumo, setTelaResumo] = useState(false);
+    const [telaAtiva, setTelaAtiva] = useState(TELAS.INICIAL);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // Autenticação
@@ -74,16 +69,7 @@ export function useRegistroPSE() {
         if (cardRef.current) {
             cardRef.current.scrollTop = 0;
         }
-    }, [
-        etapa,
-        alunoAtualIndex,
-        telaInicial,
-        telaAjuda,
-        telaResumo,
-        telaCadastroManual,
-        telaAddAluno,
-        telaEsqueciSenha,
-    ]);
+    }, [etapa, alunoAtualIndex, telaAtiva]);
 
     // Busca inicial dos dados no Supabase
     const buscarDados = async () => {
@@ -121,6 +107,7 @@ export function useRegistroPSE() {
             setIsLoggedIn(true);
             setMensagemErro('');
             buscarDados();
+            setTelaAtiva(TELAS.ETAPAS);
         }
     };
 
@@ -293,7 +280,7 @@ export function useRegistroPSE() {
         setTurmaSelecionada({ id: 'manual_turma', nome: turmaManual, alunos: [] });
         setIdsAlunosPresentes([]);
         setEtapa(4);
-        setTelaCadastroManual(false);
+        setTelaAtiva('ETAPAS');
     };
 
     // Relatório e Resumo
@@ -375,12 +362,7 @@ export function useRegistroPSE() {
         setIdsAlunosPresentes([]);
         setDadosAlunos({});
         setMostrarAlunosPendentes(false);
-        setTelaResumo(false);
-        setTelaCadastroManual(false);
-        setTelaAddAluno(false);
-        setTelaAddEscola(false);
-        setTelaAjuda(false);
-        setTelaEsqueciSenha(false);
+        setTelaAtiva(TELAS.INICIAL);
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
         setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
@@ -389,20 +371,8 @@ export function useRegistroPSE() {
 
     return {
         // Estados de UI
-        telaInicial,
-        setTelaInicial,
-        telaAjuda,
-        setTelaAjuda,
-        telaEsqueciSenha,
-        setTelaEsqueciSenha,
-        telaAddEscola,
-        setTelaAddEscola,
-        telaAddAluno,
-        setTelaAddAluno,
-        telaCadastroManual,
-        setTelaCadastroManual,
-        telaResumo,
-        setTelaResumo,
+        telaAtiva,
+        setTelaAtiva,
         isLoggedIn,
 
         // Login

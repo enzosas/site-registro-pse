@@ -67,3 +67,15 @@ export const formatarSaudeOcular = (valor) => {
 	if (valor === OPCOES_SAUDE_OCULAR.NEGATIVO.valor) return OPCOES_SAUDE_OCULAR.NEGATIVO.label
 	return '-'
 }
+
+export const TELAS = Object.freeze({
+	INICIAL: 'INICIAL',
+	AJUDA: 'AJUDA',
+	LOGIN: 'LOGIN',
+	ESQUECI_SENHA: 'ESQUECI_SENHA',
+	ADD_ESCOLA: 'ADD_ESCOLA',
+	ADD_ALUNO: 'ADD_ALUNO',
+	CADASTRO_MANUAL: 'CADASTRO_MANUAL',
+	RESUMO: 'RESUMO',
+	ETAPAS: 'ETAPAS',
+});
