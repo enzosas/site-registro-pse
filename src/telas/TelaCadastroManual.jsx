@@ -1,5 +1,5 @@
 import { IconeVoltar } from '../components/Icones';
-import { BarraProgresso } from '../components/BarraProgresso';
+import { HeaderRegistro } from '../components/HeaderRegistro';
 
 export function TelaCadastroManual({
     etapa,
@@ -15,11 +15,7 @@ export function TelaCadastroManual({
 
     return (
         <>
-            <div className='app--header-container'>
-                <p className='app--header'>Geração de Registro</p>
-                <img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
-            </div>
-            <BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+            <HeaderRegistro etapaAtual={etapa} />
             <form
                 className='app--card'
                 ref={cardRef}

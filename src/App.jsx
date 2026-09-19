@@ -14,6 +14,7 @@ import { TelaAjuda } from './telas/TelaAjuda';
 import { TelaLogin } from './telas/TelaLogin';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
+import { HeaderRegistro } from './components/HeaderRegistro';
 
 function App() {
 
@@ -653,11 +654,7 @@ function App() {
 
 		else return (
 			<>
-				<div className='app--header-container'>
-					<p className='app--header'>Geração de Registro</p>
-					<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
-				</div>
-				<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
+				<HeaderRegistro etapaAtual={etapa} />
 				<div className='app--card' ref={cardRef}>
 					{etapa === 1 && (
 						<form
