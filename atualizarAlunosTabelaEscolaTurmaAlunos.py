@@ -54,6 +54,7 @@ import warnings
 import pandas as pd
 from dotenv import load_dotenv
 from supabase import Client, create_client
+from datetime import datetime, timezone
 
 warnings.simplefilter("ignore", category=UserWarning)
 load_dotenv()
@@ -214,6 +215,8 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
     turma_id = 101
     aluno_id = 1001
 
+    agora_iso = datetime.now(timezone.utc).isoformat()
+
     for escola in banco_dados_processado["escolas"]:
         nome_escola = escola["nome"]
 
@@ -250,6 +253,7 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
             "dados": {
                 "turmas": turmas_formatadas
             },
+            "atualizado_em": agora_iso
         })
 
     try:
