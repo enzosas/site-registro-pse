@@ -6,81 +6,9 @@ import { supabase } from './supabase';
 import * as Constantes from './constantes';
 import { IconeVoltar, IconePesquisa, IconeCheck } from './components/Icones';
 import { BarraProgresso } from './components/BarraProgresso';
-
-
-const formatarData = (data) => {
-	if (!data) return ''
-	return data
-}
-
-function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
-	return (
-		<div className='app--input-group'>
-			<label>{label}</label>
-			<div className='app--tela-vacinacao-grupo-botoes'>
-				<button
-					type="button"
-					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.POSITIVO.valor
-							? 'app--tela-vacinacao-grupo-botoes--botao__sim'
-							: ''
-						}`}
-					onClick={() =>
-						onChange(valorAtual === opcoes.POSITIVO.valor ? null : opcoes.POSITIVO.valor)
-					}
-				>
-					{opcoes.POSITIVO.label}
-				</button>
-				<button
-					type="button"
-					className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.NEGATIVO.valor
-							? 'app--tela-vacinacao-grupo-botoes--botao__nao'
-							: ''
-						}`}
-					onClick={() =>
-						onChange(valorAtual === opcoes.NEGATIVO.valor ? null : opcoes.NEGATIVO.valor)
-					}
-				>
-					{opcoes.NEGATIVO.label}
-				</button>
-			</div>
-		</div>
-	);
-}
-
-function SearchableList({
-	busca,
-	onBuscaChange,
-	itens,
-	itemSelecionado,
-	onSelecionarItem,
-	formatarNome
-}) {
-	return (
-		<div className='app--search-container'>
-			<div className='app--search-bar'>
-				<input
-					type="text"
-					placeholder="Digite aqui para pesquisar"
-					value={busca}
-					onChange={(e) => onBuscaChange(e.target.value)}
-				/>
-				<IconePesquisa />
-			</div>
-			<div className='app--search-list'>
-				{itens.map((item) => (
-					<div
-						key={item.id}
-						onClick={() => onSelecionarItem(itemSelecionado?.id === item.id ? null : item)}
-						className='app--search-list--unidade'
-					>
-						{itemSelecionado?.id === item.id ? <IconeCheck /> : <></>}
-						{formatarNome(item.nome)}
-					</div>
-				))}
-			</div>
-		</div>
-	)
-}
+import { formatarData, formatarNome } from './utils/formatadores';
+import { OpcaoBinariaGroup } from './components/OpcaoBinariaGroup';
+import { SearchableList } from './components/SearchableList';
 
 function App() {
 
@@ -419,30 +347,6 @@ function App() {
 		} catch (erro) {
 			console.error('Erro ao copiar', erro)
 		}
-	}
-
-	const formatarNome = (nome) => {
-		const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI']
-		const preposicoes = ['de', 'da', 'do', 'das', 'dos', 'e']
-		const regexRomano = /^(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$/i
-
-		return nome
-			.toLowerCase()
-			.split(' ')
-			.map((palavra, index) => {
-				const palavraMaiuscula = palavra.toUpperCase()
-
-				if (siglas.includes(palavraMaiuscula) || regexRomano.test(palavra)) {
-					return palavraMaiuscula
-				}
-
-				if (preposicoes.includes(palavra) && index !== 0) {
-					return palavra
-				}
-
-				return palavra.charAt(0).toUpperCase() + palavra.slice(1)
-			})
-			.join(' ')
 	}
 
 	const [mostrarAlunosPendentes, setMostrarAlunosPendentes] = useState(false)
