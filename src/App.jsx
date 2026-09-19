@@ -1,19 +1,20 @@
-import './App.css'
-import { useState, useRef, useEffect } from 'react'
-import { supabase } from './supabase';
-import * as Constantes from './constantes';
-import { IconeVoltar, IconePesquisa, IconeCheck } from './components/Icones';
-import { BarraProgresso } from './components/BarraProgresso';
-import { formatarData, formatarNome } from './utils/formatadores';
-import { OpcaoBinariaGroup } from './components/OpcaoBinariaGroup';
-import { SearchableList } from './components/SearchableList';
+import './App.css';
+import { useRegistroPSE } from './hooks/useRegistroPSE';
+import { formatarNome } from './utils/formatadores';
+
+// Componentes
+import { IconeVoltar } from './components/Icones';
+import { HeaderRegistro } from './components/HeaderRegistro';
+
+// Telas
 import { TelaInicial } from './telas/TelaInicial';
 import { TelaAjuda } from './telas/TelaAjuda';
 import { TelaLogin } from './telas/TelaLogin';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
-import { HeaderRegistro } from './components/HeaderRegistro';
 import { TelaResumo } from './telas/TelaResumo';
+
+// Etapas
 import { Etapa1Data } from './etapas/Etapa1Data';
 import { Etapa2Escola } from './etapas/Etapa2Escola';
 import { Etapa3Turma } from './etapas/Etapa3Turma';
@@ -23,476 +24,42 @@ import { Etapa6ColetaDados } from './etapas/Etapa6ColetaDados';
 import { Etapa7Conclusao } from './etapas/Etapa7Conclusao';
 
 function App() {
-
-	// carrega as escolas mock do db.json
-	const [escolas, setEscolas] = useState([])
-
-	// gerenciadores das escolas
-	const [buscaEscola, setBuscaEscola] = useState('')
-	const [escolaSelecionada, setEscolaSelecionada] = useState(null)
-
-	// gerenciadores das turmas
-	const [buscaTurma, setBuscaTurma] = useState('')
-	const [turmaSelecionada, setTurmaSelecionada] = useState(null)
-
-	// estado para controlar os alunos presentes
-	const [idsAlunosPresentes, setIdsAlunosPresentes] = useState([])
-
-	// estados do preenchimento do peso e altura
-	const [alunoAtualIndex, setAlunoAtualIndex] = useState(0)
-	const [dadosAlunos, setDadosAlunos] = useState({})
-
-	// guarda a etapa do processo de preenchimento do registro
-	// define a etapa para mostrar na tela
-	const [etapa, setEtapa] = useState(1)
-
-	// funcao para avancar etapa, tipo ir de colocar a data para escolher a escola
-	const avancarEtapa = () => {
-		if (etapa === 5 && !temAvaliacaoIndividual) {
-			setEtapa(7)
-			return
-		}
-		setEtapa(prev => prev + 1)
-	}
-
-	// mesma coisa so que de ré
-	const voltarEtapa = () => {
-		if (etapa === 7 && !temAvaliacaoIndividual) {
-			setEtapa(5)
-			return
-		}
-
-		if (etapa === 6) {
-			setAlunoAtualIndex(0)
-			setMostrarAlunosPendentes(false);
-		}
-		setEtapa(prev => prev - 1)
-	}
-
-	// funcao para buscar o json com as turmas no supabase
-	const buscarDados = async () => {
-		const { data, error } = await supabase
-			.from('dados')
-			.select('json')
-			.eq('id', 1)
-			.single()
-
-		if (error) {
-			console.error("Erro ao buscar dados do Supabase:", error)
-		} else {
-			setEscolas(data.json.escolas)
-		}
-	}
-
-	const [loginInput, setLoginInput] = useState('')
-	const [senhaInput, setSenhaInput] = useState('')
-	const [mensagemErro, setMensagemErro] = useState('')
-
-	const handleLogin = async (e) => {
-		if (e) e.preventDefault()
-		setMensagemErro('')
-
-		const { data, error } = await supabase.auth.signInWithPassword({
-			email: loginInput,
-			password: senhaInput,
-		})
-
-		if (error) {
-			if (error.status === 400 || error.message.includes('Invalid login credentials')) {
-				setMensagemErro('credenciais inválidas')
-			} else if (error.status >= 500) {
-				setMensagemErro('servidor fora do ar. tente novamente mais tarde')
-			} else {
-				setMensagemErro('erro de conexão. verifique sua internet')
-			}
-		} else {
-			setIsLoggedIn(true)
-			setMensagemErro('')
-			buscarDados()
-		}
-	}
-
-	// geracao automatica do dia de hoje para mostrar no preenchimento
-	// armazenamento da data da atividade
-	const hoje = new Date()
-	const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'))
-	const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'))
-	const [ano, setAno] = useState(String(hoje.getFullYear()))
-	const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState('')
-	const [Registrador, setRegistrador] = useState('')
-
-	// estado para controlar o render da tela inicial
-	const [telaInicial, setTelaInicial] = useState(true)
-
-	const [telaAjuda, setTelaAjuda] = useState(false)
-
-	const [telaEsqueciSenha, setTelaEsqueciSenha] = useState(false);
-
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-	const [telaAddEscola, setTelaAddEscola] = useState(false);
-
-	const [telaAddAluno, setTelaAddAluno] = useState(false);
-
-	// funcao para escolher as escolas que aparecem ao digitar algum nome na barra de pesquisa
-	const escolasFiltradas = escolas
-		.filter(escola => escola.nome.toLowerCase().includes(buscaEscola.toLowerCase()))
-		.sort((a, b) => a.nome.localeCompare(b.nome))
-
-	// funcao para escolher as turmas que aparecem ao digitar algum nome na barra de pesquisa
-	const turmasFiltradas = escolaSelecionada?.turmas
-		.filter(turma => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
-		.sort((a, b) => a.nome.localeCompare(b.nome)) || []
-
-	const alunosOrdenados = [...(turmaSelecionada?.alunos || [])].sort((a, b) =>
-		(a.nome || '').localeCompare(b.nome || '')
-	)
-
-	const alunosPresentes = alunosOrdenados.filter(aluno =>
-		idsAlunosPresentes.includes(aluno.id)
-	)
-
-	const alunoAtualTelaAntropometria = alunosPresentes[alunoAtualIndex]
-
-
-	// remove ou adiciona o aluno presente
-	const toggleAluno = (idAluno) => {
-		setIdsAlunosPresentes(prev =>
-			prev.includes(idAluno)
-				? prev.filter(id => id !== idAluno)
-				: [...prev, idAluno]
-		)
-	}
-
-	// define todos alunos como presentes
-	const marcarTodosPresentes = () => {
-		if (turmaSelecionada) {
-			setIdsAlunosPresentes(alunosOrdenados.map(aluno => aluno.id))
-		}
-	}
-
-	// preenche dados peso altura
-	const handleAtualizarDadosAluno = (campo, valor) => {
-		setDadosAlunos(prev => ({
-			...prev,
-			[alunoAtualTelaAntropometria.id]: {
-				...prev[alunoAtualTelaAntropometria.id],
-				[campo]: valor
-			}
-		}))
-	}
-
-	// atualiza o nome do eixo local
-	const handleAtualizarNomeEixoLocal = (valor) => {
-		setNomeEixoLocal(valor);
-	}
-
-	const handleAtualizarObservacoes = (valor) => {
-		setObservacoes(valor);
-	}
-
-	// vai ou volta na tela do peso altura
-	const proximoAluno = () => {
-		if (alunoAtualIndex < alunosPresentes.length - 1) {
-			setAlunoAtualIndex(alunoAtualIndex + 1)
-			setTimeout(() => {
-				if (alturaInputRef.current) alturaInputRef.current.focus()
-			}, 10)
-		} else {
-			const pendentes = obterAlunosPendentes()
-			if (pendentes.length > 0) {
-				setMostrarAlunosPendentes(true)
-			} else {
-				avancarEtapa()
-			}
-		}
-	}
-	const alunoAnterior = () => {
-		if (alunoAtualIndex > 0) {
-			setAlunoAtualIndex(alunoAtualIndex - 1)
-			setTimeout(() => {
-				if (alturaInputRef.current) alturaInputRef.current.focus()
-			}, 10)
-		} else {
-			voltarEtapa()
-		}
-	}
-
-	// controle dos eixos selecionados
-	const [idsEixosSelecionados, setIdsEixosSelecionados] = useState([])
-	const toggleEixo = (idEixo) => {
-		setIdsEixosSelecionados(prev =>
-			prev.includes(idEixo)
-				? prev.filter(id => id !== idEixo)
-				: [...prev, idEixo]
-		)
-	}
-
-	const temAntropometria = idsEixosSelecionados.includes(Constantes.EIXOS_ID.ANTROPOMETRIA)
-	const temVacinacao = idsEixosSelecionados.includes(Constantes.EIXOS_ID.VACINACAO)
-	const temSaudeOcular = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_OCULAR)
-	const temEixoLocal = idsEixosSelecionados.includes(Constantes.EIXOS_ID.TEMATICA_LOCAL)
-
-	// condição para exibir a Etapa 6 (se qualquer questionário individual estiver ativo)
-	const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular
-
-	// variaveis para armazenar temporariamente dados do novo aluno
-	const [novoAlunoNome, setNovoAlunoNome] = useState('')
-	const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('')
-
-	// escreve se o aluno foi adicionado ao clicar
-	const [alunoAdicionadoAnim, setAlunoAdicionadoAnim] = useState(false)
-
-	// cria a referência para o campo de nome
-	const nomeInputRef = useRef(null)
-
-	// cria a referência para o campo de altura
-	const alturaInputRef = useRef(null)
-
-	// funcao para adicionar novo aluno
-	const handleAdicionarAluno = () => {
-		if (!novoAlunoNome || !turmaSelecionada) return
-
-		const dataFormatada = novoAlunoDataNascimento
-		const novoAlunoId = Date.now()
-		const novoAluno = {
-			id: novoAlunoId,
-			nome: novoAlunoNome,
-			dataNascimento: dataFormatada
-		}
-
-		setTurmaSelecionada(prev => ({
-			...prev,
-			alunos: [...prev.alunos, novoAluno]
-		}))
-		setIdsAlunosPresentes(prev => [...prev, novoAlunoId])
-
-		setNovoAlunoNome('')
-		setNovoAlunoDataNascimento('')
-
-		setAlunoAdicionadoAnim(true)
-		setTimeout(() => setAlunoAdicionadoAnim(false), 2000)
-		setTimeout(() => {
-			if (nomeInputRef.current) {
-				nomeInputRef.current.focus()
-			}
-		}, 10)
-	}
-	// variaveis para definicao manual do nome da escola e turma
-	const [telaCadastroManual, setTelaCadastroManual] = useState(false)
-	const [escolaManual, setEscolaManual] = useState('')
-	const [turmaManual, setTurmaManual] = useState('')
-
-	const handleSalvarManual = () => {
-		setEscolaSelecionada({ id: 'manual_escola', nome: escolaManual, turmas: [] })
-		setTurmaSelecionada({ id: 'manual_turma', nome: turmaManual, alunos: [] })
-		setIdsAlunosPresentes([])
-		setEtapa(4)
-		setTelaCadastroManual(false)
-	}
-
-	const gerarObjetoRelatorio = () => {
-		return {
-			data: `${dia}/${mes}/${ano}`,
-			escola: escolaSelecionada?.nome || '',
-			turma: turmaSelecionada?.nome || '',
-			profissionaisResponsaveis: profissionaisResponsaveis,
-			Registrador: Registrador,
-			eixosTematicos: formatarEixosTematicosSelecionados(),
-			observacoes: observacoes,
-			alunosPresentes: alunosOrdenados
-				.filter(aluno => idsAlunosPresentes.includes(aluno.id))
-				.map(aluno => ({
-					id: aluno.id,
-					nome: aluno.nome,
-					dataNascimento: aluno.dataNascimento,
-					altura: dadosAlunos[aluno.id]?.altura || null,
-					peso: dadosAlunos[aluno.id]?.peso || null,
-					vacinado: dadosAlunos[aluno.id]?.vacinado || null,
-					saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
-
-				}))
-		}
-	}
-
-	// controla render tela resumo final
-	const [telaResumo, setTelaResumo] = useState(false)
-
-	// controla erro de area de transferencia
-	const [copiado, setCopiado] = useState(false)
-
-	const handleCopiarResumo = async () => {
-		const dados = gerarObjetoRelatorio()
-		const linhas = [
-			'Resumo da Atividade',
-			'',
-			`Escola: ${dados.escola}`,
-			`Turma: ${dados.turma}`,
-			`Data de realização: ${dados.data}`,
-			'',
-			'Eixos Selecionados:',
-			...dados.eixosTematicos.map(eixo => `- ${eixo}`),
-			`Observações: ${dados.observacoes}`,
-			'',
-			'Alunos que participaram da ação:'
-		]
-
-		dados.alunosPresentes.forEach(aluno => {
-			let linhaAluno = `- ${aluno.nome} (${formatarData(aluno.dataNascimento)})`
-
-			const detalhes = []
-			if (aluno.peso) detalhes.push(`${aluno.peso}kg`)
-			if (aluno.altura) detalhes.push(`${aluno.altura}cm`)
-			if (aluno.vacinado) detalhes.push(`Vacina: ${Constantes.formatarVacinacao(aluno.vacinado)}`)
-			if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Constantes.formatarSaudeOcular(aluno.saudeOcular)}`)
-
-			if (detalhes.length > 0) {
-				linhaAluno += ` [${detalhes.join(' - ')}]`
-			}
-			linhas.push(linhaAluno)
-		})
-
-		try {
-			await navigator.clipboard.writeText(linhas.join('\n'))
-			setCopiado(true)
-			setTimeout(() => setCopiado(false), 2000)
-		} catch (erro) {
-			console.error('Erro ao copiar', erro)
-		}
-	}
-
-	const [mostrarAlunosPendentes, setMostrarAlunosPendentes] = useState(false)
-
-	const obterAlunosPendentes = () => {
-		return alunosPresentes.filter(aluno => {
-			const dados = dadosAlunos[aluno.id] || {}
-
-			if (temAntropometria) {
-				if (!dados.altura || !String(dados.altura).trim()) return true
-				if (!dados.peso || !String(dados.peso).trim()) return true
-			}
-
-			if (temVacinacao) {
-				if (!dados.vacinado) return true
-			}
-
-			if (temSaudeOcular) {
-				if (!dados.saudeOcular) return true
-			}
-
-			return false
-		})
-	}
-
-	const [nomeEixoLocal, setNomeEixoLocal] = useState('');
-	const [observacoes, setObservacoes] = useState('');
-
-	const formatarEixosTematicosSelecionados = () => {
-		return Constantes.EIXOS_TEMATICOS
-			.filter(eixo => idsEixosSelecionados.includes(eixo.id))
-			.map(eixo => {
-				if (eixo.id === Constantes.EIXOS_ID.TEMATICA_LOCAL && nomeEixoLocal.trim()) {
-					return `${eixo.label}: ${nomeEixoLocal.trim()}`
-				}
-				return eixo.label
-			})
-	}
-
-	const cardRef = useRef(null)
-	const bgRef = useRef(null)
-
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'instant' });
-
-		if (cardRef.current) {
-			cardRef.current.scrollTop = 0;
-		}
-	}, [
-		etapa,
-		alunoAtualIndex,
-		telaInicial,
-		telaAjuda,
-		telaResumo,
-		telaCadastroManual,
-		telaAddAluno,
-		telaEsqueciSenha
-	]);
-
-	const todosEstaoPresentes = turmaSelecionada && alunosOrdenados.length > 0 && idsAlunosPresentes.length === alunosOrdenados.length;
-
-	const alternarPresencaTodos = () => {
-		if (todosEstaoPresentes) {
-			setIdsAlunosPresentes([])
-		} else {
-			setIdsAlunosPresentes(alunosOrdenados.map(aluno => aluno.id))
-		}
-	}
-
-	const reiniciarRegistro = () => {
-		setEtapa(1);
-		setAlunoAtualIndex(0);
-
-		setEscolaSelecionada(null);
-		setBuscaEscola('');
-		setTurmaSelecionada(null);
-		setBuscaTurma('');
-
-		setEscolaManual('');
-		setTurmaManual('');
-		setNovoAlunoNome('');
-		setNovoAlunoDataNascimento('');
-
-		setIdsEixosSelecionados([]);
-		setNomeEixoLocal('');
-		setObservacoes('');
-
-		setIdsAlunosPresentes([]);
-		setDadosAlunos({});
-		setMostrarAlunosPendentes(false);
-
-		setTelaResumo(false);
-		setTelaCadastroManual(false);
-		setTelaAddAluno(false);
-		setTelaAddEscola(false);
-		setTelaAjuda(false);
-		setTelaEsqueciSenha(false);
-
-		const dataAtual = new Date();
-		setDia(String(dataAtual.getDate()).padStart(2, '0'));
-		setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
-		setAno(String(dataAtual.getFullYear()));
-	};
+	const p = useRegistroPSE();
 
 	const renderizarConteudo = () => {
-		if (telaInicial) {
+		if (p.telaInicial) {
 			return (
 				<TelaInicial
-					onComecar={() => setTelaInicial(false)}
+					onComecar={() => p.setTelaInicial(false)}
 					onAjuda={() => {
-						setTelaAjuda(true);
-						setTelaInicial(false);
+						p.setTelaAjuda(true);
+						p.setTelaInicial(false);
 					}}
 				/>
 			);
 		}
 
-		if (telaAjuda) {
+		if (p.telaAjuda) {
 			return (
 				<TelaAjuda
 					onVoltar={() => {
-						setTelaInicial(true);
-						setTelaAjuda(false);
+						p.setTelaInicial(true);
+						p.setTelaAjuda(false);
 					}}
-					cardRef={cardRef}
+					cardRef={p.cardRef}
 				/>
 			);
 		}
 
-		if (telaEsqueciSenha) {
+		if (p.telaEsqueciSenha) {
 			return (
 				<div className='app--input-group'>
-					<div className='app--card' ref={cardRef}>
-						<button type="button" className="app--botao-voltar" onClick={() => setTelaEsqueciSenha(false)}>
+					<div className='app--card' ref={p.cardRef}>
+						<button
+							type="button"
+							className="app--botao-voltar"
+							onClick={() => p.setTelaEsqueciSenha(false)}
+						>
 							<IconeVoltar />
 						</button>
 						<div className='app--input-group'>
@@ -504,18 +71,25 @@ function App() {
 			);
 		}
 
-		if (telaAddEscola) {
+		if (p.telaAddEscola) {
 			return (
-				<div className='app--card' ref={cardRef}>
+				<div className='app--card' ref={p.cardRef}>
 					<div className='app--input-group'>
-						<button type="button" className="app--botao-voltar" onClick={() => setTelaAddEscola(false)}>
+						<button
+							type="button"
+							className="app--botao-voltar"
+							onClick={() => p.setTelaAddEscola(false)}
+						>
 							<IconeVoltar />
 						</button>
 						<div className='app--input-group'>
-							<label> Digite o nome da Escola </label>
+							<label>Digite o nome da Escola</label>
 							<input type='text' />
-							<button className='app--buttonMain' onClick={() => setTelaAddEscola(false)}>
-								<label> Cadastrar Escola </label>
+							<button
+								className='app--buttonMain'
+								onClick={() => p.setTelaAddEscola(false)}
+							>
+								<label>Cadastrar Escola</label>
 							</button>
 						</div>
 					</div>
@@ -523,200 +97,202 @@ function App() {
 			);
 		}
 
-		if (telaCadastroManual) {
+		if (p.telaCadastroManual) {
 			return (
 				<TelaCadastroManual
-					etapa={etapa}
-					escolaManual={escolaManual}
-					setEscolaManual={setEscolaManual}
-					turmaManual={turmaManual}
-					setTurmaManual={setTurmaManual}
-					onSalvarManual={handleSalvarManual}
-					onVoltar={() => setTelaCadastroManual(false)}
-					cardRef={cardRef}
+					etapa={p.etapa}
+					escolaManual={p.escolaManual}
+					setEscolaManual={p.setEscolaManual}
+					turmaManual={p.turmaManual}
+					setTurmaManual={p.setTurmaManual}
+					onSalvarManual={p.handleSalvarManual}
+					onVoltar={() => p.setTelaCadastroManual(false)}
+					cardRef={p.cardRef}
 				/>
 			);
 		}
 
-		if (telaAddAluno) {
+		if (p.telaAddAluno) {
 			return (
 				<TelaAddAluno
-					etapa={etapa}
-					novoAlunoNome={novoAlunoNome}
-					setNovoAlunoNome={setNovoAlunoNome}
-					novoAlunoDataNascimento={novoAlunoDataNascimento}
-					setNovoAlunoDataNascimento={setNovoAlunoDataNascimento}
-					alunoAdicionadoAnim={alunoAdicionadoAnim}
-					onAdicionarAluno={handleAdicionarAluno}
-					onVoltar={() => setTelaAddAluno(false)}
-					nomeInputRef={nomeInputRef}
-					cardRef={cardRef}
+					etapa={p.etapa}
+					novoAlunoNome={p.novoAlunoNome}
+					setNovoAlunoNome={p.setNovoAlunoNome}
+					novoAlunoDataNascimento={p.novoAlunoDataNascimento}
+					setNovoAlunoDataNascimento={p.setNovoAlunoDataNascimento}
+					alunoAdicionadoAnim={p.alunoAdicionadoAnim}
+					onAdicionarAluno={p.handleAdicionarAluno}
+					onVoltar={() => p.setTelaAddAluno(false)}
+					nomeInputRef={p.nomeInputRef}
+					cardRef={p.cardRef}
 				/>
 			);
 		}
 
-		if (!isLoggedIn) {
+		if (!p.isLoggedIn) {
 			return (
 				<TelaLogin
-					loginInput={loginInput}
-					setLoginInput={setLoginInput}
-					senhaInput={senhaInput}
-					setSenhaInput={setSenhaInput}
-					mensagemErro={mensagemErro}
-					handleLogin={handleLogin}
+					loginInput={p.loginInput}
+					setLoginInput={p.setLoginInput}
+					senhaInput={p.senhaInput}
+					setSenhaInput={p.setSenhaInput}
+					mensagemErro={p.mensagemErro}
+					handleLogin={p.handleLogin}
 					onVoltar={() => {
-						setTelaInicial(true);
-						setMensagemErro('');
+						p.setTelaInicial(true);
+						p.setMensagemErro('');
 					}}
-					onEsqueciSenha={() => setTelaEsqueciSenha(true)}
-					cardRef={cardRef}
+					onEsqueciSenha={() => p.setTelaEsqueciSenha(true)}
+					cardRef={p.cardRef}
 				/>
 			);
 		}
 
-		if (telaResumo) {
-			const dados = gerarObjetoRelatorio();
+		if (p.telaResumo) {
+			const dados = p.gerarObjetoRelatorio();
 			return (
 				<TelaResumo
-					etapa={etapa}
+					etapa={p.etapa}
 					dados={dados}
-					observacoes={observacoes}
-					copiado={copiado}
+					observacoes={p.observacoes}
+					copiado={p.copiado}
 					onCopiarResumo={() => {
 						console.log(JSON.stringify(dados, null, 2));
-						handleCopiarResumo();
+						p.handleCopiarResumo();
 					}}
-					onVoltar={() => setTelaResumo(false)}
-					cardRef={cardRef}
+					onVoltar={() => p.setTelaResumo(false)}
+					cardRef={p.cardRef}
 				/>
 			);
 		}
 
-		else return (
+		return (
 			<>
-				<HeaderRegistro etapaAtual={etapa} />
-				<div className='app--card' ref={cardRef}>
-					{etapa === 1 && (
+				<HeaderRegistro etapaAtual={p.etapa} />
+				<div className='app--card' ref={p.cardRef}>
+					{p.etapa === 1 && (
 						<Etapa1Data
-							dia={dia}
-							setDia={setDia}
-							mes={mes}
-							setMes={setMes}
-							ano={ano}
-							setAno={setAno}
-							profissionaisResponsaveis={profissionaisResponsaveis}
-							setProfissionaisResponsaveis={setProfissionaisResponsaveis}
-							Registrador={Registrador}
-							setRegistrador={setRegistrador}
-							onAvancar={avancarEtapa}
-							onVoltar={() => setTelaInicial(true)}
+							dia={p.dia}
+							setDia={p.setDia}
+							mes={p.mes}
+							setMes={p.setMes}
+							ano={p.ano}
+							setAno={p.setAno}
+							profissionaisResponsaveis={p.profissionaisResponsaveis}
+							setProfissionaisResponsaveis={p.setProfissionaisResponsaveis}
+							Registrador={p.Registrador}
+							setRegistrador={p.setRegistrador}
+							onAvancar={p.avancarEtapa}
+							onVoltar={() => p.setTelaInicial(true)}
 						/>
 					)}
-					{etapa === 2 && (
+
+					{p.etapa === 2 && (
 						<Etapa2Escola
-							buscaEscola={buscaEscola}
-							setBuscaEscola={setBuscaEscola}
-							escolasFiltradas={escolasFiltradas}
-							escolaSelecionada={escolaSelecionada}
-							setEscolaSelecionada={setEscolaSelecionada}
+							buscaEscola={p.buscaEscola}
+							setBuscaEscola={p.setBuscaEscola}
+							escolasFiltradas={p.escolasFiltradas}
+							escolaSelecionada={p.escolaSelecionada}
+							setEscolaSelecionada={p.setEscolaSelecionada}
 							formatarNome={formatarNome}
-							onAvancar={avancarEtapa}
-							onVoltar={voltarEtapa}
-							onCadastroManual={() => setTelaCadastroManual(true)}
+							onAvancar={p.avancarEtapa}
+							onVoltar={p.voltarEtapa}
+							onCadastroManual={() => p.setTelaCadastroManual(true)}
 						/>
 					)}
-					{etapa === 3 && (
+
+					{p.etapa === 3 && (
 						<Etapa3Turma
-							buscaTurma={buscaTurma}
-							setBuscaTurma={setBuscaTurma}
-							turmasFiltradas={turmasFiltradas}
-							turmaSelecionada={turmaSelecionada}
-							setTurmaSelecionada={setTurmaSelecionada}
+							buscaTurma={p.buscaTurma}
+							setBuscaTurma={p.setBuscaTurma}
+							turmasFiltradas={p.turmasFiltradas}
+							turmaSelecionada={p.turmaSelecionada}
+							setTurmaSelecionada={p.setTurmaSelecionada}
 							formatarNome={formatarNome}
-							onAvancar={avancarEtapa}
+							onAvancar={p.avancarEtapa}
 							onVoltar={() => {
-								setTurmaSelecionada(null);
-								voltarEtapa();
+								p.setTurmaSelecionada(null);
+								p.voltarEtapa();
 							}}
-							onCadastroManual={() => setTelaCadastroManual(true)}
+							onCadastroManual={() => p.setTelaCadastroManual(true)}
 						/>
 					)}
-					{etapa === 4 && (
+
+					{p.etapa === 4 && (
 						<Etapa4Eixos
-							idsEixosSelecionados={idsEixosSelecionados}
-							toggleEixo={toggleEixo}
-							temEixoLocal={temEixoLocal}
-							nomeEixoLocal={nomeEixoLocal}
-							handleAtualizarNomeEixoLocal={handleAtualizarNomeEixoLocal}
-							observacoes={observacoes}
-							handleAtualizarObservacoes={handleAtualizarObservacoes}
+							idsEixosSelecionados={p.idsEixosSelecionados}
+							toggleEixo={p.toggleEixo}
+							temEixoLocal={p.temEixoLocal}
+							nomeEixoLocal={p.nomeEixoLocal}
+							handleAtualizarNomeEixoLocal={p.setNomeEixoLocal}
+							observacoes={p.observacoes}
+							handleAtualizarObservacoes={p.setObservacoes}
 							onAvancar={() => {
-								marcarTodosPresentes();
-								avancarEtapa();
+								p.marcarTodosPresentes();
+								p.avancarEtapa();
 							}}
-							onVoltar={voltarEtapa}
+							onVoltar={p.voltarEtapa}
 						/>
 					)}
-					{etapa === 5 && (
+
+					{p.etapa === 5 && (
 						<Etapa5Presenca
-							alunosOrdenados={alunosOrdenados}
-							idsAlunosPresentes={idsAlunosPresentes}
-							toggleAluno={toggleAluno}
-							alternarPresencaTodos={alternarPresencaTodos}
-							todosEstaoPresentes={todosEstaoPresentes}
-							onAdicionarAlunoManual={() => setTelaAddAluno(true)}
-							onAvancar={avancarEtapa}
-							onVoltar={voltarEtapa}
+							alunosOrdenados={p.alunosOrdenados}
+							idsAlunosPresentes={p.idsAlunosPresentes}
+							toggleAluno={p.toggleAluno}
+							alternarPresencaTodos={p.alternarPresencaTodos}
+							todosEstaoPresentes={p.todosEstaoPresentes}
+							onAdicionarAlunoManual={() => p.setTelaAddAluno(true)}
+							onAvancar={p.avancarEtapa}
+							onVoltar={p.voltarEtapa}
 						/>
 					)}
-					{etapa === 6 && (
+
+					{p.etapa === 6 && (
 						<Etapa6ColetaDados
-							alunoAtualIndex={alunoAtualIndex}
-							alunosPresentes={alunosPresentes}
-							alunoAtual={alunoAtualTelaAntropometria}
-							dadosAlunos={dadosAlunos}
-							handleAtualizarDadosAluno={handleAtualizarDadosAluno}
-							temAntropometria={temAntropometria}
-							temVacinacao={temVacinacao}
-							temSaudeOcular={temSaudeOcular}
-							alturaInputRef={alturaInputRef}
-							mostrarAlunosPendentes={mostrarAlunosPendentes}
-							obterAlunosPendentes={obterAlunosPendentes}
+							alunoAtualIndex={p.alunoAtualIndex}
+							alunosPresentes={p.alunosPresentes}
+							alunoAtual={p.alunoAtualTelaAntropometria}
+							dadosAlunos={p.dadosAlunos}
+							handleAtualizarDadosAluno={p.handleAtualizarDadosAluno}
+							temAntropometria={p.temAntropometria}
+							temVacinacao={p.temVacinacao}
+							temSaudeOcular={p.temSaudeOcular}
+							alturaInputRef={p.alturaInputRef}
+							mostrarAlunosPendentes={p.mostrarAlunosPendentes}
+							obterAlunosPendentes={p.obterAlunosPendentes}
 							onSelecionarAlunoPendente={(id) => {
-								const indexAluno = alunosPresentes.findIndex(a => a.id === id);
-								setAlunoAtualIndex(indexAluno);
-								setMostrarAlunosPendentes(false);
+								const indexAluno = p.alunosPresentes.findIndex((a) => a.id === id);
+								p.setAlunoAtualIndex(indexAluno);
+								p.setMostrarAlunosPendentes(false);
 							}}
-							onProximo={proximoAluno}
-							onAnterior={alunoAnterior}
-							onVoltar={voltarEtapa}
+							onProximo={p.proximoAluno}
+							onAnterior={p.alunoAnterior}
+							onVoltar={p.voltarEtapa}
 						/>
 					)}
-					{etapa === 7 && (
+
+					{p.etapa === 7 && (
 						<Etapa7Conclusao
-							dia={dia}
-							mes={mes}
-							ano={ano}
-							dadosRelatorio={gerarObjetoRelatorio()}
-							onVerResumo={() => setTelaResumo(true)}
-							onReiniciarRegistro={reiniciarRegistro}
-							onVoltar={voltarEtapa}
+							dia={p.dia}
+							mes={p.mes}
+							ano={p.ano}
+							dadosRelatorio={p.gerarObjetoRelatorio()}
+							onVerResumo={() => p.setTelaResumo(true)}
+							onReiniciarRegistro={p.reiniciarRegistro}
+							onVoltar={p.voltarEtapa}
 						/>
 					)}
 				</div>
 			</>
-		)
-	}
+		);
+	};
 
 	return (
-		<>
-			<div className='app--background' ref={bgRef}>
-				<div className='app--column'>
-					{renderizarConteudo()}
-				</div>
-			</div>
-		</>
-	)
+		<div className='app--background' ref={p.bgRef}>
+			<div className='app--column'>{renderizarConteudo()}</div>
+		</div>
+	);
 }
 
-export default App
+export default App;
