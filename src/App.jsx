@@ -15,6 +15,7 @@ import { TelaLogin } from './telas/TelaLogin';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
 import { HeaderRegistro } from './components/HeaderRegistro';
+import { TelaResumo } from './telas/TelaResumo';
 
 function App() {
 
@@ -568,88 +569,22 @@ function App() {
 			);
 		}
 
-		else if (telaResumo) {
-			const dados = gerarObjetoRelatorio()
+		if (telaResumo) {
+			const dados = gerarObjetoRelatorio();
 			return (
-				<>
-					<div className='app--header-container'>
-						<p className='app--header'>Geração de Registro</p>
-						<img src={`${import.meta.env.BASE_URL}pseLogo2.png`} alt="Logo" className="app--header-logo" />
-					</div>
-					<BarraProgresso etapaAtual={etapa} totalEtapas={6} />
-					<div className='app--card' ref={cardRef}>
-						<button type="button" className="app--botao-voltar" onClick={() => setTelaResumo(false)}>
-							<IconeVoltar />
-						</button>
-						<p className='app--title'>Resumo da Atividade</p>
-
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Registrado por</p>
-							<p>{dados.Registrador}</p>
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'> Responsáveis pela ação</p>
-							<p>{dados.profissionaisResponsaveis} </p>
-						</div>
-
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Escola</p>
-							<p>{dados.escola}</p>
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Turma</p>
-							<p>{dados.turma}</p>
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Data de realização da ação</p>
-							<p>{dados.data}</p>
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Eixos Selecionados</p>
-							<>
-								{formatarEixosTematicosSelecionados().map((eixo, index) => (
-									<p key={index}>{eixo}</p>
-								))}
-							</>
-							{observacoes && (
-								<p>Observações: {dados.observacoes}</p>
-							)}
-						</div>
-						<div className='app--resumo'>
-							<p className='app--resumo--subtitle'>Alunos que participaram da ação</p>
-							<div className='app--resumo'>
-								{dados.alunosPresentes.map((aluno) => (
-									<div key={aluno.id} className='app--resumo'>
-										<span>{aluno.nome} - </span>
-										<span className=''> {formatarData(aluno.dataNascimento)}</span>
-										{(aluno.peso || aluno.altura) && (
-											<> -
-												{aluno.peso && <span> {aluno.peso}kg</span>}
-												{aluno.altura && <span> {aluno.altura}cm</span>}
-											</>
-										)}
-										{aluno.vacinado && (
-											<span> - Vacina: {Constantes.formatarVacinacao(aluno.vacinado)}</span>
-										)}
-										{aluno.saudeOcular && (
-											<span> - Saúde Ocular: {Constantes.formatarSaudeOcular(aluno.saudeOcular)}</span>
-										)}
-									</div>
-								))}
-							</div>
-						</div>
-						<div className='app--footer'>
-							<button className='app--buttonMain' onClick={() => {
-								const dadosJSON = gerarObjetoRelatorio()
-								console.log(JSON.stringify(dadosJSON, null, 2))
-								handleCopiarResumo();
-							}}>
-								<p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
-							</button>
-						</div>
-					</div>
-				</>
-			)
+				<TelaResumo
+					etapa={etapa}
+					dados={dados}
+					observacoes={observacoes}
+					copiado={copiado}
+					onCopiarResumo={() => {
+						console.log(JSON.stringify(dados, null, 2));
+						handleCopiarResumo();
+					}}
+					onVoltar={() => setTelaResumo(false)}
+					cardRef={cardRef}
+				/>
+			);
 		}
 
 		else return (
