@@ -19,6 +19,8 @@ import { TelaResumo } from './telas/TelaResumo';
 import { Etapa1Data } from './etapas/Etapa1Data';
 import { Etapa2Escola } from './etapas/Etapa2Escola';
 import { Etapa3Turma } from './etapas/Etapa3Turma';
+import { Etapa4Eixos } from './etapas/Etapa4Eixos';
+import { Etapa5Presenca } from './etapas/Etapa5Presenca';
 
 function App() {
 
@@ -640,99 +642,32 @@ function App() {
 						/>
 					)}
 					{etapa === 4 && (
-						<>
-							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:</p>
-							<div className='app--tela-com-lista--gap'>
-								<div className='app--list'>
-									{Constantes.EIXOS_TEMATICOS.map((eixo) => (
-										<label key={eixo.id}>
-											<input
-												type="checkbox"
-												checked={idsEixosSelecionados.includes(eixo.id)}
-												onChange={() => toggleEixo(eixo.id)}
-											/>
-											{eixo.label}
-										</label>
-									))}
-								</div>
-								{temEixoLocal && (
-									<>
-										<div className='app--input-group'>
-											<label>Nome da temática local</label>
-											<input
-												type="text"
-												placeholder="Digite aqui o nome da temática"
-												value={nomeEixoLocal}
-												onChange={(e) => handleAtualizarNomeEixoLocal(e.target.value)}
-											/>
-										</div>
-									</>
-								)}
-								<div className='app--input-group'>
-									<label>Descrição da atividade realizada</label>
-									<input
-										type="text"
-										placeholder="Descreva brevemente a atividade realizada"
-										value={observacoes}
-										onChange={(e) => handleAtualizarObservacoes(e.target.value)}
-									/>
-								</div>
-								<div className='app--footer'>
-									<button
-										className={idsEixosSelecionados.length === 0 ? 'app--buttonMain__disabled' : 'app--buttonMain'}
-										onClick={() => { marcarTodosPresentes(); avancarEtapa(); }}
-										disabled={idsEixosSelecionados.length === 0}
-									>
-										<p>Avançar</p>
-									</button>
-								</div>
-							</div>
-						</>
+						<Etapa4Eixos
+							idsEixosSelecionados={idsEixosSelecionados}
+							toggleEixo={toggleEixo}
+							temEixoLocal={temEixoLocal}
+							nomeEixoLocal={nomeEixoLocal}
+							handleAtualizarNomeEixoLocal={handleAtualizarNomeEixoLocal}
+							observacoes={observacoes}
+							handleAtualizarObservacoes={handleAtualizarObservacoes}
+							onAvancar={() => {
+								marcarTodosPresentes();
+								avancarEtapa();
+							}}
+							onVoltar={voltarEtapa}
+						/>
 					)}
 					{etapa === 5 && (
-						<>
-							<button type="button" className="app--botao-voltar" onClick={voltarEtapa}>
-								<IconeVoltar />
-							</button>
-							<p className='app--title'>Selecione os alunos que participaram da ação:</p>
-							<button className='app--buttonSecondary app--buttonSecondary__left-anchor' onClick={alternarPresencaTodos}>
-								<p>{todosEstaoPresentes ? 'Desmarcar todos' : 'Marcar todos'}</p>
-							</button>
-							<div className='app--tela-com-lista--gap'>
-								<div className='app--list'>
-									{alunosOrdenados.map((aluno) => (
-										<label key={aluno.id}>
-											<input
-												type="checkbox"
-												checked={idsAlunosPresentes.includes(aluno.id)}
-												onChange={() => toggleAluno(aluno.id)}
-											/>
-											<div className='app--list--aluno-nascimento'>
-												{aluno.nome}
-												<p className='app--list--aluno-nascimento--nascimento'>{formatarData(aluno.dataNascimento)}</p>
-											</div>
-										</label>
-
-									))}
-								</div>
-								<div className='app--footer'>
-									<button className='app--buttonSecondary' onClick={() => setTelaAddAluno(true)}>
-										<p>Adicionar aluno manualmente</p>
-									</button>
-									<button
-										className={idsAlunosPresentes.length > 0 ? 'app--buttonMain' : 'app--buttonMain__disabled'}
-										onClick={() => {
-											if (idsAlunosPresentes.length > 0) avancarEtapa()
-										}}
-									>
-										<p>Avançar</p>
-									</button>
-								</div>
-							</div>
-						</>
+						<Etapa5Presenca
+							alunosOrdenados={alunosOrdenados}
+							idsAlunosPresentes={idsAlunosPresentes}
+							toggleAluno={toggleAluno}
+							alternarPresencaTodos={alternarPresencaTodos}
+							todosEstaoPresentes={todosEstaoPresentes}
+							onAdicionarAlunoManual={() => setTelaAddAluno(true)}
+							onAvancar={avancarEtapa}
+							onVoltar={voltarEtapa}
+						/>
 					)}
 					{etapa === 6 && (
 						<form
