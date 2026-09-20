@@ -40,3 +40,12 @@
     align-items: center;
     gap: 1rem;
 }
+
+@media (max-width: 1000px) {
+    .app--background {
+        padding: 1rem;
+        padding-top: 2rem;
+        min-height: 100svh;
+        height: auto;
+    }
+}

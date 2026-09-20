@@ -15,3 +15,10 @@
     height: 1.5rem;
     object-fit: contain;
 }
+
+@media (max-width: 1000px) {
+
+    .app--header-container {
+        display: none;
+    }
+}

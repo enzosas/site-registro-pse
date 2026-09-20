@@ -172,16 +172,3 @@
 * {
 	-webkit-tap-highlight-color: transparent;
 }
-
-@media (max-width: 1000px) {
-	.app--background {
-		padding: 1rem;
-		padding-top: 2rem;
-		min-height: 100svh;
-		height: auto;
-	}
-
-	.app--header-container {
-		display: none;
-	}
-}
