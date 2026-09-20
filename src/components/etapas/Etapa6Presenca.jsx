@@ -1,5 +1,5 @@
 import { IconeVoltar } from '../Icones';
-import { formatarData } from '../../utils/formatadores';
+import { formatarData, formatarDataHora } from '../../utils/formatadores';
 
 export function Etapa6Presenca({
     alunosOrdenados,
@@ -7,11 +7,13 @@ export function Etapa6Presenca({
     toggleAluno,
     alternarPresencaTodos,
     todosEstaoPresentes,
+    atualizadoEm,
     onAdicionarAlunoManual,
     onAvancar,
     onVoltar,
 }) {
     const temPresentes = idsAlunosPresentes.length > 0;
+    const dataFormatada = formatarDataHora(atualizadoEm);
 
     return (
         <>
@@ -46,6 +48,10 @@ export function Etapa6Presenca({
                         </label>
                     ))}
                 </div>
+
+                {dataFormatada && (
+                    <p className='app__tela-presenca__atualizado-em'>Lista atualizada em: {dataFormatada}</p>
+                )}
 
                 <div className='app__footer'>
                     <button className='app__buttonSecondary' onClick={onAdicionarAlunoManual}>

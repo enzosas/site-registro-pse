@@ -196,3 +196,7 @@
 	text-align: center;
 	margin-bottom: 0.5rem;
 }
+
+.app__tela-presenca__atualizado-em {
+	color: var(--cor-botao2);
+}

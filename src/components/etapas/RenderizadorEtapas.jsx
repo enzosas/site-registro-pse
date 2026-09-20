@@ -83,6 +83,7 @@ export function RenderizadorEtapas({ form: p }) {
                 toggleAluno={p.toggleAluno}
                 alternarPresencaTodos={p.alternarPresencaTodos}
                 todosEstaoPresentes={p.todosEstaoPresentes}
+                atualizadoEm={p.escolaSelecionada?.atualizadoEm}
                 onAdicionarAlunoManual={() => p.setTelaAtiva(TELAS.ADD_ALUNO)}
                 onAvancar={p.avancarEtapa}
                 onVoltar={p.voltarEtapa}

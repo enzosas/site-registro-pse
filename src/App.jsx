@@ -1,7 +1,7 @@
 import { useRegistroPSE } from './hooks/useRegistroPSE';
 import { formatarNome } from './utils/formatadores';
 import { TELAS } from './constantes';
-import { RenderizadorEtapas } from './components/etapas/EtapasForm';
+import { RenderizadorEtapas } from './components/etapas/RenderizadorEtapas';
 
 // Componentes
 import { IconeVoltar } from './components/Icones';

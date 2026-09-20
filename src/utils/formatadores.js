@@ -35,3 +35,15 @@ export function formatarProfissionais(profissionais) {
     }
     return String(profissionais).trim() || '-';
 }
+
+export function formatarDataHora(timestamp) {
+    if (!timestamp) return null;
+    const data = new Date(timestamp);
+    if (isNaN(data.getTime())) return null;
+
+    return data.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+}
