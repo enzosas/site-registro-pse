@@ -156,6 +156,7 @@ def varrer_arquivos_pastas(diretorio_raiz):
                     if item.endswith(".xlsx") and not item.startswith("~$"):
                         caminho_arquivo = os.path.join(caminho_sub, item)
                         try:
+                            data_modificacao = os.path.getmtime(caminho_arquivo)
                             nome_escola, turmas_extraidas = extrair_dados_planilha(caminho_arquivo)
                             
                             if not nome_escola or str(nome_escola).strip().lower() in ("nan", "none", ""):
@@ -170,8 +171,13 @@ def varrer_arquivos_pastas(diretorio_raiz):
                             escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
                             if escola_existente:
                                 escola_existente["turmas"].extend(turmas_extraidas)
+                                escola_existente["datas_modificacao"].append(data_modificacao)
                             else:
-                                banco_dados["escolas"].append({"nome": nome_escola, "turmas": turmas_extraidas})
+                                banco_dados["escolas"].append({
+                                    "nome": nome_escola,
+                                    "turmas": turmas_extraidas,
+                                    "datas_modificacao": [data_modificacao]
+                                })
                         except Exception as e:
                             print(f"Erro em '{item}': {e}")
 
@@ -182,6 +188,7 @@ def varrer_arquivos_pastas(diretorio_raiz):
                 if arquivo.endswith(".xlsx") and not arquivo.startswith("~$"):
                     caminho_completo = os.path.join(pasta_atual, arquivo)
                     try:
+                        data_modificacao = os.path.getmtime(caminho_completo)
                         nome_escola, turmas_extraidas = extrair_dados_planilha(caminho_completo)
 
                         if not nome_escola or str(nome_escola).strip().lower() in ("nan", "none", ""):
@@ -198,12 +205,18 @@ def varrer_arquivos_pastas(diretorio_raiz):
                         escola_existente = next((e for e in banco_dados["escolas"] if e["nome"] == nome_escola), None)
                         if escola_existente:
                             escola_existente["turmas"].extend(turmas_extraidas)
+                            escola_existente["datas_modificacao"].append(data_modificacao)
                         else:
-                            banco_dados["escolas"].append({"nome": nome_escola, "turmas": turmas_extraidas})
+                            banco_dados["escolas"].append({
+                                "nome": nome_escola,
+                                "turmas": turmas_extraidas,
+                                "datas_modificacao": [data_modificacao]
+                            })
                     except Exception as e:
                         print(f"Erro em '{arquivo}': {e}")
 
     return banco_dados
+
 
 def obter_mapa_escolas_banco(supabase_client):
     resposta = supabase_client.table("escolas").select("id, nome").execute()
@@ -214,8 +227,6 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
     registros = []
     turma_id = 101
     aluno_id = 1001
-
-    agora_iso = datetime.now(timezone.utc).isoformat()
 
     for escola in banco_dados_processado["escolas"]:
         nome_escola = escola["nome"]
@@ -228,6 +239,13 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
         if not escola_id:
             print(f"Aviso: Escola '{nome_escola}' não encontrada no banco. Pulando...")
             continue
+
+        datas_mod = escola.get("datas_modificacao", [])
+        if datas_mod:
+            timestamp_mais_novo = max(datas_mod)
+            data_atualizada_iso = datetime.fromtimestamp(timestamp_mais_novo, tz=timezone.utc).isoformat()
+        else:
+            data_atualizada_iso = datetime.now(timezone.utc).isoformat()
 
         turmas_formatadas = []
         for turma in escola["turmas"]:
@@ -253,7 +271,7 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
             "dados": {
                 "turmas": turmas_formatadas
             },
-            "atualizado_em": agora_iso
+            "atualizado_em": data_atualizada_iso
         })
 
     try:

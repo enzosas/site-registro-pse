@@ -39,7 +39,7 @@ export async function autenticarUsuario(email, password) {
     }
 }
 
-export async function carregarEscolasDB() {
+export async function oldCarregarEscolasDB() {
     try {
         const { data, error } = await supabase
             .from('dados')
@@ -53,6 +53,46 @@ export async function carregarEscolasDB() {
         }
 
         return data?.json?.escolas || [];
+    } catch (err) {
+        console.error('Erro inesperado ao carregar escolas:', err);
+        return [];
+    }
+}
+
+export async function carregarEscolasDB() {
+    try {
+        const { data, error } = await supabase
+            .from('escolas')
+            .select(`
+                id,
+                nome,
+                escolaturmaalunos (
+                    dados,
+                    atualizado_em
+                )
+            `)
+            .order('nome', { ascending: true });
+
+        if (error) {
+            console.error('Erro ao buscar dados do Supabase:', error);
+            return [];
+        }
+
+        return (data || []).map((escola) => {
+            const registroVinculo = Array.isArray(escola.escolaturmaalunos)
+                ? escola.escolaturmaalunos[0]
+                : escola.escolaturmaalunos;
+
+            const turmas = registroVinculo?.dados?.turmas || [];
+            const atualizadoEm = registroVinculo?.atualizado_em || null;
+
+            return {
+                id: escola.id,
+                nome: escola.nome,
+                turmas: turmas,
+                atualizadoEm: atualizadoEm,
+            };
+        });
     } catch (err) {
         console.error('Erro inesperado ao carregar escolas:', err);
         return [];
