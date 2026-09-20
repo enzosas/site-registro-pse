@@ -26,7 +26,6 @@ export function Etapa3Escola({
                 itens={escolasFiltradas}
                 itemSelecionado={escolaSelecionada}
                 onSelecionarItem={setEscolaSelecionada}
-                formatarNome={formatarNome}
             />
 
             <div className='app__footer'>

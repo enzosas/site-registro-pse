@@ -116,19 +116,19 @@ export function useRegistroPSE() {
 
     // Navegação entre etapas com desvio condicional
     const avancarEtapa = () => {
-        if (etapa === 5 && !temAvaliacaoIndividual) {
-            setEtapa(7);
+        if (etapa === 6 && !temAvaliacaoIndividual) {
+            setEtapa(8);
             return;
         }
         setEtapa((prev) => prev + 1);
     };
 
     const voltarEtapa = () => {
-        if (etapa === 7 && !temAvaliacaoIndividual) {
-            setEtapa(5);
+        if (etapa === 8 && !temAvaliacaoIndividual) {
+            setEtapa(6);
             return;
         }
-        if (etapa === 6) {
+        if (etapa === 7) {
             setAlunoAtualIndex(0);
             setMostrarAlunosPendentes(false);
         }

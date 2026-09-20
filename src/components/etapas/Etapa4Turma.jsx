@@ -26,7 +26,6 @@ export function Etapa4Turma({
                 itens={turmasFiltradas}
                 itemSelecionado={turmaSelecionada}
                 onSelecionarItem={setTurmaSelecionada}
-                formatarNome={formatarNome}
             />
 
             <div className='app__footer'>

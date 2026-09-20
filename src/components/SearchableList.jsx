@@ -1,7 +1,8 @@
 import { IconePesquisa, IconeCheck } from './Icones';
 import '../styles/components/SearchableList.css';
+import { formatarNome } from '../utils/formatadores'
 
-export function SearchableList({ busca, onBuscaChange, itens, itemSelecionado, onSelecionarItem, formatarNome }) {
+export function SearchableList({ busca, onBuscaChange, itens, itemSelecionado, onSelecionarItem }) {
     return (
         <div className='app__search-container'>
             <div className='app__search-bar'>
