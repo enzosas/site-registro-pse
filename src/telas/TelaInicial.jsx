@@ -1,3 +1,5 @@
+import '../styles/telas/TelaInicial.css';
+
 export function TelaInicial({ onComecar, onAjuda }) {
     return (
         <div className='app--column app--tela-inicial'>

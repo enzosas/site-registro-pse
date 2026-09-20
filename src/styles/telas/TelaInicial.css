@@ -1,0 +1,45 @@
+.app--tela-inicial {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+.app--tela-inicial-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    gap: 3rem;
+    width: 100%;
+}
+
+.app--logo-pse {
+    width: 10rem;
+    margin-bottom: 1rem;
+    object-fit: contain;
+}
+
+.app--tela-inicial--ajuda {
+    font-size: 1.5rem;
+}
+
+.app--title__tela-inicial {
+    text-align: center;
+}
+
+.app--tela-inicial--rodape-imagens {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media (max-width: 1000px) {
+    .app--logo-pse {
+        width: 6rem;
+    }
+}

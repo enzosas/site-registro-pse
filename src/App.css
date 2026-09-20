@@ -1,34 +1,9 @@
 
-.app--tela-inicial {
-	justify-content: space-between;
-	height: 100%;
-}
-
-.app--tela-inicial-content {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	flex: 1;
-	gap: 3rem;
-	width: 100%;
-}
-
-.app--logo-pse {
-	width: 10rem;
-	margin-bottom: 1rem;
-	object-fit: contain;
-}
-
 .app--title {
 	font-size: 2.5rem;
 	font-weight: 600;
 	line-height: 1.25em;
 	margin-bottom: 0.25em;
-}
-
-.app--title__tela-inicial {
-	text-align: center;
 }
 
 .app--date-group {
@@ -197,10 +172,6 @@
 	margin-top: 1em;
 }
 
-.app--tela-inicial--ajuda {
-	font-size: 1.5rem;
-}
-
 .app--tela-vacinacao-grupo-botoes--botao:active {
 	transform: scale(0.95);
 }
@@ -212,12 +183,6 @@
 .app--tela-vacinacao--pendentes {
 	font-weight: 600;
 	color: var(--cor-negative);
-}
-
-.app--tela-inicial--rodape-imagens {
-	display: flex;
-	flex-direction: row;
-	gap: 2rem;
 }
 
 .app--tela-eixos--grupo-inputs {
@@ -241,9 +206,5 @@
 
 	.app--header-container {
 		display: none;
-	}
-
-	.app--logo-pse {
-		width: 6rem;
 	}
 }
