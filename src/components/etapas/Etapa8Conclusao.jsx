@@ -23,7 +23,7 @@ export function Etapa8Conclusao({
                 className='app__buttonSecondary app__buttonSecondary__left-anchor'
                 onClick={onReiniciarRegistro}
             >
-                <p>Iniciar novo registro</p>
+                Iniciar novo registro
             </button>
 
             <div className='app__footer'>
