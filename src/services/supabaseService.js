@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { formatarNome } from '../utils/formatadores';
 
 export async function autenticarUsuario(email, password) {
     try {
@@ -59,6 +60,7 @@ export async function oldCarregarEscolasDB() {
     }
 }
 
+
 export async function carregarEscolasDB() {
     try {
         const { data, error } = await supabase
@@ -83,13 +85,22 @@ export async function carregarEscolasDB() {
                 ? escola.escolaturmaalunos[0]
                 : escola.escolaturmaalunos;
 
-            const turmas = registroVinculo?.dados?.turmas || [];
+            const turmasBrutas = registroVinculo?.dados?.turmas || [];
             const atualizadoEm = registroVinculo?.atualizado_em || null;
+
+            const turmasFormatadas = turmasBrutas.map((turma) => ({
+                ...turma,
+                nome: formatarNome(turma.nome),
+                alunos: (turma.alunos || []).map((aluno) => ({
+                    ...aluno,
+                    nome: formatarNome(aluno.nome),
+                })),
+            }));
 
             return {
                 id: escola.id,
-                nome: escola.nome,
-                turmas: turmas,
+                nome: formatarNome(escola.nome),
+                turmas: turmasFormatadas,
                 atualizadoEm: atualizadoEm,
             };
         });
