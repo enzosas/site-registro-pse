@@ -1,4 +1,3 @@
-import './App.css';
 import { useRegistroPSE } from './hooks/useRegistroPSE';
 import { formatarNome } from './utils/formatadores';
 import { TELAS } from './constantes';
