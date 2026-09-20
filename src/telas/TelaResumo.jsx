@@ -22,6 +22,11 @@ export function TelaResumo({
                 <p className='app__title'>Resumo da Atividade</p>
 
                 <div className='app__resumo'>
+                    <p className='app__resumo__subtitle'>Data de realização da ação</p>
+                    <p>{dados.data}</p>
+                </div>
+
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Registrado por</p>
                     <p>{dados.Registrador}</p>
                 </div>
@@ -39,11 +44,6 @@ export function TelaResumo({
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Turma</p>
                     <p>{dados.turma}</p>
-                </div>
-
-                <div className='app__resumo'>
-                    <p className='app__resumo__subtitle'>Data de realização da ação</p>
-                    <p>{dados.data}</p>
                 </div>
 
                 <div className='app__resumo'>
