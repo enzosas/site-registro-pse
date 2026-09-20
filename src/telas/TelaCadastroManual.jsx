@@ -17,7 +17,7 @@ export function TelaCadastroManual({
         <>
             <HeaderRegistro etapaAtual={etapa} />
             <form
-                className='app--card'
+                className='app__card'
                 ref={cardRef}
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -25,11 +25,11 @@ export function TelaCadastroManual({
                     onSalvarManual();
                 }}
             >
-                <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                     <IconeVoltar />
                 </button>
-                <p className='app--title'>Cadastro Manual</p>
-                <div className='app--input-group'>
+                <p className='app__title'>Cadastro Manual</p>
+                <div className='app__input-group'>
                     <label>Nome da Escola</label>
                     <input
                         type='text'
@@ -37,7 +37,7 @@ export function TelaCadastroManual({
                         onChange={(e) => setEscolaManual(e.target.value)}
                     />
                 </div>
-                <div className='app--input-group'>
+                <div className='app__input-group'>
                     <label>Nome da Turma</label>
                     <input
                         type='text'
@@ -45,10 +45,10 @@ export function TelaCadastroManual({
                         onChange={(e) => setTurmaManual(e.target.value)}
                     />
                 </div>
-                <div className='app--footer'>
+                <div className='app__footer'>
                     <button
                         type="submit"
-                        className={'app--buttonMain'}
+                        className={'app__buttonMain'}
                         disabled={isDisabled}
                     >
                         <p>Avançar</p>

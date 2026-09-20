@@ -18,14 +18,14 @@
     height: 3rem;
 }
 
-.app__tela-vacinacao-grupo-botoes__botao--nao {
+.app__tela-vacinacao-grupo-botoes__botao__nao {
     font-weight: 600;
     background-color: var(--cor-negative);
     color: var(--cor-frame);
     border: 0.1rem solid transparent;
 }
 
-.app__tela-vacinacao-grupo-botoes__botao--sim {
+.app__tela-vacinacao-grupo-botoes__botao__sim {
     font-weight: 600;
     background-color: var(--cor-step);
     color: var(--cor-frame);

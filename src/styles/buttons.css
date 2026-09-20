@@ -1,6 +1,6 @@
-.app--buttonMain,
-.app--buttonSecondary,
-.app--botao-voltar {
+.app__buttonMain,
+.app__buttonSecondary,
+.app__botao-voltar {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -12,15 +12,15 @@
     transition: transform 0.1s ease, filter 0.2s ease;
 }
 
-.app--buttonMain:disabled,
-.app--buttonSecondary:disabled,
-.app--botao-voltar:disabled {
+.app__buttonMain:disabled,
+.app__buttonSecondary:disabled,
+.app__botao-voltar:disabled {
     opacity: 0.5;
     cursor: default;
     pointer-events: none;
 }
 
-.app--buttonMain {
+.app__buttonMain {
     flex-direction: column;
     text-align: center;
     border-radius: 2rem;
@@ -32,15 +32,15 @@
     width: 100%;
 }
 
-.app--buttonMain:hover:not(:disabled) {
+.app__buttonMain:hover:not(:disabled) {
     filter: brightness(0.9);
 }
 
-.app--buttonMain:active:not(:disabled) {
+.app__buttonMain:active:not(:disabled) {
     transform: scale(0.975);
 }
 
-.app--buttonSecondary {
+.app__buttonSecondary {
     flex-direction: column;
     text-align: center;
     border-radius: 2rem;
@@ -50,26 +50,26 @@
     padding: 0.5rem;
 }
 
-.app--buttonSecondary:hover:not(:disabled) {
+.app__buttonSecondary:hover:not(:disabled) {
     filter: brightness(0.85);
 }
 
-.app--buttonSecondary:active:not(:disabled) {
+.app__buttonSecondary:active:not(:disabled) {
     transform: scale(0.95);
 }
 
-.app--buttonSecondary__left-anchor {
+.app__buttonSecondary__left-anchor {
     align-self: flex-start;
     padding: 0.5rem 0;
 }
 
-.app--botao-voltar {
+.app__botao-voltar {
     padding: 0;
     width: 1em;
     font-size: 1.5rem;
     flex-shrink: 0;
 }
 
-.app--botao-voltar:active:not(:disabled) {
+.app__botao-voltar:active:not(:disabled) {
     transform: scale(0.8);
 }

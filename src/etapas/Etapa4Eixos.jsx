@@ -16,16 +16,16 @@ export function Etapa4Eixos({
 
     return (
         <>
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>
+            <p className='app__title'>
                 Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:
             </p>
 
             <div className='app__tela-com-lista__gap'>
-                <div className='app--list'>
+                <div className='app__list'>
                     {Constantes.EIXOS_TEMATICOS.map((eixo) => (
                         <label key={eixo.id}>
                             <input
@@ -39,7 +39,7 @@ export function Etapa4Eixos({
                 </div>
 
                 {temEixoLocal && (
-                    <div className='app--input-group'>
+                    <div className='app__input-group'>
                         <label>Nome da temática local</label>
                         <input
                             type="text"
@@ -50,7 +50,7 @@ export function Etapa4Eixos({
                     </div>
                 )}
 
-                <div className='app--input-group'>
+                <div className='app__input-group'>
                     <label>Descrição da atividade realizada</label>
                     <input
                         type="text"
@@ -60,9 +60,9 @@ export function Etapa4Eixos({
                     />
                 </div>
 
-                <div className='app--footer'>
+                <div className='app__footer'>
                     <button
-                        className={'app--buttonMain'}
+                        className={'app__buttonMain'}
                         onClick={onAvancar}
                         disabled={!isValido}
                     >

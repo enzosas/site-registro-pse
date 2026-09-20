@@ -30,19 +30,19 @@ export function Etapa6ColetaDados({
             }}
             style={{ display: 'contents' }}
         >
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>Preencha os dados de cada aluno:</p>
-            <p className='app--contador'>
+            <p className='app__title'>Preencha os dados de cada aluno:</p>
+            <p className='app__contador'>
                 {alunoAtualIndex + 1}/{alunosPresentes.length}
             </p>
-            <p className='app--nomeAluno'>{alunoAtual?.nome || ''}</p>
+            <p className='app__nomeAluno'>{alunoAtual?.nome || ''}</p>
 
             {alunoAtual && temAntropometria && (
                 <>
-                    <div className='app--input-group'>
+                    <div className='app__input-group'>
                         <label>Altura (cm)</label>
                         <input
                             ref={alturaInputRef}
@@ -52,7 +52,7 @@ export function Etapa6ColetaDados({
                             onChange={(e) => handleAtualizarDadosAluno('altura', e.target.value)}
                         />
                     </div>
-                    <div className='app--input-group'>
+                    <div className='app__input-group'>
                         <label>Peso (kg)</label>
                         <input
                             type="number"
@@ -82,7 +82,7 @@ export function Etapa6ColetaDados({
                 />
             )}
 
-            <div className='app--footer'>
+            <div className='app__footer'>
                 {mostrarAlunosPendentes && pendentes.length > 0 && (
                     <>
                         <div className='app__tela-vacinacao__pendentes'>
@@ -100,10 +100,10 @@ export function Etapa6ColetaDados({
                 )}
 
                 <div className='app__dados-aluno__footer'>
-                    <button type="button" className="app--botao-voltar" onClick={onAnterior}>
+                    <button type="button" className="app__botao-voltar" onClick={onAnterior}>
                         <IconeVoltar />
                     </button>
-                    <button type="submit" className='app--buttonMain'>
+                    <button type="submit" className='app__buttonMain'>
                         <p>{isUltimoAluno ? 'Avançar' : 'Próximo'}</p>
                     </button>
                 </div>

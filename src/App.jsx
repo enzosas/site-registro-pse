@@ -72,16 +72,16 @@ function App() {
 
 			case TELAS.ESQUECI_SENHA:
 				return (
-					<div className='app--input-group'>
-						<div className='app--card' ref={p.cardRef}>
+					<div className='app__input-group'>
+						<div className='app__card' ref={p.cardRef}>
 							<button
 								type="button"
-								className="app--botao-voltar"
+								className="app__botao-voltar"
 								onClick={() => p.setTelaAtiva(TELAS.LOGIN)}
 							>
 								<IconeVoltar />
 							</button>
-							<div className='app--input-group'>
+							<div className='app__input-group'>
 								<label>Digite seu email</label>
 								<input type="text" />
 							</div>
@@ -91,20 +91,20 @@ function App() {
 
 			case TELAS.ADD_ESCOLA:
 				return (
-					<div className='app--card' ref={p.cardRef}>
-						<div className='app--input-group'>
+					<div className='app__card' ref={p.cardRef}>
+						<div className='app__input-group'>
 							<button
 								type="button"
-								className="app--botao-voltar"
+								className="app__botao-voltar"
 								onClick={() => p.setTelaAtiva(TELAS.ETAPAS)}
 							>
 								<IconeVoltar />
 							</button>
-							<div className='app--input-group'>
+							<div className='app__input-group'>
 								<label>Digite o nome da Escola</label>
 								<input type='text' />
 								<button
-									className='app--buttonMain'
+									className='app__buttonMain'
 									onClick={() => p.setTelaAtiva(TELAS.ETAPAS)}
 								>
 									<label>Cadastrar Escola</label>
@@ -167,7 +167,7 @@ function App() {
 				return (
 					<>
 						<HeaderRegistro etapaAtual={p.etapa} />
-						<div className='app--card' ref={p.cardRef}>
+						<div className='app__card' ref={p.cardRef}>
 							{p.etapa === 1 && (
 								<Etapa1Data
 									dia={p.dia}
@@ -288,8 +288,8 @@ function App() {
 	};
 
 	return (
-		<div className='app--background' ref={p.bgRef}>
-			<div className='app--column'>{renderizarConteudo()}</div>
+		<div className='app__background' ref={p.bgRef}>
+			<div className='app__column'>{renderizarConteudo()}</div>
 		</div>
 	);
 }

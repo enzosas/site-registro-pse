@@ -21,7 +21,7 @@ export function TelaAddAluno({
         <>
             <HeaderRegistro etapaAtual={etapa} />
             <form
-                className='app--card'
+                className='app__card'
                 ref={cardRef}
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -29,11 +29,11 @@ export function TelaAddAluno({
                     onAdicionarAluno();
                 }}
             >
-                <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                     <IconeVoltar />
                 </button>
-                <p className='app--title'>Adicionar aluno</p>
-                <div className='app--input-group'>
+                <p className='app__title'>Adicionar aluno</p>
+                <div className='app__input-group'>
                     <label>Nome</label>
                     <input
                         ref={nomeInputRef}
@@ -43,7 +43,7 @@ export function TelaAddAluno({
                         placeholder="Digite aqui o nome completo"
                     />
                 </div>
-                <div className='app--input-group'>
+                <div className='app__input-group'>
                     <label>Data de Nascimento</label>
                     <input
                         type="text"
@@ -53,10 +53,10 @@ export function TelaAddAluno({
                         maxLength="10"
                     />
                 </div>
-                <div className='app--footer'>
+                <div className='app__footer'>
                     <button
                         type="submit"
-                        className={'app--buttonMain'}
+                        className={'app__buttonMain'}
                         disabled={isDisabled}
                     >
                         <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

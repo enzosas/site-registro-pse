@@ -1,17 +1,17 @@
 
-.app--title {
+.app__title {
 	font-size: 2.5rem;
 	font-weight: 600;
 	line-height: 1.25em;
 	margin-bottom: 0.25em;
 }
 
-.app--date-group {
+.app__date-group {
 	display: flex;
 	gap: 0.5rem;
 }
 
-.app--date-input {
+.app__date-input {
 	width: 4rem;
 	padding: 0.75rem;
 	border: var(--input-border);
@@ -23,18 +23,18 @@
 	height: 3rem;
 }
 
-.app--date-input:focus {
+.app__date-input:focus {
 	border-color: var(--cor-texto);
 }
 
-.login--input-group {
+.login__input-group {
 	display: flex;
 	flex-direction: column;
 	gap: inherit;
 	margin: auto 0;
 }
 
-.app--list {
+.app__list {
 	display: flex;
 	flex-direction: column;
 	gap: 0rem;
@@ -57,11 +57,11 @@
 	width: 100%;
 }
 
-.app__list__aluno-nascimento--nascimento {
+.app__list__aluno-nascimento__nascimento {
 	color: var(--cor-botao2);
 }
 
-.app--list label {
+.app__list label {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -70,12 +70,12 @@
 	font-size: 1.25rem;
 }
 
-.app--contador {
+.app__contador {
 	color: var(--cor-botao2);
 	font-size: 1.25rem;
 }
 
-.app--nomeAluno {
+.app__nomeAluno {
 	font-size: 2.5rem;
 	font-weight: 600;
 	line-height: 1.25em;
@@ -83,18 +83,18 @@
 	text-align: center;
 }
 
-.app--input-group {
+.app__input-group {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 	width: 100%;
 }
 
-.app--input-group label {
+.app__input-group label {
 	font-size: 1rem;
 }
 
-.app--input-group input {
+.app__input-group input {
 	border: var(--input-border);
 	border-radius: 0.5rem;
 	padding: 0.75rem 1rem;
@@ -114,7 +114,7 @@
 	width: 100%;
 }
 
-.app--input-group input:focus {
+.app__input-group input:focus {
 	border-color: var(--cor-texto);
 }
 
@@ -125,8 +125,8 @@
 	margin-bottom: 0.25em;
 }
 
-.app--resumo span,
-.app--resumo p {
+.app__resumo span,
+.app__resumo p {
 	line-height: 1.25em;
 }
 

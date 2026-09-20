@@ -13,21 +13,21 @@ export function Etapa7Conclusao({
 }) {
     return (
         <>
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>Tudo pronto!</p>
+            <p className='app__title'>Tudo pronto!</p>
 
             <button
-                className='app--buttonSecondary app--buttonSecondary__left-anchor'
+                className='app__buttonSecondary app__buttonSecondary__left-anchor'
                 onClick={onReiniciarRegistro}
             >
                 <p>Iniciar novo registro</p>
             </button>
 
-            <div className='app--footer'>
-                <button className='app--buttonMain' onClick={onVerResumo}>
+            <div className='app__footer'>
+                <button className='app__buttonMain' onClick={onVerResumo}>
                     <p>Ver resumo</p>
                 </button>
 
@@ -37,7 +37,7 @@ export function Etapa7Conclusao({
                     style={{ textDecoration: 'none', display: 'block', width: '100%' }}
                 >
                     {() => (
-                        <button className='app--buttonMain'>
+                        <button className='app__buttonMain'>
                             <p>Gerar Relatório PDF</p>
                         </button>
                     )}

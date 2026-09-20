@@ -14,11 +14,11 @@ export function Etapa3Turma({
 }) {
     return (
         <>
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>Selecione a turma em que foi realizada a atividade:</p>
+            <p className='app__title'>Selecione a turma em que foi realizada a atividade:</p>
 
             <SearchableList
                 busca={buscaTurma}
@@ -29,12 +29,12 @@ export function Etapa3Turma({
                 formatarNome={formatarNome}
             />
 
-            <div className='app--footer'>
-                <button className='app--buttonSecondary' onClick={onCadastroManual}>
+            <div className='app__footer'>
+                <button className='app__buttonSecondary' onClick={onCadastroManual}>
                     <p>A turma não está na lista</p>
                 </button>
                 <button
-                    className={'app--buttonMain'}
+                    className={'app__buttonMain'}
                     onClick={() => {
                         if (turmaSelecionada) onAvancar();
                     }}

@@ -15,38 +15,38 @@ export function TelaResumo({
     return (
         <>
             <HeaderRegistro etapaAtual={etapa} />
-            <div className='app--card' ref={cardRef}>
-                <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <div className='app__card' ref={cardRef}>
+                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                     <IconeVoltar />
                 </button>
-                <p className='app--title'>Resumo da Atividade</p>
+                <p className='app__title'>Resumo da Atividade</p>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Registrado por</p>
                     <p>{dados.Registrador}</p>
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Responsáveis pela ação</p>
                     <p>{dados.profissionaisResponsaveis}</p>
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Escola</p>
                     <p>{dados.escola}</p>
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Turma</p>
                     <p>{dados.turma}</p>
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Data de realização da ação</p>
                     <p>{dados.data}</p>
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Eixos Selecionados</p>
                     <>
                         {dados.eixosTematicos.map((eixo, index) => (
@@ -56,11 +56,11 @@ export function TelaResumo({
                     {observacoes && <p>Observações: {dados.observacoes}</p>}
                 </div>
 
-                <div className='app--resumo'>
+                <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Alunos que participaram da ação</p>
-                    <div className='app--resumo'>
+                    <div className='app__resumo'>
                         {dados.alunosPresentes.map((aluno) => (
-                            <div key={aluno.id} className='app--resumo'>
+                            <div key={aluno.id} className='app__resumo'>
                                 <span>{aluno.nome} - </span>
                                 <span>{formatarData(aluno.dataNascimento)}</span>
                                 {(aluno.peso || aluno.altura) && (
@@ -81,8 +81,8 @@ export function TelaResumo({
                     </div>
                 </div>
 
-                <div className='app--footer'>
-                    <button className='app--buttonMain' onClick={onCopiarResumo}>
+                <div className='app__footer'>
+                    <button className='app__buttonMain' onClick={onCopiarResumo}>
                         <p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
                     </button>
                 </div>

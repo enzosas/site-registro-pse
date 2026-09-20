@@ -14,11 +14,11 @@ export function Etapa2Escola({
 }) {
     return (
         <>
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>Selecione sua escola:</p>
+            <p className='app__title'>Selecione sua escola:</p>
 
             <SearchableList
                 busca={buscaEscola}
@@ -29,12 +29,12 @@ export function Etapa2Escola({
                 formatarNome={formatarNome}
             />
 
-            <div className='app--footer'>
-                <button className='app--buttonSecondary' onClick={onCadastroManual}>
+            <div className='app__footer'>
+                <button className='app__buttonSecondary' onClick={onCadastroManual}>
                     <p>A escola não está na lista</p>
                 </button>
                 <button
-                    className={'app--buttonMain'}
+                    className={'app__buttonMain'}
                     onClick={() => {
                         if (escolaSelecionada) onAvancar();
                     }}

@@ -15,21 +15,21 @@ export function Etapa5Presenca({
 
     return (
         <>
-            <button type="button" className="app--botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
 
-            <p className='app--title'>Selecione os alunos que participaram da ação:</p>
+            <p className='app__title'>Selecione os alunos que participaram da ação:</p>
 
             <button
-                className='app--buttonSecondary app--buttonSecondary__left-anchor'
+                className='app__buttonSecondary app__buttonSecondary__left-anchor'
                 onClick={alternarPresencaTodos}
             >
                 <p>{todosEstaoPresentes ? 'Desmarcar todos' : 'Marcar todos'}</p>
             </button>
 
             <div className='app__tela-com-lista__gap'>
-                <div className='app--list'>
+                <div className='app__list'>
                     {alunosOrdenados.map((aluno) => (
                         <label key={aluno.id}>
                             <input
@@ -39,7 +39,7 @@ export function Etapa5Presenca({
                             />
                             <div className='app__list__aluno-nascimento'>
                                 {aluno.nome}
-                                <p className='app__list__aluno-nascimento--nascimento'>
+                                <p className='app__list__aluno-nascimento__nascimento'>
                                     {formatarData(aluno.dataNascimento)}
                                 </p>
                             </div>
@@ -47,12 +47,12 @@ export function Etapa5Presenca({
                     ))}
                 </div>
 
-                <div className='app--footer'>
-                    <button className='app--buttonSecondary' onClick={onAdicionarAlunoManual}>
+                <div className='app__footer'>
+                    <button className='app__buttonSecondary' onClick={onAdicionarAlunoManual}>
                         <p>Adicionar aluno manualmente</p>
                     </button>
                     <button
-                        className={'app--buttonMain'}
+                        className={'app__buttonMain'}
                         onClick={() => {
                             if (temPresentes) onAvancar();
                         }}
