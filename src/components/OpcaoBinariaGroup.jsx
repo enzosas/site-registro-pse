@@ -2,12 +2,12 @@ import '../styles/components/OpcaoBinariaGroup.css';
 
 export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
     return (
-        <div className='app--input-group'>
+        <div className='app__input-group'>
             <label>{label}</label>
-            <div className='app--tela-vacinacao-grupo-botoes'>
+            <div className='app__tela-vacinacao-grupo-botoes'>
                 <button
                     type="button"
-                    className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.POSITIVO.valor ? 'app--tela-vacinacao-grupo-botoes--botao__sim' : ''
+                    className={`app__tela-vacinacao-grupo-botoes__botao ${valorAtual === opcoes.POSITIVO.valor ? 'app__tela-vacinacao-grupo-botoes__botao--sim' : ''
                         }`}
                     onClick={() => onChange(valorAtual === opcoes.POSITIVO.valor ? null : opcoes.POSITIVO.valor)}
                 >
@@ -15,7 +15,7 @@ export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
                 </button>
                 <button
                     type="button"
-                    className={`app--tela-vacinacao-grupo-botoes--botao ${valorAtual === opcoes.NEGATIVO.valor ? 'app--tela-vacinacao-grupo-botoes--botao__nao' : ''
+                    className={`app__tela-vacinacao-grupo-botoes__botao ${valorAtual === opcoes.NEGATIVO.valor ? 'app__tela-vacinacao-grupo-botoes__botao--nao' : ''
                         }`}
                     onClick={() => onChange(valorAtual === opcoes.NEGATIVO.valor ? null : opcoes.NEGATIVO.valor)}
                 >

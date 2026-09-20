@@ -1,4 +1,4 @@
-.app--header-container {
+.app__header-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7,18 +7,18 @@
     font-size: 1.25rem;
 }
 
-.app--header {
+.app__header {
     text-align: center;
 }
 
-.app--header-logo {
+.app__header-logo {
     height: 1.5rem;
     object-fit: contain;
 }
 
 @media (max-width: 1000px) {
 
-    .app--header-container {
+    .app__header-container {
         display: none;
     }
 }
