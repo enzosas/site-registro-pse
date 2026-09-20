@@ -1,0 +1,58 @@
+.app--buttonMain,
+.app--buttonSecondary,
+.app--buttonMain__disabled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-family: inherit;
+    border: none;
+    border-radius: 2rem;
+    user-select: none;
+    transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.app--buttonMain,
+.app--buttonMain__disabled {
+    color: var(--cor-frame);
+    background-color: var(--cor-botao);
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem;
+    width: 100%;
+}
+
+.app--buttonMain {
+    cursor: pointer;
+}
+
+.app--buttonMain:hover {
+    filter: brightness(0.9);
+}
+
+.app--buttonMain:active {
+    transform: scale(0.975);
+}
+
+.app--buttonMain__disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.app--buttonSecondary {
+    color: var(--cor-botao2);
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.app--buttonSecondary:active {
+    transform: scale(0.95);
+}
+
+.app--buttonSecondary__left-anchor {
+    align-self: flex-start;
+    padding: 0.5rem 0;
+}
