@@ -10,11 +10,11 @@ export function TelaInicial({ onComecar, onAjuda }) {
                 <button className='app--buttonMain' onClick={onComecar}>
                     Começar
                 </button>
-                <button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={onAjuda}>
+                <button className='app--buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
                     Ajuda
                 </button>
             </div>
-            <div className='app--tela-inicial--rodape-imagens'>
+            <div className='app__tela-inicial__rodape-imagens'>
                 <img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app--logo-pse" />
                 <img src={`${import.meta.env.BASE_URL}ufsmLogo.png`} alt="Logo PSE" className="app--logo-pse" />
             </div>

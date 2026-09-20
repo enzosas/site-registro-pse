@@ -85,7 +85,7 @@ export function Etapa6ColetaDados({
             <div className='app--footer'>
                 {mostrarAlunosPendentes && pendentes.length > 0 && (
                     <>
-                        <div className='app--tela-vacinacao--pendentes'>
+                        <div className='app__tela-vacinacao__pendentes'>
                             Os seguintes alunos estão com dados faltando:
                         </div>
                         {pendentes.map((aluno) => (
@@ -93,13 +93,13 @@ export function Etapa6ColetaDados({
                                 key={aluno.id}
                                 onClick={() => onSelecionarAlunoPendente(aluno.id)}
                             >
-                                <span className='app--tela-vacinacao--pendentes'>{aluno.nome}</span>
+                                <span className='app__tela-vacinacao__pendentes'>{aluno.nome}</span>
                             </div>
                         ))}
                     </>
                 )}
 
-                <div className='app--dados-aluno--footer'>
+                <div className='app__dados-aluno__footer'>
                     <button type="button" className="app--botao-voltar" onClick={onAnterior}>
                         <IconeVoltar />
                     </button>

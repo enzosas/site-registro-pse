@@ -13,10 +13,10 @@ export function TelaAjuda({ onVoltar, cardRef }) {
             <div className='app--resumo'>
                 <ReactMarkdown
                     components={{
-                        h3: ({ children }) => <p className='app--resumo--subtitle'>{children}</p>,
-                        h4: ({ children }) => <p className='app--ajuda--subtitulo'>{children}</p>,
-                        p: ({ children }) => <p className='app--ajuda--paragrafo'>{children}</p>,
-                        li: ({ children }) => <p className='app--ajuda--paragrafo'>•&nbsp; {children}</p>,
+                        h3: ({ children }) => <p className='app__resumo__subtitle'>{children}</p>,
+                        h4: ({ children }) => <p className='app__ajuda__subtitulo'>{children}</p>,
+                        p: ({ children }) => <p className='app__ajuda__paragrafo'>{children}</p>,
+                        li: ({ children }) => <p className='app__ajuda__paragrafo'>•&nbsp; {children}</p>,
                         ul: ({ children }) => <>{children}</>,
                         hr: () => <br />
                     }}

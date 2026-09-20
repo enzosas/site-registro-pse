@@ -24,7 +24,7 @@ export function Etapa4Eixos({
                 Selecione o(s) eixo(s) temático(s) contemplado(s) na ação desenvolvida:
             </p>
 
-            <div className='app--tela-com-lista--gap'>
+            <div className='app__tela-com-lista__gap'>
                 <div className='app--list'>
                     {Constantes.EIXOS_TEMATICOS.map((eixo) => (
                         <label key={eixo.id}>

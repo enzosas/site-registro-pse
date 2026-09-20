@@ -28,7 +28,7 @@ export function Etapa5Presenca({
                 <p>{todosEstaoPresentes ? 'Desmarcar todos' : 'Marcar todos'}</p>
             </button>
 
-            <div className='app--tela-com-lista--gap'>
+            <div className='app__tela-com-lista__gap'>
                 <div className='app--list'>
                     {alunosOrdenados.map((aluno) => (
                         <label key={aluno.id}>
@@ -37,9 +37,9 @@ export function Etapa5Presenca({
                                 checked={idsAlunosPresentes.includes(aluno.id)}
                                 onChange={() => toggleAluno(aluno.id)}
                             />
-                            <div className='app--list--aluno-nascimento'>
+                            <div className='app__list__aluno-nascimento'>
                                 {aluno.nome}
-                                <p className='app--list--aluno-nascimento--nascimento'>
+                                <p className='app__list__aluno-nascimento--nascimento'>
                                     {formatarData(aluno.dataNascimento)}
                                 </p>
                             </div>

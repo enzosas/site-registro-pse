@@ -22,32 +22,32 @@ export function TelaResumo({
                 <p className='app--title'>Resumo da Atividade</p>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Registrado por</p>
+                    <p className='app__resumo__subtitle'>Registrado por</p>
                     <p>{dados.Registrador}</p>
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Responsáveis pela ação</p>
+                    <p className='app__resumo__subtitle'>Responsáveis pela ação</p>
                     <p>{dados.profissionaisResponsaveis}</p>
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Escola</p>
+                    <p className='app__resumo__subtitle'>Escola</p>
                     <p>{dados.escola}</p>
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Turma</p>
+                    <p className='app__resumo__subtitle'>Turma</p>
                     <p>{dados.turma}</p>
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Data de realização da ação</p>
+                    <p className='app__resumo__subtitle'>Data de realização da ação</p>
                     <p>{dados.data}</p>
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Eixos Selecionados</p>
+                    <p className='app__resumo__subtitle'>Eixos Selecionados</p>
                     <>
                         {dados.eixosTematicos.map((eixo, index) => (
                             <p key={index}>{eixo}</p>
@@ -57,7 +57,7 @@ export function TelaResumo({
                 </div>
 
                 <div className='app--resumo'>
-                    <p className='app--resumo--subtitle'>Alunos que participaram da ação</p>
+                    <p className='app__resumo__subtitle'>Alunos que participaram da ação</p>
                     <div className='app--resumo'>
                         {dados.alunosPresentes.map((aluno) => (
                             <div key={aluno.id} className='app--resumo'>
