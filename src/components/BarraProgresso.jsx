@@ -1,4 +1,5 @@
 import { IconeCheck } from './Icones';
+import '../styles/components/BarraProgresso.css';
 
 export function BarraProgresso({ etapaAtual, totalEtapas }) {
     const passos = Array.from({ length: totalEtapas }, (_, i) => i + 1);

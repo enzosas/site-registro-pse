@@ -1,3 +1,5 @@
+import '../styles/components/OpcaoBinariaGroup.css';
+
 export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
     return (
         <div className='app--input-group'>

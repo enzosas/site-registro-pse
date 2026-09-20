@@ -1,4 +1,5 @@
 import { IconePesquisa, IconeCheck } from './Icones';
+import '../styles/components/SearchableList.css';
 
 export function SearchableList({ busca, onBuscaChange, itens, itemSelecionado, onSelecionarItem, formatarNome }) {
     return (

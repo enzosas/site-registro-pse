@@ -1,4 +1,5 @@
 import { BarraProgresso } from './BarraProgresso';
+import '../styles/components/HeaderRegistro.css';
 
 export function HeaderRegistro({ etapaAtual, totalEtapas = 6 }) {
     return (
