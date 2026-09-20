@@ -169,6 +169,36 @@
 	margin-bottom: 1rem;
 }
 
+.app__tela-profissionais__row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+}
+
+.app__tela-profissionais__input {
+	flex: 1;
+	width: 100%;
+}
+
+.app__tela-profissionais__btn-remover {
+	padding: 0.5rem;
+	cursor: pointer;
+	line-height: 1;
+	font-size: 1.1rem;
+}
+
+.app__tela-profissionais__btn-adicionar {
+	align-self: flex-start;
+}
+
+.app__tela-profissionais__registrador-info {
+	font-size: 0.95rem;
+	color: var(--cor-texto, inherit);
+	text-align: center;
+	margin-bottom: 0.5rem;
+}
+
 * {
 	-webkit-tap-highlight-color: transparent;
 }

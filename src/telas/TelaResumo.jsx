@@ -1,6 +1,6 @@
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
-import { formatarData } from '../utils/formatadores';
+import { formatarData, formatarProfissionais } from '../utils/formatadores';
 import * as Constantes from '../constantes';
 
 export function TelaResumo({
@@ -28,7 +28,7 @@ export function TelaResumo({
 
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Responsáveis pela ação</p>
-                    <p>{dados.profissionaisResponsaveis}</p>
+                    <p>{formatarProfissionais(dados.profissionaisResponsaveis)}</p>
                 </div>
 
                 <div className='app__resumo'>

@@ -24,3 +24,14 @@ export const formatarNome = (nome) => {
         })
         .join(' ');
 };
+
+export function formatarProfissionais(profissionais) {
+    if (!profissionais) return '-';
+    if (Array.isArray(profissionais)) {
+        return profissionais
+            .map((p) => (typeof p === 'string' ? p.trim() : ''))
+            .filter(Boolean)
+            .join(', ') || '-';
+    }
+    return String(profissionais).trim() || '-';
+}

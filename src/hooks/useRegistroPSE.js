@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { autenticarUsuario, carregarEscolasDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
-import { formatarData } from '../utils/formatadores';
+import { formatarData, formatarProfissionais } from '../utils/formatadores';
 import { TELAS } from '../constantes';
 
 export function useRegistroPSE() {
@@ -305,9 +305,14 @@ export function useRegistroPSE() {
 
     const handleCopiarResumo = async () => {
         const dados = gerarObjetoRelatorio();
+        const textoProfissionais = Array.isArray(dados.profissionaisResponsaveis)
+            ? dados.profissionaisResponsaveis.map((p) => p.trim()).filter(Boolean).join(', ')
+            : (dados.profissionaisResponsaveis || '-');
         const linhas = [
             'Resumo da Atividade',
             '',
+            `Registrado por: ${dados.Registrador}`,
+            `Profissionais que realizaram a ação: ${formatarProfissionais(dados.profissionaisResponsaveis)}`,
             `Escola: ${dados.escola}`,
             `Turma: ${dados.turma}`,
             `Data de realização: ${dados.data}`,

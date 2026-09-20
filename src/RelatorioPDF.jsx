@@ -1,10 +1,6 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import * as Constantes from './constantes';
-
-const formatarData = (data) => {
-    if (!data) return ''
-    return data
-}
+import { formatarData, formatarProfissionais } from './utils/formatadores';
 
 const styles = StyleSheet.create({
     page: {
@@ -56,7 +52,6 @@ const styles = StyleSheet.create({
 });
 
 export const RelatorioPDF = ({ dados }) => {
-
     const alunos = dados.alunosPresentes || [];
     const temPeso = alunos.some((a) => a.peso);
     const temAltura = alunos.some((a) => a.altura);
@@ -64,7 +59,6 @@ export const RelatorioPDF = ({ dados }) => {
     const temVisao = alunos.some((a) => a.saudeOcular);
 
     return (
-
         <Document>
             <Page size="A4" style={styles.page}>
                 <View style={styles.header}>
@@ -72,8 +66,8 @@ export const RelatorioPDF = ({ dados }) => {
                 </View>
 
                 <View style={styles.section}>
-                    <Text>Registrado por: {dados.Registrador} </Text>
-                    <Text> Profissionais que realizaram a ação: {dados.profissionaisResponsaveis} </Text>
+                    <Text>Registrado por: {dados.Registrador || '-'}</Text>
+                    <Text>Profissionais que realizaram a ação: {formatarProfissionais(dados.profissionaisResponsaveis)}</Text>
                     <Text>Escola: {dados.escola}</Text>
                     <Text>Turma: {dados.turma}</Text>
                     <Text>Data da atividade: {dados.data}</Text>
@@ -85,7 +79,7 @@ export const RelatorioPDF = ({ dados }) => {
                         <Text key={i}>{eixo}</Text>
                     ))}
                     {dados.observacoes && (
-                        <Text>Observações: {dados.observacoes}</Text>
+                        <Text style={{ marginTop: 4 }}>Observações: {dados.observacoes}</Text>
                     )}
                 </View>
 
@@ -99,7 +93,8 @@ export const RelatorioPDF = ({ dados }) => {
                         {temVacina && <Text style={styles.cellSecundaria}>Vacina</Text>}
                         {temVisao && <Text style={styles.cellSecundaria}>Visão</Text>}
                     </View>
-                    {dados.alunosPresentes.map((aluno, i) => (
+
+                    {alunos.map((aluno, i) => (
                         <View key={i} style={styles.row}>
                             <Text style={styles.cellNome}>{aluno.nome}</Text>
                             <Text style={styles.cellSecundaria}>{formatarData(aluno.dataNascimento)}</Text>
@@ -121,12 +116,15 @@ export const RelatorioPDF = ({ dados }) => {
                             )}
                         </View>
                     ))}
+
                     <View style={styles.footer}>
-                        <Text style={styles.footer}>Quantidade de alunos: {dados.alunosPresentes?.length || 0}</Text>
-                        <Text style={styles.footer}>Relatório gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</Text>
+                        <Text style={styles.textoFooter}>Quantidade de alunos: {alunos.length}</Text>
+                        <Text style={styles.textoFooter}>
+                            Relatório gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                        </Text>
                     </View>
                 </View>
             </Page>
         </Document>
     );
-}
+};
