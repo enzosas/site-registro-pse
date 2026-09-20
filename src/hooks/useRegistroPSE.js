@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { autenticarUsuario, carregarEscolasDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import { formatarData, formatarProfissionais } from '../utils/formatadores';
-import { TELAS } from '../constantes';
+import { TELAS, ETAPAS } from '../constantes';
 
 export function useRegistroPSE() {
     // Dados do Supabase
@@ -21,17 +21,17 @@ export function useRegistroPSE() {
     const [usuarioId, setUsuarioId] = useState('');
     const [nomeUsuario, setNomeUsuario] = useState('');
 
-    // Etapa atual do fluxo (1 a 7)
-    const [etapa, setEtapa] = useState(1);
+    // A etapa atual
+    const [etapaAtualId, setEtapaAtualId] = useState(ETAPAS.DATA);
 
-    // Dados da atividade (Etapa 1)
+    // Dados da atividade
     const hoje = new Date();
     const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'));
     const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'));
     const [ano, setAno] = useState(String(hoje.getFullYear()));
     const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState([]);
 
-    // Escolas e Turmas (Etapas 2 e 3)
+    // Escolas e Turmas
     const [buscaEscola, setBuscaEscola] = useState('');
     const [escolaSelecionada, setEscolaSelecionada] = useState(null);
     const [buscaTurma, setBuscaTurma] = useState('');
@@ -41,18 +41,18 @@ export function useRegistroPSE() {
     const [escolaManual, setEscolaManual] = useState('');
     const [turmaManual, setTurmaManual] = useState('');
 
-    // Eixos temáticos (Etapa 4)
+    // Eixos temáticos
     const [idsEixosSelecionados, setIdsEixosSelecionados] = useState([]);
     const [nomeEixoLocal, setNomeEixoLocal] = useState('');
     const [observacoes, setObservacoes] = useState('');
 
-    // Alunos e Presença (Etapa 5)
+    // Alunos e Presença
     const [idsAlunosPresentes, setIdsAlunosPresentes] = useState([]);
     const [novoAlunoNome, setNovoAlunoNome] = useState('');
     const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('');
     const [alunoAdicionadoAnim, setAlunoAdicionadoAnim] = useState(false);
 
-    // Coleta individual (Etapa 6)
+    // Coleta individual
     const [alunoAtualIndex, setAlunoAtualIndex] = useState(0);
     const [dadosAlunos, setDadosAlunos] = useState({});
     const [mostrarAlunosPendentes, setMostrarAlunosPendentes] = useState(false);
@@ -72,7 +72,7 @@ export function useRegistroPSE() {
         if (cardRef.current) {
             cardRef.current.scrollTop = 0;
         }
-    }, [etapa, alunoAtualIndex, telaAtiva]);
+    }, [etapaAtualId, alunoAtualIndex, telaAtiva]);
 
     // Busca inicial dos dados no Supabase
     const buscarDados = async () => {
@@ -114,25 +114,41 @@ export function useRegistroPSE() {
     const temEixoLocal = idsEixosSelecionados.includes(Constantes.EIXOS_ID.TEMATICA_LOCAL);
     const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular;
 
-    // Navegação entre etapas com desvio condicional
-    const avancarEtapa = () => {
-        if (etapa === 6 && !temAvaliacaoIndividual) {
-            setEtapa(8);
-            return;
+    const etapasAtivas = useMemo(() => {
+        const lista = [
+            ETAPAS.DATA,
+            ETAPAS.PROFISSIONAIS,
+            ETAPAS.ESCOLA,
+            ETAPAS.TURMA,
+            ETAPAS.EIXOS,
+            ETAPAS.PRESENCA,
+        ];
+
+        if (temAvaliacaoIndividual) {
+            lista.push(ETAPAS.COLETA);
         }
-        setEtapa((prev) => prev + 1);
+
+        lista.push(ETAPAS.CONCLUSAO);
+        return lista;
+    }, [temAvaliacaoIndividual]);
+
+    const indiceEtapaAtual = etapasAtivas.indexOf(etapaAtualId);
+    
+    const avancarEtapa = () => {
+        if (indiceEtapaAtual < etapasAtivas.length - 1) {
+            setEtapaAtualId(etapasAtivas[indiceEtapaAtual + 1]);
+        }
     };
 
     const voltarEtapa = () => {
-        if (etapa === 8 && !temAvaliacaoIndividual) {
-            setEtapa(6);
-            return;
-        }
-        if (etapa === 7) {
+        if (etapaAtualId === ETAPAS.COLETA) {
             setAlunoAtualIndex(0);
             setMostrarAlunosPendentes(false);
         }
-        setEtapa((prev) => prev - 1);
+
+        if (indiceEtapaAtual > 0) {
+            setEtapaAtualId(etapasAtivas[indiceEtapaAtual - 1]);
+        }
     };
 
     // Filtros de listas
@@ -387,7 +403,7 @@ export function useRegistroPSE() {
         handleLogin,
 
         // Etapa e navegação
-        etapa,
+        etapaAtualId,
         avancarEtapa,
         voltarEtapa,
 

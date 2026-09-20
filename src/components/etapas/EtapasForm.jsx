@@ -8,10 +8,11 @@ import { Etapa6Presenca } from './Etapa6Presenca';
 import { Etapa7ColetaDados } from './Etapa7ColetaDados';
 import { Etapa8Conclusao } from './Etapa8Conclusao';
 import { HeaderRegistro } from '../HeaderRegistro';
+import { ETAPAS, TELAS } from '../../constantes';
 
 export function RenderizadorEtapas({ form: p }) {
     const etapasMap = {
-        1: (
+        [ETAPAS.DATA]: (
             <Etapa1Data
                 dia={p.dia}
                 setDia={p.setDia}
@@ -23,7 +24,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
             />
         ),
-        2: (
+        [ETAPAS.PROFISSIONAIS]: (
             <Etapa2Profissionais
                 registradorNome={p.nomeUsuario}
                 profissionaisResponsaveis={p.profissionaisResponsaveis}
@@ -32,7 +33,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onVoltar={p.voltarEtapa}
             />
         ),
-        3: (
+        [ETAPAS.ESCOLA]: (
             <Etapa3Escola
                 buscaEscola={p.buscaEscola}
                 setBuscaEscola={p.setBuscaEscola}
@@ -44,7 +45,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onCadastroManual={() => p.setTelaAtiva(TELAS.CADASTRO_MANUAL)}
             />
         ),
-        4: (
+        [ETAPAS.TURMA]: (
             <Etapa4Turma
                 buscaTurma={p.buscaTurma}
                 setBuscaTurma={p.setBuscaTurma}
@@ -59,7 +60,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onCadastroManual={() => p.setTelaAtiva(TELAS.CADASTRO_MANUAL)}
             />
         ),
-        5: (
+        [ETAPAS.EIXOS]: (
             <Etapa5Eixos
                 idsEixosSelecionados={p.idsEixosSelecionados}
                 toggleEixo={p.toggleEixo}
@@ -75,7 +76,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onVoltar={p.voltarEtapa}
             />
         ),
-        6: (
+        [ETAPAS.PRESENCA]: (
             <Etapa6Presenca
                 alunosOrdenados={p.alunosOrdenados}
                 idsAlunosPresentes={p.idsAlunosPresentes}
@@ -87,7 +88,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onVoltar={p.voltarEtapa}
             />
         ),
-        7: (
+        [ETAPAS.COLETA]: (
             <Etapa7ColetaDados
                 alunoAtualIndex={p.alunoAtualIndex}
                 alunosPresentes={p.alunosPresentes}
@@ -110,7 +111,7 @@ export function RenderizadorEtapas({ form: p }) {
                 onVoltar={p.voltarEtapa}
             />
         ),
-        8: (
+        [ETAPAS.CONCLUSAO]: (
             <Etapa8Conclusao
                 dia={p.dia}
                 mes={p.mes}
@@ -123,16 +124,14 @@ export function RenderizadorEtapas({ form: p }) {
         ),
     };
 
-    const totalEtapasCadastradas = Object.keys(etapasMap).length;
-
     return (
         <>
             <HeaderRegistro
-                etapaAtual={p.etapa}
-                totalEtapas={totalEtapasCadastradas}
+                etapaAtual={p.passoVisual}
+                totalEtapas={p.totalEtapas}
             />
             <div className="app__card" ref={p.cardRef}>
-                {etapasMap[p.etapa] || null}
+                {etapasMap[p.etapaAtualId] || null}
             </div>
         </>
     );
