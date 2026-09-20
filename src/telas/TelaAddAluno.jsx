@@ -1,5 +1,6 @@
 import { IconeVoltar, IconeCheck } from '../components/Icones';
-import { BarraProgresso } from '../components/BarraProgresso';
+import { HeaderRegistro } from '../components/HeaderRegistro';
+import { aplicarMascaraData, isDataStringValida } from '../utils/validadoresData';
 
 export function TelaAddAluno({
     etapa,
@@ -13,7 +14,8 @@ export function TelaAddAluno({
     nomeInputRef,
     cardRef,
 }) {
-    const isDisabled = !novoAlunoNome.trim() || !novoAlunoDataNascimento.trim();
+    const dataValida = isDataStringValida(novoAlunoDataNascimento);
+    const isDisabled = !novoAlunoNome.trim() || !dataValida;
 
     return (
         <>
@@ -46,8 +48,9 @@ export function TelaAddAluno({
                     <input
                         type="text"
                         value={novoAlunoDataNascimento}
-                        onChange={(e) => setNovoAlunoDataNascimento(e.target.value)}
+                        onChange={(e) => setNovoAlunoDataNascimento(aplicarMascaraData(e.target.value))}
                         placeholder="DD/MM/AAAA"
+                        maxLength="10"
                     />
                 </div>
                 <div className='app--footer'>

@@ -1,4 +1,5 @@
 import { IconeVoltar } from '../components/Icones';
+import { isDataValida } from '../utils/validadoresData';
 
 export function Etapa1Data({
     dia,
@@ -14,10 +15,14 @@ export function Etapa1Data({
     onAvancar,
     onVoltar,
 }) {
+    const handleApenasNumeros = (setter, tamanhoMax) => (e) => {
+        const val = e.target.value.replace(/\D/g, '').slice(0, tamanhoMax);
+        setter(val);
+    };
+
+    const dataEhValida = isDataValida(dia, mes, ano);
     const isFormValido =
-        dia.trim() &&
-        mes.trim() &&
-        ano.trim() &&
+        dataEhValida &&
         profissionaisResponsaveis.trim() &&
         Registrador.trim();
 
@@ -42,7 +47,7 @@ export function Etapa1Data({
                     maxLength="2"
                     className='app--date-input'
                     value={dia}
-                    onChange={(e) => setDia(e.target.value)}
+                    onChange={handleApenasNumeros(setDia, 2)}
                 />
                 <input
                     type="text"
@@ -50,7 +55,7 @@ export function Etapa1Data({
                     maxLength="2"
                     className='app--date-input'
                     value={mes}
-                    onChange={(e) => setMes(e.target.value)}
+                    onChange={handleApenasNumeros(setMes, 2)}
                 />
                 <input
                     type="text"
@@ -58,7 +63,7 @@ export function Etapa1Data({
                     maxLength="4"
                     className='app--date-input'
                     value={ano}
-                    onChange={(e) => setAno(e.target.value)}
+                    onChange={handleApenasNumeros(setAno, 4)}
                 />
             </div>
 
