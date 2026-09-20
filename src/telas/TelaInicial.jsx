@@ -8,10 +8,10 @@ export function TelaInicial({ onComecar, onAjuda }) {
                     Registro PSE<br />Online
                 </p>
                 <button className='app--buttonMain' onClick={onComecar}>
-                    <p>Começar</p>
+                    Começar
                 </button>
                 <button className='app--buttonSecondary app--tela-inicial--ajuda' onClick={onAjuda}>
-                    <p>Ajuda</p>
+                    Ajuda
                 </button>
             </div>
             <div className='app--tela-inicial--rodape-imagens'>

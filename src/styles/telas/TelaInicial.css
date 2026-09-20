@@ -22,7 +22,7 @@
     object-fit: contain;
 }
 
-.app--tela-inicial--ajuda {
+button.app--tela-inicial--ajuda {
     font-size: 1.5rem;
 }
 
