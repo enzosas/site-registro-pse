@@ -48,7 +48,7 @@ export function TelaCadastroManual({
                 <div className='app--footer'>
                     <button
                         type="submit"
-                        className={isDisabled ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+                        className={'app--buttonMain'}
                         disabled={isDisabled}
                     >
                         <p>Avançar</p>

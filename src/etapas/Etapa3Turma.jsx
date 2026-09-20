@@ -34,7 +34,7 @@ export function Etapa3Turma({
                     <p>A turma não está na lista</p>
                 </button>
                 <button
-                    className={turmaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+                    className={'app--buttonMain'}
                     onClick={() => {
                         if (turmaSelecionada) onAvancar();
                     }}

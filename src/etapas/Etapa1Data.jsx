@@ -94,7 +94,7 @@ export function Etapa1Data({
             <div className='app--footer'>
                 <button
                     type="submit"
-                    className={!isFormValido ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+                    className={'app--buttonMain'}
                     disabled={!isFormValido}
                 >
                     <p>Avançar</p>

@@ -1,6 +1,5 @@
 .app--buttonMain,
-.app--buttonSecondary,
-.app--buttonMain__disabled {
+.app--buttonSecondary {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,8 +11,7 @@
     transition: transform 0.1s ease, filter 0.2s ease;
 }
 
-.app--buttonMain,
-.app--buttonMain__disabled {
+.app--buttonMain {
     color: var(--cor-frame);
     background-color: var(--cor-botao);
     font-size: 1.5rem;
@@ -26,17 +24,18 @@
     cursor: pointer;
 }
 
-.app--buttonMain:hover {
+.app--buttonMain:hover:not(:disabled) {
     filter: brightness(0.9);
 }
 
-.app--buttonMain:active {
+.app--buttonMain:active:not(:disabled) {
     transform: scale(0.975);
 }
 
-.app--buttonMain__disabled {
+.app--buttonMain:disabled {
     opacity: 0.5;
     cursor: default;
+    pointer-events: none;
 }
 
 .app--buttonSecondary {

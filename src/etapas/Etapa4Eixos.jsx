@@ -62,7 +62,7 @@ export function Etapa4Eixos({
 
                 <div className='app--footer'>
                     <button
-                        className={!isValido ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+                        className={'app--buttonMain'}
                         onClick={onAvancar}
                         disabled={!isValido}
                     >

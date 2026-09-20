@@ -56,7 +56,7 @@ export function TelaAddAluno({
                 <div className='app--footer'>
                     <button
                         type="submit"
-                        className={isDisabled ? 'app--buttonMain__disabled' : 'app--buttonMain'}
+                        className={'app--buttonMain'}
                         disabled={isDisabled}
                     >
                         <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

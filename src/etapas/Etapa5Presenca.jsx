@@ -52,7 +52,7 @@ export function Etapa5Presenca({
                         <p>Adicionar aluno manualmente</p>
                     </button>
                     <button
-                        className={temPresentes ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+                        className={'app--buttonMain'}
                         onClick={() => {
                             if (temPresentes) onAvancar();
                         }}

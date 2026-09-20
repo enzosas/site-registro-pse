@@ -34,7 +34,7 @@ export function Etapa2Escola({
                     <p>A escola não está na lista</p>
                 </button>
                 <button
-                    className={escolaSelecionada ? 'app--buttonMain' : 'app--buttonMain__disabled'}
+                    className={'app--buttonMain'}
                     onClick={() => {
                         if (escolaSelecionada) onAvancar();
                     }}
