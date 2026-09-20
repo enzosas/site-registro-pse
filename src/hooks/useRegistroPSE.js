@@ -30,7 +30,6 @@ export function useRegistroPSE() {
     const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'));
     const [ano, setAno] = useState(String(hoje.getFullYear()));
     const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState('');
-    const [Registrador, setRegistrador] = useState('');
 
     // Escolas e Turmas (Etapas 2 e 3)
     const [buscaEscola, setBuscaEscola] = useState('');
@@ -286,7 +285,7 @@ export function useRegistroPSE() {
             escola: escolaSelecionada?.nome || '',
             turma: turmaSelecionada?.nome || '',
             profissionaisResponsaveis: profissionaisResponsaveis,
-            Registrador: Registrador,
+            Registrador: nomeUsuario,
             eixosTematicos: formatarEixosTematicosSelecionados(),
             observacoes: observacoes,
             alunosPresentes: alunosOrdenados
@@ -394,8 +393,6 @@ export function useRegistroPSE() {
         setAno,
         profissionaisResponsaveis,
         setProfissionaisResponsaveis,
-        Registrador,
-        setRegistrador,
 
         // Etapas 2 e 3
         buscaEscola,

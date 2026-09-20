@@ -178,8 +178,6 @@ function App() {
 									setAno={p.setAno}
 									profissionaisResponsaveis={p.profissionaisResponsaveis}
 									setProfissionaisResponsaveis={p.setProfissionaisResponsaveis}
-									Registrador={p.Registrador}
-									setRegistrador={p.setRegistrador}
 									onAvancar={p.avancarEtapa}
 									onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
 								/>
