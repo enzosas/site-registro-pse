@@ -1,5 +1,5 @@
-import { IconeVoltar } from '../components/Icones';
-import { isDataValida } from '../utils/validadoresData';
+import { IconeVoltar } from '../Icones';
+import { isDataValida } from '../../utils/validadoresData';
 
 export function Etapa1Data({
     dia,

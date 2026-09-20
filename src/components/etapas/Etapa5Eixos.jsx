@@ -1,5 +1,5 @@
-import { IconeVoltar } from '../components/Icones';
-import * as Constantes from '../constantes';
+import { IconeVoltar } from '../Icones';
+import * as Constantes from '../../constantes';
 
 export function Etapa5Eixos({
     idsEixosSelecionados,

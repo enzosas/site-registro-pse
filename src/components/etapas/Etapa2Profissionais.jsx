@@ -1,4 +1,4 @@
-import { IconeVoltar } from '../components/Icones';
+import { IconeVoltar } from '../Icones';
 
 export function Etapa2Profissionais({
     registradorNome,

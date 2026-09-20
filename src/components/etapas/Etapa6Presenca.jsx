@@ -1,5 +1,5 @@
-import { IconeVoltar } from '../components/Icones';
-import { formatarData } from '../utils/formatadores';
+import { IconeVoltar } from '../Icones';
+import { formatarData } from '../../utils/formatadores';
 
 export function Etapa6Presenca({
     alunosOrdenados,

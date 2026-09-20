@@ -16,14 +16,14 @@ import { TelaAddAluno } from './telas/TelaAddAluno';
 import { TelaResumo } from './telas/TelaResumo';
 
 // Etapas
-import { Etapa1Data } from './etapas/Etapa1Data';
-import { Etapa2Profissionais } from './etapas/Etapa2Profissionais';
-import { Etapa3Escola } from './etapas/Etapa3Escola';
-import { Etapa4Turma } from './etapas/Etapa4Turma';
-import { Etapa5Eixos } from './etapas/Etapa5Eixos';
-import { Etapa6Presenca } from './etapas/Etapa6Presenca';
-import { Etapa7ColetaDados } from './etapas/Etapa7ColetaDados';
-import { Etapa8Conclusao } from './etapas/Etapa8Conclusao';
+import { Etapa1Data } from './components/etapas/Etapa1Data';
+import { Etapa2Profissionais } from './components/etapas/Etapa2Profissionais';
+import { Etapa3Escola } from './components/etapas/Etapa3Escola';
+import { Etapa4Turma } from './components/etapas/Etapa4Turma';
+import { Etapa5Eixos } from './components/etapas/Etapa5Eixos';
+import { Etapa6Presenca } from './components/etapas/Etapa6Presenca';
+import { Etapa7ColetaDados } from './components/etapas/Etapa7ColetaDados';
+import { Etapa8Conclusao } from './components/etapas/Etapa8Conclusao';
 
 
 function App() {
