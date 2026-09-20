@@ -70,29 +70,6 @@
 	font-size: 1.25rem;
 }
 
-.app--botao-voltar {
-	background: transparent;
-	border: none;
-	padding: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	transition: transform 0.1s ease, filter 0.2s ease;
-	user-select: none;
-	cursor: pointer;
-	width: 1em;
-	font-size: 1.5rem;
-}
-
-.app--botao-voltar:hover {
-	cursor: pointer;
-}
-
-.app--botao-voltar:active {
-	transform: scale(0.8);
-}
-
 .app--contador {
 	color: var(--cor-botao2);
 	font-size: 1.25rem;

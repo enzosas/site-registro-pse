@@ -1,27 +1,35 @@
 .app--buttonMain,
-.app--buttonSecondary {
+.app--buttonSecondary,
+.app--botao-voltar {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
+    justify-content: center;
     font-family: inherit;
     border: none;
-    border-radius: 2rem;
+    background: transparent;
     user-select: none;
+    cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
 }
 
+.app--buttonMain:disabled,
+.app--buttonSecondary:disabled,
+.app--botao-voltar:disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
 .app--buttonMain {
+    flex-direction: column;
+    text-align: center;
+    border-radius: 2rem;
     color: var(--cor-frame);
     background-color: var(--cor-botao);
     font-size: 1.5rem;
     font-weight: 600;
     padding: 1rem;
     width: 100%;
-}
-
-.app--buttonMain {
-    cursor: pointer;
 }
 
 .app--buttonMain:hover:not(:disabled) {
@@ -32,26 +40,36 @@
     transform: scale(0.975);
 }
 
-.app--buttonMain:disabled {
-    opacity: 0.5;
-    cursor: default;
-    pointer-events: none;
-}
-
 .app--buttonSecondary {
+    flex-direction: column;
+    text-align: center;
+    border-radius: 2rem;
     color: var(--cor-botao2);
-    background-color: transparent;
     font-size: 1rem;
     font-weight: 500;
     padding: 0.5rem;
-    cursor: pointer;
 }
 
-.app--buttonSecondary:active {
+.app--buttonSecondary:hover:not(:disabled) {
+    filter: brightness(0.85);
+}
+
+.app--buttonSecondary:active:not(:disabled) {
     transform: scale(0.95);
 }
 
 .app--buttonSecondary__left-anchor {
     align-self: flex-start;
     padding: 0.5rem 0;
+}
+
+.app--botao-voltar {
+    padding: 0;
+    width: 1em;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.app--botao-voltar:active:not(:disabled) {
+    transform: scale(0.8);
 }
