@@ -17,7 +17,22 @@ export async function autenticarUsuario(email, password) {
             return { sucesso: false, erro: 'erro de conexão. verifique sua internet' };
         }
 
-        return { sucesso: true, data };
+        const { data: usuarioPerfil, error: erroPerfil } = await supabase
+            .from('usuarios')
+            .select('nome')
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+        if (erroPerfil) {
+            console.error('Erro ao buscar perfil do usuário:', erroPerfil);
+        }
+
+        return {
+            sucesso: true,
+            data,
+            id: data.user.id,
+            nome: usuarioPerfil?.nome || '',
+        };
     } catch (err) {
         console.error('Erro inesperado no login:', err);
         return { sucesso: false, erro: 'erro de conexão. verifique sua internet' };

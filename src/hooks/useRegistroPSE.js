@@ -17,6 +17,10 @@ export function useRegistroPSE() {
     const [senhaInput, setSenhaInput] = useState('');
     const [mensagemErro, setMensagemErro] = useState('');
 
+    // Identificação do utilizador autenticado
+    const [usuarioId, setUsuarioId] = useState('');
+    const [nomeUsuario, setNomeUsuario] = useState('');
+
     // Etapa atual do fluxo (1 a 7)
     const [etapa, setEtapa] = useState(1);
 
@@ -87,6 +91,14 @@ export function useRegistroPSE() {
         if (!resultado.sucesso) {
             setMensagemErro(resultado.erro);
             return;
+        }
+
+        if (resultado.id) {
+            setUsuarioId(resultado.id);
+        }
+
+        if (resultado.nome) {
+            setNomeUsuario(resultado.nome);
         }
 
         setIsLoggedIn(true);
@@ -452,5 +464,9 @@ export function useRegistroPSE() {
         bgRef,
         nomeInputRef,
         alturaInputRef,
+
+        // Outros
+        nomeUsuario,
+        setNomeUsuario,
     };
 }
