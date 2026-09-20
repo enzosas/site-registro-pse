@@ -38,4 +38,4 @@ Ao finalizar o preenchimento, escolha uma das opções:
 - **Copiar resumo:** copia o texto para ser colado em aplicativos como WhatsApp, e-mail ou outros sistemas.
 
 #### Suporte
-Em caso de dificuldades de acesso, erros no aplicativo ou dúvidas sobre o preenchimento, entre em contato com a coordenação do Programa Saúde na Escola (PSE) pelo e-mail: **enzo.silveira@ufsm.br**
+Em caso de dificuldades de acesso, erros no aplicativo ou dúvidas sobre o preenchimento, entre em contato com a coordenação do Programa Saúde na Escola (PSE) pelo e-mail: **enzo.silveira@acad.ufsm.br**
