@@ -2,7 +2,7 @@ import { IconeVoltar } from '../components/Icones';
 import { OpcaoBinariaGroup } from '../components/OpcaoBinariaGroup';
 import * as Constantes from '../constantes';
 
-export function Etapa6ColetaDados({
+export function Etapa7ColetaDados({
     alunoAtualIndex,
     alunosPresentes,
     alunoAtual,

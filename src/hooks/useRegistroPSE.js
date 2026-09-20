@@ -29,7 +29,7 @@ export function useRegistroPSE() {
     const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'));
     const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'));
     const [ano, setAno] = useState(String(hoje.getFullYear()));
-    const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState('');
+    const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState([]);
 
     // Escolas e Turmas (Etapas 2 e 3)
     const [buscaEscola, setBuscaEscola] = useState('');
@@ -98,6 +98,7 @@ export function useRegistroPSE() {
 
         if (resultado.nome) {
             setNomeUsuario(resultado.nome);
+            setProfissionaisResponsaveis([resultado.nome]);
         }
 
         setIsLoggedIn(true);
@@ -357,6 +358,7 @@ export function useRegistroPSE() {
         setIdsAlunosPresentes([]);
         setDadosAlunos({});
         setMostrarAlunosPendentes(false);
+        setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
         setTelaAtiva(TELAS.INICIAL);
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));

@@ -1,12 +1,12 @@
 import { IconeVoltar } from '../components/Icones';
 import { SearchableList } from '../components/SearchableList';
 
-export function Etapa2Escola({
-    buscaEscola,
-    setBuscaEscola,
-    escolasFiltradas,
-    escolaSelecionada,
-    setEscolaSelecionada,
+export function Etapa4Turma({
+    buscaTurma,
+    setBuscaTurma,
+    turmasFiltradas,
+    turmaSelecionada,
+    setTurmaSelecionada,
     formatarNome,
     onAvancar,
     onVoltar,
@@ -18,27 +18,27 @@ export function Etapa2Escola({
                 <IconeVoltar />
             </button>
 
-            <p className='app__title'>Selecione sua escola:</p>
+            <p className='app__title'>Selecione a turma em que foi realizada a atividade:</p>
 
             <SearchableList
-                busca={buscaEscola}
-                onBuscaChange={setBuscaEscola}
-                itens={escolasFiltradas}
-                itemSelecionado={escolaSelecionada}
-                onSelecionarItem={setEscolaSelecionada}
+                busca={buscaTurma}
+                onBuscaChange={setBuscaTurma}
+                itens={turmasFiltradas}
+                itemSelecionado={turmaSelecionada}
+                onSelecionarItem={setTurmaSelecionada}
                 formatarNome={formatarNome}
             />
 
             <div className='app__footer'>
                 <button className='app__buttonSecondary' onClick={onCadastroManual}>
-                    <p>A escola não está na lista</p>
+                    <p>A turma não está na lista</p>
                 </button>
                 <button
                     className={'app__buttonMain'}
                     onClick={() => {
-                        if (escolaSelecionada) onAvancar();
+                        if (turmaSelecionada) onAvancar();
                     }}
-                    disabled={!escolaSelecionada}
+                    disabled={!turmaSelecionada}
                 >
                     <p>Avançar</p>
                 </button>

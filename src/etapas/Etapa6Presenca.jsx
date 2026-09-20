@@ -1,7 +1,7 @@
 import { IconeVoltar } from '../components/Icones';
 import { formatarData } from '../utils/formatadores';
 
-export function Etapa5Presenca({
+export function Etapa6Presenca({
     alunosOrdenados,
     idsAlunosPresentes,
     toggleAluno,

@@ -1,7 +1,7 @@
 import { IconeVoltar } from '../components/Icones';
 import * as Constantes from '../constantes';
 
-export function Etapa4Eixos({
+export function Etapa5Eixos({
     idsEixosSelecionados,
     toggleEixo,
     temEixoLocal,

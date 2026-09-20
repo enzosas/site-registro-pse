@@ -8,8 +8,6 @@ export function Etapa1Data({
     setMes,
     ano,
     setAno,
-    profissionaisResponsaveis,
-    setProfissionaisResponsaveis,
     onAvancar,
     onVoltar,
 }) {
@@ -19,10 +17,7 @@ export function Etapa1Data({
     };
 
     const dataEhValida = isDataValida(dia, mes, ano);
-    const isFormValido =
-        dataEhValida &&
-        profissionaisResponsaveis.trim();
-
+    const isFormValido =  dataEhValida;
     return (
         <form
             onSubmit={(e) => {
@@ -61,18 +56,6 @@ export function Etapa1Data({
                     className='app__date-input'
                     value={ano}
                     onChange={handleApenasNumeros(setAno, 4)}
-                />
-            </div>
-
-            <p className='app__title'>Profissionais que realizaram a ação</p>
-            <div className='app__date-group'>
-                <input
-                    type="text"
-                    placeholder="Digite"
-                    maxLength="300"
-                    className='app__date-input'
-                    value={profissionaisResponsaveis}
-                    onChange={(e) => setProfissionaisResponsaveis(e.target.value)}
                 />
             </div>
 

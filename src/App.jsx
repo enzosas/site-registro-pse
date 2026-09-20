@@ -17,12 +17,13 @@ import { TelaResumo } from './telas/TelaResumo';
 
 // Etapas
 import { Etapa1Data } from './etapas/Etapa1Data';
-import { Etapa2Escola } from './etapas/Etapa2Escola';
-import { Etapa3Turma } from './etapas/Etapa3Turma';
-import { Etapa4Eixos } from './etapas/Etapa4Eixos';
-import { Etapa5Presenca } from './etapas/Etapa5Presenca';
-import { Etapa6ColetaDados } from './etapas/Etapa6ColetaDados';
-import { Etapa7Conclusao } from './etapas/Etapa7Conclusao';
+import { Etapa2Profissionais } from './etapas/Etapa2Profissionais';
+import { Etapa3Escola } from './etapas/Etapa3Escola';
+import { Etapa4Turma } from './etapas/Etapa4Turma';
+import { Etapa5Eixos } from './etapas/Etapa5Eixos';
+import { Etapa6Presenca } from './etapas/Etapa6Presenca';
+import { Etapa7ColetaDados } from './etapas/Etapa7ColetaDados';
+import { Etapa8Conclusao } from './etapas/Etapa8Conclusao';
 
 
 function App() {
@@ -176,15 +177,23 @@ function App() {
 									setMes={p.setMes}
 									ano={p.ano}
 									setAno={p.setAno}
-									profissionaisResponsaveis={p.profissionaisResponsaveis}
-									setProfissionaisResponsaveis={p.setProfissionaisResponsaveis}
 									onAvancar={p.avancarEtapa}
 									onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
 								/>
 							)}
 
 							{p.etapa === 2 && (
-								<Etapa2Escola
+								<Etapa2Profissionais
+									registradorNome={p.nomeUsuario}
+									profissionaisResponsaveis={p.profissionaisResponsaveis}
+									setProfissionaisResponsaveis={p.setProfissionaisResponsaveis}
+									onAvancar={p.avancarEtapa}
+									onVoltar={p.voltarEtapa}
+								/>
+							)}
+
+							{p.etapa === 3 && (
+								<Etapa3Escola
 									buscaEscola={p.buscaEscola}
 									setBuscaEscola={p.setBuscaEscola}
 									escolasFiltradas={p.escolasFiltradas}
@@ -197,8 +206,8 @@ function App() {
 								/>
 							)}
 
-							{p.etapa === 3 && (
-								<Etapa3Turma
+							{p.etapa === 4 && (
+								<Etapa4Turma
 									buscaTurma={p.buscaTurma}
 									setBuscaTurma={p.setBuscaTurma}
 									turmasFiltradas={p.turmasFiltradas}
@@ -214,8 +223,8 @@ function App() {
 								/>
 							)}
 
-							{p.etapa === 4 && (
-								<Etapa4Eixos
+							{p.etapa === 5 && (
+								<Etapa5Eixos
 									idsEixosSelecionados={p.idsEixosSelecionados}
 									toggleEixo={p.toggleEixo}
 									temEixoLocal={p.temEixoLocal}
@@ -231,8 +240,8 @@ function App() {
 								/>
 							)}
 
-							{p.etapa === 5 && (
-								<Etapa5Presenca
+							{p.etapa === 6 && (
+								<Etapa6Presenca
 									alunosOrdenados={p.alunosOrdenados}
 									idsAlunosPresentes={p.idsAlunosPresentes}
 									toggleAluno={p.toggleAluno}
@@ -244,8 +253,8 @@ function App() {
 								/>
 							)}
 
-							{p.etapa === 6 && (
-								<Etapa6ColetaDados
+							{p.etapa === 7 && (
+								<Etapa7ColetaDados
 									alunoAtualIndex={p.alunoAtualIndex}
 									alunosPresentes={p.alunosPresentes}
 									alunoAtual={p.alunoAtualTelaAntropometria}
@@ -268,8 +277,8 @@ function App() {
 								/>
 							)}
 
-							{p.etapa === 7 && (
-								<Etapa7Conclusao
+							{p.etapa === 8 && (
+								<Etapa8Conclusao
 									dia={p.dia}
 									mes={p.mes}
 									ano={p.ano}

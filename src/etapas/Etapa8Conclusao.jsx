@@ -2,7 +2,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { IconeVoltar } from '../components/Icones';
 import { RelatorioPDF } from '../RelatorioPDF';
 
-export function Etapa7Conclusao({
+export function Etapa8Conclusao({
     dia,
     mes,
     ano,
