@@ -210,4 +210,15 @@
 	outline: none;
 	background-color: transparent;
 	width: 100%;
+	cursor: pointer;
+	background-color: var(--cor-frame);
+	transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.app__select:hover:not(:disabled) {
+	filter: brightness(0.95);
+}
+
+.app__select:active:not(:disabled) {
+	transform: scale(0.95);
 }
