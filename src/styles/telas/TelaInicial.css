@@ -39,8 +39,20 @@ button.app__tela-inicial__ajuda {
     justify-content: center;
 }
 
+.app__tela-inicial__botoes-segundo-nivel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 @media (max-width: 1000px) {
     .app__logo-pse {
         width: 6rem;
+    }
+
+    .app__tela-inicial__botoes-segundo-nivel {
+        flex-direction: column;
+        gap: 2rem;
     }
 }

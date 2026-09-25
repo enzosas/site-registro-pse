@@ -16,25 +16,27 @@ export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout, tipoUsua
                 <button className='app__buttonMain' onClick={onComecar}>
                     {isLoggedIn ? "Gerar Registro" : "Começar"}
                 </button>
-                {podeAcessarAdmin && (
-                    <button
-                        className='app__buttonSecondary app__tela-inicial__ajuda'
-                        onClick={onAdministracao}
-                    >
-                        Administração
+                <div className='app__tela-inicial__botoes-segundo-nivel'>
+                    {podeAcessarAdmin && (
+                        <button
+                            className='app__buttonSecondary app__tela-inicial__ajuda'
+                            onClick={onAdministracao}
+                        >
+                            Administração
+                        </button>
+                    )}
+                    <button className='app__buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
+                        Ajuda
                     </button>
-                )}
-                <button className='app__buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
-                    Ajuda
-                </button>
-                {isLoggedIn && (
-                    <button
-                        className='app__buttonSecondary app__tela-inicial__ajuda'
-                        onClick={onLogout}
-                    >
-                        Sair
-                    </button>
-                )}
+                    {isLoggedIn && (
+                        <button
+                            className='app__buttonSecondary app__tela-inicial__ajuda'
+                            onClick={onLogout}
+                        >
+                            Sair
+                        </button>
+                    )}
+                </div>
             </div>
             <div className='app__tela-inicial__rodape-imagens'>
                 <img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app__logo-pse" />
