@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { autenticarUsuario, carregarEscolasDB, deslogarUsuario } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import { formatarData, formatarProfissionais } from '../utils/formatadores';
-import { TELAS, ETAPAS } from '../constantes';
+import { TELAS, ETAPAS, TIPO_USUARIO } from '../constantes';
 
 export function useRegistroPSE() {
     // Dados do Supabase
@@ -101,14 +101,20 @@ export function useRegistroPSE() {
             setProfissionaisResponsaveis([resultado.nome]);
         }
 
-        setTipoUsuario(resultado.tipoUsuario || '');
+        const perfilTipo = resultado.tipoUsuario || '';
+        setTipoUsuario(perfilTipo);
         setEscolaIdUsuario(resultado.escolaId || null);
         setUbsIdUsuario(resultado.ubsId || null);
 
         setIsLoggedIn(true);
         setMensagemErro('');
         await buscarDados();
-        setTelaAtiva(TELAS.ETAPAS);
+
+        if (perfilTipo === TIPO_USUARIO.COMUM) {
+            setTelaAtiva(TELAS.ETAPAS);
+        } else {
+            setTelaAtiva(TELAS.INICIAL);
+        }
     };
 
     // Logout
