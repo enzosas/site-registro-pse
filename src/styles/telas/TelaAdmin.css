@@ -6,3 +6,9 @@
 .admin__inicial__saudacoes {
     margin-bottom: 1em;
 }
+
+.admin__grupo-filtros {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}

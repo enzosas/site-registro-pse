@@ -83,6 +83,7 @@
 	text-align: center;
 }
 
+.app__combobox-group,
 .app__input-group {
 	display: flex;
 	flex-direction: column;
@@ -199,4 +200,14 @@
 
 .app__tela-presenca__atualizado-em {
 	color: var(--cor-botao2);
+}
+
+.app__select {
+	border: var(--input-border);
+	border-radius: 3.0rem;
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	outline: none;
+	background-color: transparent;
+	width: 100%;
 }
