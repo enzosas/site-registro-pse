@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { formatarNome } from '../utils/formatadores';
+import { TIPO_USUARIO } from '../constantes';
 
 export async function autenticarUsuario(email, password) {
     try {
@@ -172,5 +173,69 @@ export async function deslogarUsuario() {
     } catch (err) {
         console.error('Erro inesperado no logout:', err);
         return { sucesso: false, erro: 'erro inesperado ao sair' };
+    }
+}
+
+export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId = null }) {
+    try {
+        const podeConsultar =
+            tipoUsuario === TIPO_USUARIO.ADMIN ||
+            tipoUsuario === TIPO_USUARIO.ESCOLA ||
+            tipoUsuario === TIPO_USUARIO.UBS;
+
+        if (!podeConsultar) {
+            return [];
+        }
+
+        let query = supabase
+            .from('usuarios')
+            .select(`
+                id,
+                nome,
+                email,
+                tipo_usuario,
+                escola_id,
+                ubs_id,
+                escolas ( nome ),
+                ubs ( nome )
+            `)
+            .order('nome', { ascending: true });
+
+        if (tipoUsuario === TIPO_USUARIO.ESCOLA && escolaId) {
+            query = query.eq('escola_id', escolaId);
+        } else if (tipoUsuario === TIPO_USUARIO.UBS && ubsId) {
+            query = query.eq('ubs_id', ubsId);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Erro ao buscar usuários:', error);
+            return [];
+        }
+
+        return (data || []).map((usuario) => {
+            const escolaNome = Array.isArray(usuario.escolas)
+                ? usuario.escolas[0]?.nome
+                : usuario.escolas?.nome;
+
+            const ubsNome = Array.isArray(usuario.ubs)
+                ? usuario.ubs[0]?.nome
+                : usuario.ubs?.nome;
+
+            return {
+                id: usuario.id,
+                nome: usuario.nome || '',
+                email: usuario.email || '',
+                tipoUsuario: usuario.tipo_usuario || '',
+                escolaId: usuario.escola_id,
+                ubsId: usuario.ubs_id,
+                escolaNome: escolaNome || null,
+                ubsNome: ubsNome || null,
+            };
+        });
+    } catch (err) {
+        console.error('Erro inesperado ao buscar usuários:', err);
+        return [];
     }
 }

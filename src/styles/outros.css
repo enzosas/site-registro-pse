@@ -218,7 +218,3 @@
 .app__select:hover:not(:disabled) {
 	filter: brightness(0.95);
 }
-
-.app__select:active:not(:disabled) {
-	transform: scale(0.95);
-}
