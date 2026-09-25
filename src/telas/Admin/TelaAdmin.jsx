@@ -1,11 +1,12 @@
-// src/telas/admin/TelaAdmin.jsx
 import { useState } from 'react';
 import { TELAS_ADMIN } from '../../constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { PainelAdminInicial } from './PainelAdminInicial';
+import { PainelRegistros } from './PainelRegistros';
+import { PainelUsuarios } from './PainelUsuarios';
+import { PainelEscolaUbs } from './PainelEscolaUbs';
 
 export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario }) {
-
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
 
     const handleVoltar = () => {
@@ -18,8 +19,29 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario }) {
 
     const renderizarSubtela = () => {
         switch (subtelaAtiva) {
-            default:
+            case TELAS_ADMIN.PAINEL_USUARIOS:
+                return (
+                    <PainelUsuarios
+                        tipoUsuario={tipoUsuario}
+                    />
+                );
+
+            case TELAS_ADMIN.PAINEL_REGISTROS:
+                return (
+                    <PainelRegistros
+                        tipoUsuario={tipoUsuario}
+                    />
+                );
+
+            case TELAS_ADMIN.PAINEL_ESCOLAUBS:
+                return (
+                    <PainelEscolaUbs
+                        tipoUsuario={tipoUsuario}
+                    />
+                );
+
             case TELAS_ADMIN.PAINEL_INICIAL:
+            default:
                 return (
                     <PainelAdminInicial
                         tipoUsuario={tipoUsuario}

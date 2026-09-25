@@ -15,27 +15,29 @@ export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
                 <button
                     type="button"
                     className="app__buttonSecondary"
-                    onClick={() => onNavegar(TELAS_ADMIN.USUARIOS)}
+                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_REGISTROS)}
                 >
-                    Gerenciar Usuários e Acessos
+                    Gerenciar Registros
                 </button>
             )}
-
-            <button
-                type="button"
-                className="app__buttonSecondary"
-                onClick={() => onNavegar(TELAS_ADMIN.ESCOLAS)}
-            >
-                Visualizar Escolas e Turmas
-            </button>
-
-            <button
-                type="button"
-                className="app__buttonSecondary"
-                onClick={() => onNavegar(TELAS_ADMIN.RELATORIOS)}
-            >
-                Relatórios Consolidados
-            </button>
+            {isAdminGeral && (
+                <button
+                    type="button"
+                    className="app__buttonSecondary"
+                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_USUARIOS)}
+                >
+                    Gerenciar Usuários
+                </button>
+            )}
+            {isAdminGeral && (
+                <button
+                    type="button"
+                    className="app__buttonSecondary"
+                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
+                >
+                    Alocar Escolas UBS
+                </button>
+            )}
         </>
     );
 }
