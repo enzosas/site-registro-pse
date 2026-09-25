@@ -1,6 +1,6 @@
 import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
 
-export function PainelUsuarios({ tipoUsuario }) {
+export function PainelUsuarios({ tipoUsuario, onCriarUsuario }) {
     const isAdminGeral = tipoUsuario === TIPO_USUARIO.ADMIN;
 
     return (
@@ -53,6 +53,7 @@ export function PainelUsuarios({ tipoUsuario }) {
             <div className='app__footer'>
                 <button
                     className={'app__buttonMain'}
+                    onClick={onCriarUsuario}
                 >
                     <p>Criar novo usuário</p>
                 </button>
