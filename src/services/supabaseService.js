@@ -63,7 +63,6 @@ export async function oldCarregarEscolasDB() {
     }
 }
 
-
 export async function carregarEscolasDB() {
     try {
         const { data, error } = await supabase
@@ -110,6 +109,55 @@ export async function carregarEscolasDB() {
     } catch (err) {
         console.error('Erro inesperado ao carregar escolas:', err);
         return [];
+    }
+}
+
+export async function carregarUbsDB() {
+    try {
+        const { data, error } = await supabase
+            .from('ubs')
+            .select('id, nome')
+            .order('nome', { ascending: true });
+
+        if (error) {
+            console.error('Erro ao buscar UBSs:', error);
+            return [];
+        }
+
+        return (data || []).map((item) => ({
+            id: item.id,
+            nome: formatarNome(item.nome),
+        }));
+    } catch (err) {
+        console.error('Erro inesperado ao carregar UBSs:', err);
+        return [];
+    }
+}
+
+export async function criarNovoUsuarioAdmin({ email, password, nome, tipoUsuario, escolaId = null, ubsId = null }) {
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    nome,
+                    tipo_usuario: tipoUsuario,
+                    escola_id: escolaId,
+                    ubs_id: ubsId,
+                }
+            }
+        });
+
+        if (error) {
+            console.error('Erro ao cadastrar usuário no Auth:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        return { sucesso: true, id: data.user?.id };
+    } catch (err) {
+        console.error('Erro inesperado ao criar usuário:', err);
+        return { sucesso: false, erro: 'Erro de conexão ao criar o usuário.' };
     }
 }
 
