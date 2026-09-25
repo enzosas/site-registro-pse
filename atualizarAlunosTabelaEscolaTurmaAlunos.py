@@ -69,6 +69,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 pasta_alvo = os.path.join(diretorio_atual, "PET PSE")
 
+
 def extrair_dados_planilha(caminho):
     df = pd.read_excel(caminho)
 
@@ -121,14 +122,8 @@ def extrair_dados_planilha(caminho):
 def extrair_nome_turma_arquivo(nome_arquivo: str) -> str:
     texto = re.sub(r"\.xlsx$", "", nome_arquivo, flags=re.IGNORECASE).strip()
     texto = re.sub(r"\s*\(\d+\)\s*$", "", texto).strip()
-    texto = re.sub(r"\s*(?:Emitido\s+Pelo\s+)?Educar\s*WEB\s*$", "", texto, flags=re.IGNORECASE).strip()
-    texto = re.sub(
-        r"^Relatorio\s+(?:Anos\s+Finais|Anos\s+Iniciais|Ensino\s+Fundamental|Edcu?\.?\s*Infantil|Educ[a-z\.\s]+)?\s*",
-        "",
-        texto,
-        flags=re.IGNORECASE,
-    ).strip()
-    texto = re.sub(r"^[-–—]\s*", "", texto).strip()
+    texto = re.sub(r"\s*(?:Emitido\s*Pelo\s*)?Educar\s*WEB\s*$", "", texto, flags=re.IGNORECASE).strip()
+    texto = re.sub(r"^Relat[oó]rio\s*", "", texto, flags=re.IGNORECASE).strip()
     return texto
 
 
@@ -280,21 +275,117 @@ def salvar_escola_turmas_supabase(banco_dados_processado, mapa_escolas, supabase
             .upsert(registros, on_conflict="escola_id")
             .execute()
         )
-        print(f"Sucesso: {len(registros)} escolas atualizadas na tabela 'escolaturmaalunos'.")
+        print(f"\n[OK] Sucesso: {len(registros)} escolas atualizadas na tabela 'escolaturmaalunos'.")
         return resposta.data
     except Exception as e:
-        print(f"Erro ao salvar em 'escolaturmaalunos': {e}")
+        print(f"\n[ERRO] Erro ao salvar em 'escolaturmaalunos': {e}")
         return None
 
 
-if __name__ == "__main__":
-    print(f"1. Lendo planilhas na pasta '{pasta_alvo}'...")
+def exibir_status_escolas(banco_processado, mapa_escolas):
+    print("\n" + "=" * 80)
+    print(f"{'STATUS':<12} | {'NOME DA ESCOLA (PLANILHA)':<50} | {'ID NO BANCO'}")
+    print("=" * 80)
+
+    escolas_encontradas = 0
+    escolas_ausentes = 0
+
+    for escola in sorted(banco_processado["escolas"], key=lambda x: x["nome"]):
+        nome = escola["nome"]
+        escola_id = mapa_escolas.get(nome)
+
+        if escola_id:
+            status = "[PRESENTE]"
+            escolas_encontradas += 1
+            id_str = str(escola_id)
+        else:
+            status = "[AUSENTE] "
+            escolas_ausentes += 1
+            id_str = "--- (Não cadastrada)"
+
+        print(f"{status:<12} | {nome:<50} | {id_str}")
+
+    print("-" * 80)
+    print(f"Total: {len(banco_processado['escolas'])} escolas lidas.")
+    print(f"Presentes no banco: {escolas_encontradas} | Ausentes no banco: {escolas_ausentes}")
+    print("=" * 80)
+
+
+def exibir_turmas_geradas(banco_processado):
+    total_turmas = 0
+    total_alunos = 0
+
+    print("\n" + "=" * 80)
+    print("LISTA DE TURMAS QUE SERÃO GERADAS")
+    print("=" * 80)
+
+    for escola in sorted(banco_processado["escolas"], key=lambda x: x["nome"]):
+        print(f"\nEscola: {escola['nome']}")
+        turmas = escola.get("turmas", [])
+        if not turmas:
+            print("    (Nenhuma turma encontrada)")
+            continue
+
+        for idx, turma in enumerate(turmas, start=1):
+            qtd_alunos = len(turma.get("alunos", []))
+            print(f"   [{idx:02d}] Turma: \"{turma['nome']}\" — ({qtd_alunos} alunos)")
+            total_turmas += 1
+            total_alunos += qtd_alunos
+
+    print("\n" + "-" * 80)
+    print(f"Resumo Geral: {total_turmas} turmas e {total_alunos} alunos processados.")
+    print("=" * 80)
+
+
+def menu():
+    print(f"\nCarregando dados iniciais da pasta '{pasta_alvo}'...")
     banco_processado = varrer_arquivos_pastas(pasta_alvo)
-    print(f"Encontradas {len(banco_processado['escolas'])} escolas nas pastas.")
+    print(f"Lidas {len(banco_processado['escolas'])} escolas nas planilhas.")
 
-    print("2. Consultando IDs da tabela 'escolas' no Supabase...")
-    mapa = obter_mapa_escolas_banco(supabase)
-    print(f"Mapeadas {len(mapa)} escolas registradas no banco.")
+    print("Carregando mapa de escolas do Supabase...")
+    mapa_escolas = obter_mapa_escolas_banco(supabase)
+    print(f"{len(mapa_escolas)} escolas cadastradas encontradas no banco.")
 
-    print("3. Enviando turmas e alunos para 'escolaturmaalunos'...")
-    salvar_escola_turmas_supabase(banco_processado, mapa, supabase)
+    while True:
+        print("\n" + "#" * 45)
+        print("          PAINEL DE SINCRONIZAÇÃO")
+        print("#" * 45)
+        print("[ 1 ] Enviar turmas e alunos para 'escolaturmaalunos'")
+        print("[ 2 ] Ver todos nomes de escolas gerados e se estão presentes no banco")
+        print("[ 3 ] Ver todos nomes de turmas que serão gerados")
+        print("[ 4 ] Recarregar planilhas da pasta (Reload)")
+        print("[ 0 ] Sair")
+        print("#" * 45)
+
+        opcao = input("Selecione uma opção: ").strip()
+
+        if opcao == "1":
+            confirmar = input("\nDeseja realmente sincronizar com o Supabase? (s/n): ").strip().lower()
+            if confirmar == "s":
+                print("\nEnviando turmas e alunos...")
+                salvar_escola_turmas_supabase(banco_processado, mapa_escolas, supabase)
+            else:
+                print("Operação cancelada.")
+
+        elif opcao == "2":
+            exibir_status_escolas(banco_processado, mapa_escolas)
+
+        elif opcao == "3":
+            exibir_turmas_geradas(banco_processado)
+
+        elif opcao == "4":
+            print(f"\nRecarregando planilhas de '{pasta_alvo}'...")
+            banco_processado = varrer_arquivos_pastas(pasta_alvo)
+            mapa_escolas = obter_mapa_escolas_banco(supabase)
+            print("Dados recarregados com sucesso!")
+
+        elif opcao == "0":
+            print("\nEncerrando programa. Até logo!")
+            break
+
+        else:
+            print("\nOpção inválida! Escolha um número válido.")
+
+
+if __name__ == "__main__":
+    menu()
