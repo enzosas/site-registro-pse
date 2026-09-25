@@ -1,6 +1,6 @@
 import '../styles/telas/TelaInicial.css';
 
-export function TelaInicial({ onComecar, onAjuda }) {
+export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout }) {
     return (
         <div className='app__column app__tela-inicial'>
             <div className='app__tela-inicial-content'>
@@ -13,6 +13,14 @@ export function TelaInicial({ onComecar, onAjuda }) {
                 <button className='app__buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
                     Ajuda
                 </button>
+                {isLoggedIn && (
+                    <button
+                        className='app__buttonSecondary app__tela-inicial__ajuda'
+                        onClick={onLogout}
+                    >
+                        Sair
+                    </button>
+                )}
             </div>
             <div className='app__tela-inicial__rodape-imagens'>
                 <img src={`${import.meta.env.BASE_URL}pseLogo1.png`} alt="Logo PSE" className="app__logo-pse" />

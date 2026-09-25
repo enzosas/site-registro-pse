@@ -109,3 +109,17 @@ export async function carregarEscolasDB() {
         return [];
     }
 }
+
+export async function deslogarUsuario() {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Erro ao deslogar no Supabase:', error);
+            return { sucesso: false, erro: error.message };
+        }
+        return { sucesso: true };
+    } catch (err) {
+        console.error('Erro inesperado no logout:', err);
+        return { sucesso: false, erro: 'erro inesperado ao sair' };
+    }
+}

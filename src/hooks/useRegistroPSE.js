@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { autenticarUsuario, carregarEscolasDB } from '../services/supabaseService';
+import { autenticarUsuario, carregarEscolasDB, deslogarUsuario } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import { formatarData, formatarProfissionais } from '../utils/formatadores';
 import { TELAS, ETAPAS } from '../constantes';
@@ -105,6 +105,16 @@ export function useRegistroPSE() {
         setMensagemErro('');
         await buscarDados();
         setTelaAtiva(TELAS.ETAPAS);
+    };
+
+    // Logout
+    const handleLogout = async () => {
+        await deslogarUsuario();
+        setIsLoggedIn(false);
+        setUsuarioId('');
+        setNomeUsuario('');
+        setProfissionaisResponsaveis([]);
+        reiniciarRegistro();
     };
 
     // Computed values: Eixos
@@ -401,6 +411,7 @@ export function useRegistroPSE() {
         mensagemErro,
         setMensagemErro,
         handleLogin,
+        handleLogout,
 
         // Etapa e navegação
         etapaAtualId,

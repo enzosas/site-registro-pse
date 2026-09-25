@@ -23,6 +23,8 @@ function App() {
 			case TELAS.INICIAL:
 				return (
 					<TelaInicial
+						isLoggedIn={p.isLoggedIn}
+						onLogout={p.handleLogout}
 						onComecar={() => {
 							if (p.isLoggedIn) {
 								p.setTelaAtiva(TELAS.ETAPAS);
