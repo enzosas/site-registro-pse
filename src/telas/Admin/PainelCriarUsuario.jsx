@@ -132,11 +132,11 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         setSalvando(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao criar o utilizador.');
+            setMensagemErro(resultado.erro || 'Falha ao criar o usuário.');
             return;
         }
 
-        alert('Utilizador criado com sucesso!');
+        alert('Usuário criado com sucesso!');
         if (onSucesso) {
             onSucesso();
         }
@@ -144,12 +144,12 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
 
     return (
         <>
-            <p className="app__title">Criar Utilizador</p>
+            <p className="app__title">Criar Usuário</p>
 
             
 
             <div className="app__combobox-group">
-                <label>Tipo de utilizador</label>
+                <label>Tipo de usuário</label>
                 <select
                     className="app__select"
                     value={tipoNovoUsuario}
@@ -170,7 +170,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                 <label>Nome Completo</label>
                 <input
                     type="text"
-                    placeholder="Escreva aqui o nome completo do novo utilizador"
+                    placeholder="Escreva aqui o nome completo do novo usuário"
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     required
@@ -192,7 +192,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                             carregandoDados
                                 ? 'A carregar opções...'
                                 : tipoNovoUsuario === TIPO_USUARIO.COMUM
-                                    ? 'Digite ou selecione o nome da escola ou UBS'
+                                    ? 'Digite e selecione o nome da escola ou UBS do novo usuário'
                                     : `Digite ou selecione a ${tipoNovoUsuario === TIPO_USUARIO.ESCOLA ? 'escola' : 'UBS'}`
                         }
                         list="lista-unidades-datalist"
@@ -214,9 +214,11 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                 <label>E-mail</label>
                 <input
                     type="email"
-                    placeholder="Escreva aqui o e-mail do novo utilizador"
+                    placeholder="Escreva aqui o e-mail do novo usuário"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="new-password"
+                    name="novo_usuario_email_custom"
                     required
                 />
             </div>
@@ -228,6 +230,8 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                     placeholder="Digite aqui a senha (mínimo 6 caracteres)"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
+                    autoComplete="new-password"
+                    name="novo_usuario_senha_custom"
                     required
                 />
             </div>
@@ -243,7 +247,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                     disabled={!isFormValido || salvando || carregandoDados}
                     onClick={handleSubmit}
                 >
-                    <p>{salvando ? 'Registrando...' : 'Criar Utilizador'}</p>
+                    <p>{salvando ? 'Registrando...' : 'Criar Usuário'}</p>
                 </button>
             </div>
         </>
