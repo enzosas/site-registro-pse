@@ -1,3 +1,4 @@
+import '../../styles/telas/TelaAdmin.css';
 import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
 
 export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
@@ -7,14 +8,12 @@ export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
     return (
         <>
             <p className="app__title">Painel Administrativo</p>
-            <p>
-                Olá, {nomeUsuario}!
-            </p>
+            <p className='admin__inicial__saudacoes'> Olá, {nomeUsuario}!</p>
 
             {isAdminGeral && (
                 <button
                     type="button"
-                    className="app__buttonSecondary"
+                    className="app__buttonSecondary admin__inicial__nav-button"
                     onClick={() => onNavegar(TELAS_ADMIN.PAINEL_REGISTROS)}
                 >
                     Gerenciar Registros
@@ -23,7 +22,7 @@ export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
             {isAdminGeral && (
                 <button
                     type="button"
-                    className="app__buttonSecondary"
+                    className="app__buttonSecondary admin__inicial__nav-button"
                     onClick={() => onNavegar(TELAS_ADMIN.PAINEL_USUARIOS)}
                 >
                     Gerenciar Usuários
@@ -32,7 +31,7 @@ export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
             {isAdminGeral && (
                 <button
                     type="button"
-                    className="app__buttonSecondary"
+                    className="app__buttonSecondary admin__inicial__nav-button"
                     onClick={() => onNavegar(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                 >
                     Alocar Escolas UBS
