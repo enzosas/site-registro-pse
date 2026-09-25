@@ -13,6 +13,7 @@ import { TelaLogin } from './telas/TelaLogin';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
 import { TelaResumo } from './telas/TelaResumo';
+import { TelaAdmin } from './telas/Admin/TelaAdmin';
 
 
 function App() {
@@ -24,7 +25,11 @@ function App() {
 				return (
 					<TelaInicial
 						isLoggedIn={p.isLoggedIn}
+						tipoUsuario={p.tipoUsuario}
 						onLogout={p.handleLogout}
+						onAdministracao={() => {
+							p.setTelaAtiva(TELAS.ADMIN);
+						}}
 						onComecar={() => {
 							if (p.isLoggedIn) {
 								p.setTelaAtiva(TELAS.ETAPAS);
@@ -149,6 +154,17 @@ function App() {
 							p.handleCopiarResumo();
 						}}
 						onVoltar={() => p.setTelaAtiva(TELAS.ETAPAS)}
+						cardRef={p.cardRef}
+					/>
+				);
+			}
+
+			case TELAS.ADMIN: {
+				return (
+					<TelaAdmin
+						nomeUsuario={p.nomeUsuario}
+						tipoUsuario={p.tipoUsuario}
+						onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
 						cardRef={p.cardRef}
 					/>
 				);

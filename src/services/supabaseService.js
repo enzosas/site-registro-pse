@@ -20,7 +20,7 @@ export async function autenticarUsuario(email, password) {
 
         const { data: usuarioPerfil, error: erroPerfil } = await supabase
             .from('usuarios')
-            .select('nome')
+            .select('nome, tipo_usuario, escola_id, ubs_id')
             .eq('id', data.user.id)
             .maybeSingle();
 
@@ -33,6 +33,9 @@ export async function autenticarUsuario(email, password) {
             data,
             id: data.user.id,
             nome: usuarioPerfil?.nome || '',
+            tipoUsuario: usuarioPerfil?.tipo_usuario || '',
+            escolaId: usuarioPerfil?.escola_id || null,
+            ubsId: usuarioPerfil?.ubs_id || null,
         };
     } catch (err) {
         console.error('Erro inesperado no login:', err);

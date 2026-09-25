@@ -1,6 +1,12 @@
 import '../styles/telas/TelaInicial.css';
+import { TIPO_USUARIO } from '../constantes';
 
-export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout }) {
+export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout, tipoUsuario, onAdministracao }) {
+    
+    const podeAcessarAdmin =
+        isLoggedIn &&
+        [TIPO_USUARIO.ADMIN, TIPO_USUARIO.ESCOLA, TIPO_USUARIO.UBS].includes(tipoUsuario?.toLowerCase());
+    
     return (
         <div className='app__column app__tela-inicial'>
             <div className='app__tela-inicial-content'>
@@ -8,8 +14,16 @@ export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout }) {
                     Registro PSE<br />Online
                 </p>
                 <button className='app__buttonMain' onClick={onComecar}>
-                    Começar
+                    {isLoggedIn ? "Gerar Registro" : "Começar"}
                 </button>
+                {podeAcessarAdmin && (
+                    <button
+                        className='app__buttonSecondary app__tela-inicial__ajuda'
+                        onClick={onAdministracao}
+                    >
+                        Administração
+                    </button>
+                )}
                 <button className='app__buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
                     Ajuda
                 </button>

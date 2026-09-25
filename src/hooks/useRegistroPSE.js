@@ -20,6 +20,9 @@ export function useRegistroPSE() {
     // Identificação do utilizador autenticado
     const [usuarioId, setUsuarioId] = useState('');
     const [nomeUsuario, setNomeUsuario] = useState('');
+    const [tipoUsuario, setTipoUsuario] = useState('');
+    const [escolaIdUsuario, setEscolaIdUsuario] = useState(null);
+    const [ubsIdUsuario, setUbsIdUsuario] = useState(null);
 
     // A etapa atual
     const [etapaAtualId, setEtapaAtualId] = useState(ETAPAS.DATA);
@@ -84,9 +87,7 @@ export function useRegistroPSE() {
     const handleLogin = async (e) => {
         if (e) e.preventDefault();
         setMensagemErro('');
-
         const resultado = await autenticarUsuario(loginInput, senhaInput);
-
         if (!resultado.sucesso) {
             setMensagemErro(resultado.erro);
             return;
@@ -95,11 +96,14 @@ export function useRegistroPSE() {
         if (resultado.id) {
             setUsuarioId(resultado.id);
         }
-
         if (resultado.nome) {
             setNomeUsuario(resultado.nome);
             setProfissionaisResponsaveis([resultado.nome]);
         }
+
+        setTipoUsuario(resultado.tipoUsuario || '');
+        setEscolaIdUsuario(resultado.escolaId || null);
+        setUbsIdUsuario(resultado.ubsId || null);
 
         setIsLoggedIn(true);
         setMensagemErro('');
@@ -113,6 +117,9 @@ export function useRegistroPSE() {
         setIsLoggedIn(false);
         setUsuarioId('');
         setNomeUsuario('');
+        setTipoUsuario('');
+        setEscolaIdUsuario(null);
+        setUbsIdUsuario(null);
         setProfissionaisResponsaveis([]);
         reiniciarRegistro();
     };
@@ -412,6 +419,9 @@ export function useRegistroPSE() {
         setMensagemErro,
         handleLogin,
         handleLogout,
+        tipoUsuario,
+        escolaIdUsuario,
+        ubsIdUsuario,
 
         // Etapa e navegação
         etapaAtualId,

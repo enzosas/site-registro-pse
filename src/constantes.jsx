@@ -71,6 +71,7 @@ export const formatarSaudeOcular = (valor) => {
 export const TELAS = Object.freeze({
 	INICIAL: 'INICIAL',
 	AJUDA: 'AJUDA',
+	ADMIN: 'ADMIN',
 	LOGIN: 'LOGIN',
 	ESQUECI_SENHA: 'ESQUECI_SENHA',
 	ADD_ESCOLA: 'ADD_ESCOLA',
@@ -78,6 +79,10 @@ export const TELAS = Object.freeze({
 	CADASTRO_MANUAL: 'CADASTRO_MANUAL',
 	RESUMO: 'RESUMO',
 	ETAPAS: 'ETAPAS',
+});
+
+export const TELAS_ADMIN = Object.freeze({
+	PAINEL_INICIAL: 'PAINEL_INICIAL',
 });
 
 export const ETAPAS = {
@@ -90,3 +95,10 @@ export const ETAPAS = {
 	COLETA: 'COLETA',
 	CONCLUSAO: 'CONCLUSAO',
 };
+
+export const TIPO_USUARIO = Object.freeze({
+	ADMIN: 'admin',
+	ESCOLA: 'escola',
+	UBS: 'ubs',
+	COMUM: 'comum',
+});
