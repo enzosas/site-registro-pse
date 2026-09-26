@@ -135,30 +135,37 @@ export async function carregarUbsDB() {
     }
 }
 
-export async function criarNovoUsuarioAdmin({ email, password, nome, tipoUsuario, escolaId = null, ubsId = null }) {
+export async function criarNovoUsuarioAdmin({
+    nome,
+    email,
+    password,
+    tipoUsuario,
+    escolaId = null,
+    ubsId = null,
+}) {
     try {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    nome,
-                    tipo_usuario: tipoUsuario,
-                    escola_id: escolaId,
-                    ubs_id: ubsId,
-                }
-            }
+        const { data, error } = await supabase.rpc('criar_usuario_admin', {
+            novo_nome: nome,
+            novo_email: email,
+            nova_senha: password,
+            novo_tipo: tipoUsuario,
+            novo_escola_id: escolaId,
+            novo_ubs_id: ubsId,
         });
 
         if (error) {
-            console.error('Erro ao cadastrar usuário no Auth:', error);
+            console.error('Erro na RPC de criar usuário:', error);
             return { sucesso: false, erro: error.message };
         }
 
-        return { sucesso: true, id: data.user?.id };
+        if (data && !data.sucesso) {
+            return { sucesso: false, erro: data.erro };
+        }
+
+        return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao criar usuário:', err);
-        return { sucesso: false, erro: 'Erro de conexão ao criar o usuário.' };
+        return { sucesso: false, erro: 'Erro inesperado ao criar usuário.' };
     }
 }
 
