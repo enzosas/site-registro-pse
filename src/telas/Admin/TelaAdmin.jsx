@@ -6,12 +6,18 @@ import { PainelRegistros } from './PainelRegistros';
 import { PainelUsuarios } from './PainelUsuarios';
 import { PainelEscolaUbs } from './PainelEscolaUbs';
 import { PainelCriarUsuario } from './PainelCriarUsuario';
+import { PainelDetalhesUsuario } from './PainelDetalhesUsuario';
 
-export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario }) {
+export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
+    const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
     const handleVoltar = () => {
-        if (subtelaAtiva === TELAS_ADMIN.PAINEL_CRIAR_USUARIO) {
+        if (
+            subtelaAtiva === TELAS_ADMIN.PAINEL_CRIAR_USUARIO ||
+            subtelaAtiva === TELAS_ADMIN.PAINEL_DETALHES_USUARIO
+        ) {
+            setUsuarioSelecionado(null);
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS);
         } else if (subtelaAtiva !== TELAS_ADMIN.PAINEL_INICIAL) {
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_INICIAL);
@@ -27,13 +33,34 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario }) {
                     <PainelUsuarios
                         tipoUsuario={tipoUsuario}
                         onCriarUsuario={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_CRIAR_USUARIO)}
+                        onSelecionarUsuario={(usuario) => {
+                            setUsuarioSelecionado(usuario);
+                            setSubtelaAtiva(TELAS_ADMIN.PAINEL_DETALHES_USUARIO);
+                        }}
+                    />
+                );
+
+            case TELAS_ADMIN.PAINEL_DETALHES_USUARIO:
+                return (
+                    <PainelDetalhesUsuario
+                        usuario={usuarioSelecionado}
+                        usuarioLogadoId={usuarioId}
+                        onVoltar={() => {
+                            setUsuarioSelecionado(null);
+                            setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS);
+                        }}
+                        onSucessoExclusao={() => {
+                            setUsuarioSelecionado(null);
+                            setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS);
+                        }}
                     />
                 );
 
             case TELAS_ADMIN.PAINEL_CRIAR_USUARIO:
                 return (
                     <PainelCriarUsuario
-                        tipoUsuario={tipoUsuario}
+                        tipoUsuarioLogado={tipoUsuario}
+                        onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS)}
                     />
                 );
 

@@ -20,7 +20,14 @@
     align-items: center;
     width: 100%;
     padding: 0.75rem 0;
-    border-bottom: var(--input-border)
+    border-bottom: var(--input-border);
+    cursor: pointer;
+    background-color: var(--cor-frame);
+    transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+.admin__usuario__tabela__line:hover {
+    filter: brightness(0.95);
 }
 
 .admin__usuario__tabela__line p {
@@ -28,4 +35,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.admin__detalhes_usuario__frame {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.admin__detalhes_usuario__value {
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.admin__detalhes_usuario__label {
+    margin-bottom: 0.5em;
 }

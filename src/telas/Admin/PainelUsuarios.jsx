@@ -1,14 +1,19 @@
 import { IconePesquisa } from '../../components/Icones';
 import { useState, useEffect, useMemo } from 'react';
 import { TIPO_USUARIO } from '../../constantes';
-import { 
-    carregarUsuariosDB, 
-    carregarEscolasDB, 
-    carregarUbsDB 
+import {
+    carregarUsuariosDB,
+    carregarEscolasDB,
+    carregarUbsDB
 } from '../../services/supabaseService';
 
-export function PainelUsuarios({ tipoUsuario, escolaId = null, ubsId = null, onCriarUsuario }) {
-    
+export function PainelUsuarios({
+    tipoUsuario,
+    escolaId = null,
+    ubsId = null,
+    onCriarUsuario,
+    onSelecionarUsuario
+}) {
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
 
@@ -65,15 +70,6 @@ export function PainelUsuarios({ tipoUsuario, escolaId = null, ubsId = null, onC
         };
     }, [tipoUsuario, escolaId, ubsId, isAdmin, isComum]);
 
-    if (isComum) {
-        return (
-            <div>
-                <p className="app__title">Acesso restrito</p>
-                <p>Você não tem permissão para acessar esta área.</p>
-            </div>
-        );
-    }
-    
     const usuariosFiltrados = useMemo(() => {
         return usuarios.filter((user) => {
             const busca = termoBusca.trim().toLowerCase();
@@ -82,14 +78,21 @@ export function PainelUsuarios({ tipoUsuario, escolaId = null, ubsId = null, onC
             const passaBusca = !busca || bateNome || bateEmail;
 
             const passaTipo = !filtroTipo || user.tipoUsuario === filtroTipo;
-
             const passaEscola = !filtroEscola || String(user.escolaId) === String(filtroEscola);
-
             const passaUbs = !filtroUbs || String(user.ubsId) === String(filtroUbs);
 
             return passaBusca && passaTipo && passaEscola && passaUbs;
         });
     }, [usuarios, termoBusca, filtroTipo, filtroEscola, filtroUbs]);
+
+    if (isComum) {
+        return (
+            <div>
+                <p className="app__title">Acesso restrito</p>
+                <p>Você não tem permissão para acessar esta área.</p>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -172,7 +175,11 @@ export function PainelUsuarios({ tipoUsuario, escolaId = null, ubsId = null, onC
                 )}
 
                 {!carregando && usuariosFiltrados.map((user) => (
-                    <div key={user.id} className="admin__usuario__tabela__line">
+                    <div
+                        key={user.id}
+                        className="admin__usuario__tabela__line"
+                        onClick={() => onSelecionarUsuario && onSelecionarUsuario(user)}
+                    >
                         <p className="admin__usuario__tabela__line__nome">{user.nome}</p>
                         <p className="admin__usuario__tabela__line__email">{user.email}</p>
                         <p className="admin__usuario__tabela__line__info">

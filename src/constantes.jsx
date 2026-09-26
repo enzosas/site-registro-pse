@@ -85,6 +85,7 @@ export const TELAS_ADMIN = Object.freeze({
 	PAINEL_INICIAL: 'PAINEL_INICIAL',
 	PAINEL_USUARIOS: 'PAINEL_USUARIOS',
 	PAINEL_CRIAR_USUARIO: 'PAINEL_CRIAR_USUARIO',
+	PAINEL_DETALHES_USUARIO: 'PAINEL_DETALHES_USUARIO',
 	PAINEL_REGISTROS: 'PAINEL_REGISTROS',
 	PAINEL_ESCOLAUBS: 'PAINEL_ESCOLAUBS',
 });
@@ -106,3 +107,8 @@ export const TIPO_USUARIO = Object.freeze({
 	UBS: 'ubs',
 	COMUM: 'comum',
 });
+
+export function formatarTipoUsuario(tipo) {
+	if (!tipo) return '';
+	return TIPO_USUARIO[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+}

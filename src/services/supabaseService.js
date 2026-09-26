@@ -239,3 +239,25 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
         return [];
     }
 }
+
+export async function deletarUsuarioDB(usuarioId) {
+    try {
+        if (!usuarioId) {
+            return { sucesso: false, erro: 'ID do usuário não fornecido.' };
+        }
+
+        const { error } = await supabase.rpc('deletar_usuario_por_admin', {
+            usuario_alvo_id: usuarioId,
+        });
+
+        if (error) {
+            console.error('Erro ao deletar usuário:', error);
+            return { sucesso: false, erro: error.message || 'Falha ao deletar o usuário.' };
+        }
+
+        return { sucesso: true };
+    } catch (err) {
+        console.error('Erro inesperado ao deletar usuário:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao deletar o usuário.' };
+    }
+}
