@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { deletarUsuarioDB } from '../../services/supabaseService';
 import { formatarTipoUsuario } from '../../constantes'
+import { formatarNome } from '../../utils/formatadores'
 
 export function PainelDetalhesUsuario({
     usuario,
@@ -76,7 +77,7 @@ export function PainelDetalhesUsuario({
                 {usuario.escolaNome && (
                     <div>
                         <p className='admin__detalhes_usuario__label'>Escola vinculada</p>
-                        <p className='admin__detalhes_usuario__value'>{usuario.escolaNome}</p>
+                        <p className='admin__detalhes_usuario__value'>{formatarNome(usuario.escolaNome)}</p>
                     </div>
                 )}
 
