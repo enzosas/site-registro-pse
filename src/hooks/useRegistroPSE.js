@@ -417,6 +417,7 @@ export function useRegistroPSE() {
         isLoggedIn,
 
         // Login
+        usuarioId,
         loginInput,
         setLoginInput,
         senhaInput,
