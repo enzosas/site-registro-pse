@@ -315,3 +315,27 @@ export async function carregarRelacaoUbsEscolasDB() {
         return { ubs: [], escolasSemUbs: [] };
     }
 }
+
+export async function criarUbsDB(nomeUbs) {
+    try {
+        if (!nomeUbs || !nomeUbs.trim()) {
+            return { sucesso: false, erro: 'Informe o nome da UBS.' };
+        }
+
+        const { data, error } = await supabase
+            .from('ubs')
+            .insert([{ nome: nomeUbs.trim() }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erro ao cadastrar UBS:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        return { sucesso: true, data };
+    } catch (err) {
+        console.error('Erro inesperado ao cadastrar UBS:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao cadastrar UBS.' };
+    }
+}

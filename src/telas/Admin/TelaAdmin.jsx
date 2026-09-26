@@ -7,6 +7,7 @@ import { PainelUsuarios } from './PainelUsuarios';
 import { PainelEscolaUbs } from './PainelEscolaUbs';
 import { PainelCriarUsuario } from './PainelCriarUsuario';
 import { PainelDetalhesUsuario } from './PainelDetalhesUsuario';
+import { PainelCriarUbs } from './PainelCriarUbs';
 
 export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null, escolaId = null,ubsId = null }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
@@ -19,6 +20,8 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
         ) {
             setUsuarioSelecionado(null);
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS);
+        } else if (subtelaAtiva === TELAS_ADMIN.PAINEL_CRIAR_UBS) {
+            setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS);
         } else if (subtelaAtiva !== TELAS_ADMIN.PAINEL_INICIAL) {
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_INICIAL);
         } else {
@@ -79,9 +82,17 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                 return (
                     <PainelEscolaUbs
                         tipoUsuario={tipoUsuario}
+                        onAdicionarUbs={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_CRIAR_UBS)}
                         onEditar={() => {
-                            console.log('Ir para tela de edição de vínculos');
+                            console.log('Editar');
                         }}
+                    />
+                );
+
+            case TELAS_ADMIN.PAINEL_CRIAR_UBS:
+                return (
+                    <PainelCriarUbs
+                        onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                     />
                 );
 

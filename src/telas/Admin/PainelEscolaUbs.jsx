@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
 import { carregarRelacaoUbsEscolasDB } from '../../services/supabaseService';
 
-export function PainelEscolaUbs({ tipoUsuario, onEditar }) {
+export function PainelEscolaUbs({ tipoUsuario, onEditar, onAdicionarUbs }) {
     const isAdminGeral = tipoUsuario === TIPO_USUARIO.ADMIN;
     const [listaUbs, setListaUbs] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -102,7 +102,7 @@ export function PainelEscolaUbs({ tipoUsuario, onEditar }) {
                     <button
                         type="button"
                         className="app__buttonSecondary admin__escola_ubs__botao_secundario"
-                        onClick={onEditar}
+                        onClick={onAdicionarUbs}
                         disabled={carregando}
                     >
                         <p>Adicionar UBS</p>
