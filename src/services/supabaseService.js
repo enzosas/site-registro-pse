@@ -268,3 +268,50 @@ export async function deletarUsuarioDB(usuarioId) {
         return { sucesso: false, erro: 'Erro inesperado ao deletar o usuário.' };
     }
 }
+
+export async function carregarRelacaoUbsEscolasDB() {
+    try {
+        const [respUbs, respEscolas] = await Promise.all([
+            supabase
+                .from('ubs')
+                .select('id, nome')
+                .order('nome', { ascending: true }),
+            supabase
+                .from('escolas')
+                .select('id, nome, ubs_responsavel')
+                .order('nome', { ascending: true })
+        ]);
+
+        if (respUbs.error) console.error('Erro ao procurar UBSs:', respUbs.error);
+        if (respEscolas.error) console.error('Erro ao procurar escolas:', respEscolas.error);
+
+        const listaUbs = respUbs.data || [];
+        const listaEscolas = respEscolas.data || [];
+
+        const ubsMapeadas = listaUbs.map((ubs) => ({
+            id: ubs.id,
+            nome: formatarNome(ubs.nome),
+            escolas: listaEscolas
+                .filter((esc) => String(esc.ubs_responsavel) === String(ubs.id))
+                .map((esc) => ({
+                    id: esc.id,
+                    nome: formatarNome(esc.nome),
+                })),
+        }));
+
+        const escolasSemUbs = listaEscolas
+            .filter((esc) => !esc.ubs_responsavel)
+            .map((esc) => ({
+                id: esc.id,
+                nome: formatarNome(esc.nome),
+            }));
+
+        return {
+            ubs: ubsMapeadas,
+            escolasSemUbs,
+        };
+    } catch (err) {
+        console.error('Erro inesperado ao carregar relação UBS e Escolas:', err);
+        return { ubs: [], escolasSemUbs: [] };
+    }
+}

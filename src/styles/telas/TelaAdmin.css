@@ -55,3 +55,90 @@
 .admin__usuario__subtitulo {
     margin-bottom: 0.5em;
 }
+
+.admin__escola_ubs__container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.admin__escola_ubs__card {
+    border: var(--input-border);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--cor-frame);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin__escola_ubs__card-titulo {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--cor-texto);
+    border-bottom: var(--input-border);
+    padding-bottom: 0.5rem;
+}
+
+.admin__escola_ubs__escolas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin__escola_ubs__escola-item {
+    font-size: 1rem;
+    color: var(--cor-texto);
+    line-height: 1.5;
+}
+
+.admin__escola_ubs__sem-escolas {
+    font-size: 1rem;
+    color: var(--cor-botao2);
+    font-style: italic;
+}
+
+.admin__escola_ubs__vazio {
+    color: var(--cor-botao2);
+}
+
+.admin__escola_ubs__card--sem-vinculo {
+    border-style: dashed;
+}
+
+.admin__escola_ubs__card-header-alerta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--input-border);
+    padding-bottom: 0.5rem;
+}
+
+.admin__escola_ubs__card-titulo--alerta {
+    border-bottom: none;
+    padding-bottom: 0;
+    color: var(--cor-texto);
+}
+
+.admin__escola_ubs__badge-contador {
+    font-size: 1rem;
+    border-radius: 1rem;
+    color: var(--cor-texto);
+}
+
+.admin__escola_ubs__botoes_grupo {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    flex: 1;
+    width: 100%;
+}
+
+.app__buttonSecondary.admin__escola_ubs__botao_secundario {
+    width: 100%;
+    font-size: 1.25rem;
+}

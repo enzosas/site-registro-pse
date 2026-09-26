@@ -79,6 +79,9 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                 return (
                     <PainelEscolaUbs
                         tipoUsuario={tipoUsuario}
+                        onEditar={() => {
+                            console.log('Ir para tela de edição de vínculos');
+                        }}
                     />
                 );
 
