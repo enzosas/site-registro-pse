@@ -40,21 +40,15 @@ export function PainelUsuarios({
                 ubsId,
             });
 
-            let escolas = [];
-            let ubs = [];
-            if (isAdmin) {
-                const [respEscolas, respUbs] = await Promise.all([
-                    carregarEscolasDB(),
-                    carregarUbsDB(),
-                ]);
-                escolas = respEscolas || [];
-                ubs = respUbs || [];
-            }
+            const [respEscolas, respUbs] = await Promise.all([
+                carregarEscolasDB(),
+                carregarUbsDB(),
+            ]);
 
             if (montado) {
                 setUsuarios(dadosUsuarios || []);
-                setListaEscolas(escolas);
-                setListaUbs(ubs);
+                setListaEscolas(respEscolas || []);
+                setListaUbs(respUbs || []);
                 setCarregando(false);
             }
         }
@@ -68,7 +62,7 @@ export function PainelUsuarios({
         return () => {
             montado = false;
         };
-    }, [tipoUsuario, escolaId, ubsId, isAdmin, isComum]);
+    }, [tipoUsuario, escolaId, ubsId, isComum]);
 
     const usuariosFiltrados = useMemo(() => {
         return usuarios.filter((user) => {
@@ -85,6 +79,40 @@ export function PainelUsuarios({
         });
     }, [usuarios, termoBusca, filtroTipo, filtroEscola, filtroUbs]);
 
+    const subtituloContexto = useMemo(() => {
+        if (tipoUsuario === TIPO_USUARIO.ESCOLA && escolaId) {
+            const escola = listaEscolas.find((e) => String(e.id) === String(escolaId));
+            return escola
+                ? `Exibindo usuários vinculados à Escola ${escola.nome}`
+                : 'Exibindo usuários vinculados à sua Escola';
+        }
+
+        if (tipoUsuario === TIPO_USUARIO.UBS && ubsId) {
+            const ubs = listaUbs.find((u) => String(u.id) === String(ubsId));
+            return ubs
+                ? `Exibindo usuários vinculados à UBS ${ubs.nome}`
+                : 'Exibindo usuários vinculados à sua UBS';
+        }
+
+        if (isAdmin) {
+            if (filtroEscola) {
+                const escola = listaEscolas.find((e) => String(e.id) === String(filtroEscola));
+                return escola
+                    ? `Exibindo usuários da Escola ${escola.nome}`
+                    : 'Exibindo usuários da escola selecionada';
+            }
+            if (filtroUbs) {
+                const ubs = listaUbs.find((u) => String(u.id) === String(filtroUbs));
+                return ubs
+                    ? `Exibindo usuários da UBS ${ubs.nome}`
+                    : 'Exibindo usuários da UBS selecionada';
+            }
+            return 'Exibindo todos os usuários cadastrados no sistema';
+        }
+
+        return '';
+    }, [tipoUsuario, escolaId, ubsId, isAdmin, filtroEscola, filtroUbs, listaEscolas, listaUbs]);
+
     if (isComum) {
         return (
             <div>
@@ -97,6 +125,7 @@ export function PainelUsuarios({
     return (
         <>
             <p className="app__title">Gerenciar Usuários</p>
+            {subtituloContexto && <p className='admin__usuario__subtitulo'>{subtituloContexto}</p>}
 
             <div className="admin__grupo-filtros">
                 <div className="app__combobox-group">

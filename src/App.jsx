@@ -163,7 +163,10 @@ function App() {
 				return (
 					<TelaAdmin
 						nomeUsuario={p.nomeUsuario}
+						usuarioId={p.usuarioId}
 						tipoUsuario={p.tipoUsuario}
+						escolaId={p.escolaIdUsuario}
+						ubsId={p.ubsIdUsuario}
 						onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
 						cardRef={p.cardRef}
 					/>

@@ -8,7 +8,7 @@ import { PainelEscolaUbs } from './PainelEscolaUbs';
 import { PainelCriarUsuario } from './PainelCriarUsuario';
 import { PainelDetalhesUsuario } from './PainelDetalhesUsuario';
 
-export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null }) {
+export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null, escolaId = null,ubsId = null }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
@@ -32,6 +32,8 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                 return (
                     <PainelUsuarios
                         tipoUsuario={tipoUsuario}
+                        escolaId={escolaId}
+                        ubsId={ubsId}
                         onCriarUsuario={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_CRIAR_USUARIO)}
                         onSelecionarUsuario={(usuario) => {
                             setUsuarioSelecionado(usuario);
