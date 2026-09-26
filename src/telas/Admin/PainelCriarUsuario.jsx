@@ -6,7 +6,11 @@ import {
     criarNovoUsuarioAdmin
 } from '../../services/supabaseService';
 
-export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
+export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, ubsIdLogado = null, onSucesso }) {
+
+    const isGestorEscola = tipoUsuarioLogado === TIPO_USUARIO.ESCOLA;
+    const isGestorUbs = tipoUsuarioLogado === TIPO_USUARIO.UBS;
+    const isAdmin = tipoUsuarioLogado === TIPO_USUARIO.ADMIN;
 
     const [tipoNovoUsuario, setTipoNovoUsuario] = useState(TIPO_USUARIO.COMUM);
     const [nome, setNome] = useState('');
@@ -25,6 +29,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         let ativo = true;
 
         async function buscarUnidades() {
+
             setCarregandoDados(true);
             try {
                 const [escolas, ubs] = await Promise.all([
@@ -48,9 +53,9 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         return () => {
             ativo = false;
         };
-    }, []);
+    }, [isAdmin]);
 
-    const precisaUnidade = tipoNovoUsuario !== TIPO_USUARIO.ADMIN;
+    const precisaEscolherUnidade = isAdmin && tipoNovoUsuario !== TIPO_USUARIO.ADMIN;
 
     let opcoesDatalist = [];
     if (tipoNovoUsuario === TIPO_USUARIO.ESCOLA) {
@@ -86,7 +91,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         nome.trim().length > 2 &&
         email.trim().includes('@') &&
         senha.trim().length >= 6 &&
-        (!precisaUnidade ? true : unidadeTexto.trim().length > 0);
+        (!precisaEscolherUnidade ? true : unidadeTexto.trim().length > 0);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -98,7 +103,11 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         let escolaId = null;
         let ubsId = null;
 
-        if (precisaUnidade) {
+        if (isGestorEscola) {
+            escolaId = escolaIdLogado;
+        } else if (isGestorUbs) {
+            ubsId = ubsIdLogado;
+        } else if (precisaEscolherUnidade) {
             const digitado = unidadeTexto.trim().toLowerCase();
 
             const opcaoEncontrada = opcoesDatalist.find((op) => {
@@ -142,11 +151,21 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
         }
     };
 
+    const nomeUnidadeLogada = isGestorEscola
+        ? listaEscolas.find((e) => String(e.id) === String(escolaIdLogado))?.nome
+        : isGestorUbs
+            ? listaUbs.find((u) => String(u.id) === String(ubsIdLogado))?.nome
+            : null;
+
+    const mensagemVinculo = isGestorEscola
+        ? `O novo usuário será vinculado à Escola ${nomeUnidadeLogada || ''}.`
+        : isGestorUbs
+            ? `O novo usuário será vinculado à UBS ${nomeUnidadeLogada || ''}.`
+            : null;
+
     return (
         <>
             <p className="app__title">Criar Usuário</p>
-
-            
 
             <div className="app__combobox-group">
                 <label>Tipo de usuário</label>
@@ -160,9 +179,15 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                     }}
                 >
                     <option value={TIPO_USUARIO.COMUM}>Comum</option>
-                    <option value={TIPO_USUARIO.ESCOLA}>Escola</option>
-                    <option value={TIPO_USUARIO.UBS}>UBS</option>
-                    <option value={TIPO_USUARIO.ADMIN}>Administrador</option>
+                    {(isAdmin || isGestorEscola) && (
+                        <option value={TIPO_USUARIO.ESCOLA}>Escola</option>
+                    )}
+                    {(isAdmin || isGestorUbs) && (
+                        <option value={TIPO_USUARIO.UBS}>UBS</option>
+                    )}
+                    {isAdmin && (
+                        <option value={TIPO_USUARIO.ADMIN}>Administrador</option>
+                    )}
                 </select>
             </div>
 
@@ -177,7 +202,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                 />
             </div>
 
-            {precisaUnidade && (
+            {precisaEscolherUnidade && (
                 <div className="app__input-group">
                     <label>
                         {tipoNovoUsuario === TIPO_USUARIO.COMUM
@@ -236,13 +261,16 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, onSucesso }) {
                 />
             </div>
 
+            {mensagemVinculo && <p className="admin__usuario__subtitulo">{mensagemVinculo}</p>}
+
             <div className="app__footer">
                 {mensagemErro && (
                     <div style={{ color: 'var(--cor-erro, #ff4d4f)'}}>
                         {mensagemErro}
                     </div>
                 )}
-            <button
+                <button
+                    type="button"
                     className="app__buttonMain"
                     disabled={!isFormValido || salvando || carregandoDados}
                     onClick={handleSubmit}

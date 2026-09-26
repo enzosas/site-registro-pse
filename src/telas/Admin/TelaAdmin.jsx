@@ -62,6 +62,8 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                 return (
                     <PainelCriarUsuario
                         tipoUsuarioLogado={tipoUsuario}
+                        escolaIdLogado={escolaId}
+                        ubsIdLogado={ubsId}
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS)}
                     />
                 );
