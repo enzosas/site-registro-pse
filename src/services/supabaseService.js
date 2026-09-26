@@ -365,3 +365,30 @@ export async function deletarUbsDB(ubsId) {
         return { sucesso: false, erro: 'Erro inesperado ao excluir UBS.' };
     }
 }
+
+export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
+    try {
+        if (!Array.isArray(escolaIds) || escolaIds.length === 0) {
+            return { sucesso: false, erro: 'Selecione pelo menos uma escola.' };
+        }
+
+        const idsNumericos = escolaIds.map((id) => Number(id));
+        const valorUbs = ubsId ? Number(ubsId) : null;
+
+        const { data, error } = await supabase
+            .from('escolas')
+            .update({ ubs_responsavel: valorUbs })
+            .in('id', idsNumericos)
+            .select();
+
+        if (error) {
+            console.error('Erro ao atualizar vínculo das escolas:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        return { sucesso: true, data };
+    } catch (err) {
+        console.error('Erro inesperado ao vincular escolas:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao salvar alterações.' };
+    }
+}

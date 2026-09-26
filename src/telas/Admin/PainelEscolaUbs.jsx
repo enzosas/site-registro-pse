@@ -122,7 +122,7 @@ export function PainelEscolaUbs({ tipoUsuario, onEditar, onAdicionarUbs, onRemov
                     onClick={onEditar}
                     disabled={carregando}
                 >
-                    <p>Editar</p>
+                    <p>Editar Vínculo</p>
                 </button>
             </div>
         </>

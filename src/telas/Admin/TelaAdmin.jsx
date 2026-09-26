@@ -9,6 +9,7 @@ import { PainelCriarUsuario } from './PainelCriarUsuario';
 import { PainelDetalhesUsuario } from './PainelDetalhesUsuario';
 import { PainelCriarUbs } from './PainelCriarUbs';
 import { PainelRemoverUbs } from './PainelRemoverUbs';
+import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
 
 export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null, escolaId = null,ubsId = null }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
@@ -23,7 +24,8 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS);
         } else if (
             subtelaAtiva === TELAS_ADMIN.PAINEL_CRIAR_UBS ||
-            subtelaAtiva === TELAS_ADMIN.PAINEL_REMOVER_UBS
+            subtelaAtiva === TELAS_ADMIN.PAINEL_REMOVER_UBS ||
+            subtelaAtiva === TELAS_ADMIN.PAINEL_EDITAR_ESCOLAUBS
         ) {
             setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS);
         } else if (subtelaAtiva !== TELAS_ADMIN.PAINEL_INICIAL) {
@@ -88,9 +90,7 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                         tipoUsuario={tipoUsuario}
                         onAdicionarUbs={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_CRIAR_UBS)}
                         onRemoverUbs={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_REMOVER_UBS)}
-                        onEditar={() => {
-                            console.log('Editar');
-                        }}
+                        onEditar={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_EDITAR_ESCOLAUBS)}
                     />
                 );
 
@@ -104,6 +104,13 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
             case TELAS_ADMIN.PAINEL_REMOVER_UBS:
                 return (
                     <PainelRemoverUbs
+                        onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
+                    />
+                );
+
+            case TELAS_ADMIN.PAINEL_EDITAR_ESCOLAUBS:
+                return (
+                    <PainelEditarEscolaUbs
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                     />
                 );

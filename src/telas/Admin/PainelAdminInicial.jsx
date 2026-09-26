@@ -36,7 +36,7 @@ export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
                     className="app__buttonSecondary admin__inicial__nav-button"
                     onClick={() => onNavegar(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                 >
-                    Alocar Escolas UBS
+                    Gerenciar Vínculo Escolas UBS
                 </button>
             )}
         </>
