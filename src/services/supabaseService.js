@@ -339,3 +339,29 @@ export async function criarUbsDB(nomeUbs) {
         return { sucesso: false, erro: 'Erro inesperado ao cadastrar UBS.' };
     }
 }
+
+export async function deletarUbsDB(ubsId) {
+    try {
+        if (!ubsId) {
+            return { sucesso: false, erro: 'ID da UBS não informado.' };
+        }
+
+        const { data, error } = await supabase.rpc('deletar_ubs_admin', {
+            ubs_alvo_id: ubsId,
+        });
+
+        if (error) {
+            console.error('Erro na RPC de excluir UBS:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        if (data && !data.sucesso) {
+            return { sucesso: false, erro: data.erro };
+        }
+
+        return { sucesso: true };
+    } catch (err) {
+        console.error('Erro inesperado ao excluir UBS:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao excluir UBS.' };
+    }
+}
