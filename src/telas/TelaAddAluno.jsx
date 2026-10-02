@@ -4,6 +4,7 @@ import { aplicarMascaraData, isDataStringValida } from '../utils/validadoresData
 
 export function TelaAddAluno({
     etapa,
+    totalEtapas,
     novoAlunoNome,
     setNovoAlunoNome,
     novoAlunoDataNascimento,
@@ -19,7 +20,7 @@ export function TelaAddAluno({
 
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} />
+            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
             <form
                 className='app__card'
                 ref={cardRef}

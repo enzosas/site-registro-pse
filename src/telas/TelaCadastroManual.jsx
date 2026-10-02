@@ -3,6 +3,7 @@ import { HeaderRegistro } from '../components/HeaderRegistro';
 
 export function TelaCadastroManual({
     etapa,
+    totalEtapas,
     escolaManual,
     setEscolaManual,
     turmaManual,
@@ -15,7 +16,7 @@ export function TelaCadastroManual({
 
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} />
+            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
             <form
                 className='app__card'
                 ref={cardRef}

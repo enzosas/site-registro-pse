@@ -5,6 +5,7 @@ import * as Constantes from '../constantes';
 
 export function TelaResumo({
     etapa,
+    totalEtapas,
     dados,
     observacoes,
     copiado,
@@ -14,7 +15,7 @@ export function TelaResumo({
 }) {
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} />
+            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
             <div className='app__card' ref={cardRef}>
                 <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                     <IconeVoltar />

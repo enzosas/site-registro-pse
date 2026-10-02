@@ -114,7 +114,8 @@ function App() {
 			case TELAS.CADASTRO_MANUAL:
 				return (
 					<TelaCadastroManual
-						etapa={p.passoVisual}
+						etapa={p.passoVisual}    
+						totalEtapas={p.totalEtapas}
 						escolaManual={p.escolaManual}
 						setEscolaManual={p.setEscolaManual}
 						turmaManual={p.turmaManual}
@@ -129,6 +130,7 @@ function App() {
 				return (
 					<TelaAddAluno
 						etapa={p.passoVisual}
+						totalEtapas={p.totalEtapas}
 						novoAlunoNome={p.novoAlunoNome}
 						setNovoAlunoNome={p.setNovoAlunoNome}
 						novoAlunoDataNascimento={p.novoAlunoDataNascimento}
@@ -146,6 +148,7 @@ function App() {
 				return (
 					<TelaResumo
 						etapa={p.passoVisual}
+						totalEtapas={p.totalEtapas}
 						dados={dados}
 						observacoes={p.observacoes}
 						copiado={p.copiado}
