@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase } from './supabaseClient';
 import { formatarNome } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../constantes';
 
