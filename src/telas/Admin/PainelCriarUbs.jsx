@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { criarUbsDB } from '../../services/supabaseService';
+import { useDados } from '../../context/DadosContext';
 
 export function PainelCriarUbs({ onSucesso }) {
+    const { recarregarUbs } = useDados();
     const [nome, setNome] = useState('');
     const [salvando, setSalvando] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
@@ -11,7 +13,6 @@ export function PainelCriarUbs({ onSucesso }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValido || salvando) return;
-
         setMensagemErro('');
         setSalvando(true);
 
@@ -23,6 +24,7 @@ export function PainelCriarUbs({ onSucesso }) {
             return;
         }
 
+        await recarregarUbs();
         alert('UBS cadastrada com sucesso!');
         if (onSucesso) {
             onSucesso();
@@ -32,7 +34,6 @@ export function PainelCriarUbs({ onSucesso }) {
     return (
         <form onSubmit={handleSubmit} style={{ display: 'contents' }}>
             <p className="app__title">Cadastrar UBS</p>
-
             <div className="app__input-group">
                 <label>Nome da UBS</label>
                 <input
@@ -45,7 +46,6 @@ export function PainelCriarUbs({ onSucesso }) {
                     required
                 />
             </div>
-
             <div className="app__footer">
                 {mensagemErro && (
                     <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>

@@ -1,45 +1,21 @@
-import { useState, useEffect } from 'react';
-import { carregarEscolasDB, carregarUbsDB, vincularEscolasAUbsDB } from '../../services/supabaseService';
+import { useState } from 'react';
+import { vincularEscolasAUbsDB } from '../../services/supabaseService';
+import { useDados } from '../../context/DadosContext';
 
 const OPCAO_SEM_UBS = 'Sem UBS (Desvincular)';
 
 export function PainelEditarEscolaUbs({ onSucesso }) {
-    const [listaEscolas, setListaEscolas] = useState([]);
-    const [listaUbs, setListaUbs] = useState([]);
-    const [carregando, setCarregando] = useState(true);
+    const {
+        escolas: listaEscolas,
+        listaUbs,
+        recarregarEscolas,
+        carregandoDados: carregando
+    } = useDados();
+
     const [salvando, setSalvando] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
-
     const [escolasInput, setEscolasInput] = useState(['']);
     const [ubsTexto, setUbsTexto] = useState('');
-
-    useEffect(() => {
-        let ativo = true;
-
-        async function carregarDados() {
-            setCarregando(true);
-            try {
-                const [escolas, ubs] = await Promise.all([
-                    carregarEscolasDB(),
-                    carregarUbsDB(),
-                ]);
-                if (ativo) {
-                    setListaEscolas(escolas || []);
-                    setListaUbs(ubs || []);
-                }
-            } catch (err) {
-                console.error('Erro ao carregar dados:', err);
-            } finally {
-                if (ativo) setCarregando(false);
-            }
-        }
-
-        carregarDados();
-
-        return () => {
-            ativo = false;
-        };
-    }, []);
 
     const handleAlterarEscola = (index, novoValor) => {
         setEscolasInput((prev) => {
@@ -59,7 +35,6 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
     };
 
     const ehDesvinculacao = ubsTexto.trim().toLowerCase() === OPCAO_SEM_UBS.toLowerCase();
-
     const ubsEncontrada = listaUbs.find(
         (u) => u.nome.trim().toLowerCase() === ubsTexto.trim().toLowerCase()
     );
@@ -78,7 +53,6 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValido || salvando || carregando) return;
-
         setMensagemErro('');
         setSalvando(true);
 
@@ -93,6 +67,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             return;
         }
 
+        await recarregarEscolas();
         alert(ehDesvinculacao ? 'Vínculo removido com sucesso!' : 'Vinculação salva com sucesso!');
         if (onSucesso) {
             onSucesso();
@@ -105,23 +80,19 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             <p className="admin__usuario__subtitulo">
                 Selecione as escolas e a UBS à qual elas serão vinculadas (ou selecione para desvincular):
             </p>
-
             <datalist id="lista-escolas-datalist">
                 {listaEscolas.map((escola) => (
                     <option key={escola.id} value={escola.nome} />
                 ))}
             </datalist>
-
             <datalist id="lista-ubs-datalist">
                 <option value={OPCAO_SEM_UBS} />
                 {listaUbs.map((ubs) => (
                     <option key={ubs.id} value={ubs.nome} />
                 ))}
             </datalist>
-
             <div className="app__input-group">
                 <label>Escolas a vincular / alterar</label>
-
                 {escolasInput.map((escola, index) => (
                     <div key={index} className="app__tela-profissionais__row">
                         <input
@@ -152,7 +123,6 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                         )}
                     </div>
                 ))}
-
                 <button
                     type="button"
                     className="app__buttonSecondary app__tela-profissionais__btn-adicionar"
@@ -162,7 +132,6 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                     + Adicionar outra escola
                 </button>
             </div>
-
             <div className="app__input-group" style={{ marginTop: '1rem' }}>
                 <label>UBS Responsável</label>
                 <input
@@ -183,7 +152,6 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                     required
                 />
             </div>
-
             <div className="app__footer">
                 {mensagemErro && (
                     <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>
@@ -195,7 +163,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                     className="app__buttonMain"
                     disabled={!isFormValido || salvando || carregando}
                 >
-                    <p>{salvando ? 'A guardar alterações...' : 'Salvar Vínculo'}</p>
+                    <p>{salvando ? 'Guardando alterações...' : 'Salvar Vínculo'}</p>
                 </button>
             </div>
         </form>

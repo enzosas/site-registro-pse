@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
-import {
-    carregarEscolasDB,
-    carregarUbsDB,
-    criarNovoUsuarioAdmin
-} from '../../services/supabaseService';
+import { useDados } from '../../context/DadosContext';
+import { criarNovoUsuarioAdmin } from '../../services/supabaseService';
 
 export function PainelCriarUsuario({ onSucesso }) {
     const { tipoUsuario: tipoUsuarioLogado, escolaIdUsuario: escolaIdLogado, ubsIdUsuario: ubsIdLogado } = useAuth();
+    const { escolas: listaEscolas, listaUbs, carregandoDados } = useDados();
 
     const isGestorEscola = tipoUsuarioLogado === TIPO_USUARIO.ESCOLA;
     const isGestorUbs = tipoUsuarioLogado === TIPO_USUARIO.UBS;
@@ -19,36 +17,8 @@ export function PainelCriarUsuario({ onSucesso }) {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [unidadeTexto, setUnidadeTexto] = useState('');
-    const [listaEscolas, setListaEscolas] = useState([]);
-    const [listaUbs, setListaUbs] = useState([]);
-    const [carregandoDados, setCarregandoDados] = useState(false);
     const [salvando, setSalvando] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
-
-    useEffect(() => {
-        let ativo = true;
-        async function buscarUnidades() {
-            setCarregandoDados(true);
-            try {
-                const [escolas, ubs] = await Promise.all([
-                    carregarEscolasDB(),
-                    carregarUbsDB(),
-                ]);
-                if (ativo) {
-                    setListaEscolas(escolas || []);
-                    setListaUbs(ubs || []);
-                }
-            } catch (err) {
-                console.error('Erro ao buscar unidades:', err);
-            } finally {
-                if (ativo) setCarregandoDados(false);
-            }
-        }
-        buscarUnidades();
-        return () => {
-            ativo = false;
-        };
-    }, [isAdmin]);
 
     const precisaEscolherUnidade = isAdmin && tipoNovoUsuario !== TIPO_USUARIO.ADMIN;
 

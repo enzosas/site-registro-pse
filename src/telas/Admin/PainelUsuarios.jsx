@@ -2,17 +2,15 @@ import { IconePesquisa } from '../../components/Icones';
 import { useState, useEffect, useMemo } from 'react';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
-import {
-    carregarUsuariosDB,
-    carregarEscolasDB,
-    carregarUbsDB
-} from '../../services/supabaseService';
+import { useDados } from '../../context/DadosContext';
+import { carregarUsuariosDB } from '../../services/supabaseService';
 
 export function PainelUsuarios({
     onCriarUsuario,
     onSelecionarUsuario
 }) {
     const { tipoUsuario, escolaIdUsuario: escolaId, ubsIdUsuario: ubsId } = useAuth();
+    const { escolas: listaEscolas, listaUbs } = useDados();
 
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
@@ -23,8 +21,6 @@ export function PainelUsuarios({
     const [filtroTipo, setFiltroTipo] = useState('');
     const [filtroEscola, setFiltroEscola] = useState('');
     const [filtroUbs, setFiltroUbs] = useState('');
-    const [listaEscolas, setListaEscolas] = useState([]);
-    const [listaUbs, setListaUbs] = useState([]);
 
     useEffect(() => {
         let montado = true;
@@ -35,14 +31,8 @@ export function PainelUsuarios({
                 escolaId,
                 ubsId,
             });
-            const [respEscolas, respUbs] = await Promise.all([
-                carregarEscolasDB(),
-                carregarUbsDB(),
-            ]);
             if (montado) {
                 setUsuarios(dadosUsuarios || []);
-                setListaEscolas(respEscolas || []);
-                setListaUbs(respUbs || []);
                 setCarregando(false);
             }
         }

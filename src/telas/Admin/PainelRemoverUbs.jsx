@@ -1,37 +1,17 @@
-import { useState, useEffect } from 'react';
-import { carregarUbsDB, deletarUbsDB } from '../../services/supabaseService';
+import { useState } from 'react';
+import { deletarUbsDB } from '../../services/supabaseService';
+import { useDados } from '../../context/DadosContext';
 
 export function PainelRemoverUbs({ onSucesso }) {
+    const { listaUbs, recarregarUbs, carregandoDados: carregando } = useDados();
+
     const [ubsTexto, setUbsTexto] = useState('');
-    const [listaUbs, setListaUbs] = useState([]);
-    const [carregando, setCarregando] = useState(true);
     const [excluindo, setExcluindo] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
 
-    useEffect(() => {
-        let ativo = true;
-
-        async function carregar() {
-            setCarregando(true);
-            const dados = await carregarUbsDB();
-            if (ativo) {
-                setListaUbs(dados || []);
-                setCarregando(false);
-            }
-        }
-
-        carregar();
-
-        return () => {
-            ativo = false;
-        };
-    }, []);
-
-    // Identifica se o texto introduzido corresponde a uma UBS válida da lista
     const ubsEncontrada = listaUbs.find(
         (ubs) => ubs.nome.toLowerCase() === ubsTexto.trim().toLowerCase()
     );
-
     const isFormValido = Boolean(ubsEncontrada);
 
     const handleExcluir = async (e) => {
@@ -45,7 +25,6 @@ export function PainelRemoverUbs({ onSucesso }) {
 
         setMensagemErro('');
         setExcluindo(true);
-
         const resultado = await deletarUbsDB(ubsEncontrada.id);
         setExcluindo(false);
 
@@ -54,6 +33,7 @@ export function PainelRemoverUbs({ onSucesso }) {
             return;
         }
 
+        await recarregarUbs();
         alert('UBS eliminada com sucesso!');
         if (onSucesso) {
             onSucesso();
@@ -63,7 +43,6 @@ export function PainelRemoverUbs({ onSucesso }) {
     return (
         <form onSubmit={handleExcluir} style={{ display: 'contents' }}>
             <p className="app__title">Remover UBS</p>
-
             <div className="app__input-group">
                 <label>UBS a remover</label>
                 <input
@@ -89,7 +68,6 @@ export function PainelRemoverUbs({ onSucesso }) {
                     ))}
                 </datalist>
             </div>
-
             <div className="app__footer">
                 {mensagemErro && (
                     <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>

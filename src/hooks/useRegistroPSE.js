@@ -1,16 +1,14 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { carregarEscolasDB, carregarUbsDB, salvarRegistroAtividadeDB } from '../services/supabaseService';
+import { salvarRegistroAtividadeDB } from '../services/supabaseService';
 import * as Constantes from '../utils/constantes';
 import * as Formatadores from '../utils/formatadores';
 import { TELAS, ETAPAS, TURNOS } from '../utils/constantes';
 import { useAuth } from '../context/AuthContext';
+import { useDados } from '../context/DadosContext';
 
 export function useRegistroPSE() {
-    const { usuarioId, nomeUsuario, ubsIdUsuario, logout } = useAuth();
-
-    // Dados base carregados do Supabase
-    const [escolas, setEscolas] = useState([]);
-    const [listaUbs, setListaUbs] = useState([]);
+    const { usuarioId, nomeUsuario, logout } = useAuth();
+    const { escolas, listaUbs } = useDados();
 
     // Navegação global de ecrãs
     const [telaAtiva, setTelaAtiva] = useState(TELAS.INICIAL);
@@ -25,7 +23,7 @@ export function useRegistroPSE() {
     const [ano, setAno] = useState(String(hoje.getFullYear()));
     const [turno, setTurno] = useState(TURNOS.MANHA);
 
-    // Etapa 2: Profissionais responsáveis (inicia com o nome do utilizador logado)
+    // Etapa 2: Profissionais responsáveis
     const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState(
         nomeUsuario ? [nomeUsuario] : ['']
     );
@@ -85,20 +83,6 @@ export function useRegistroPSE() {
             setProfissionaisResponsaveis([nomeUsuario]);
         }
     }, [nomeUsuario]);
-
-    // Carregamento de unidades escolares e de saúde
-    const buscarDados = async () => {
-        const [escolasCarregadas, ubsCarregadas] = await Promise.all([
-            carregarEscolasDB(),
-            carregarUbsDB(),
-        ]);
-        setEscolas(escolasCarregadas || []);
-        setListaUbs(ubsCarregadas || []);
-    };
-
-    useEffect(() => {
-        buscarDados();
-    }, []);
 
     // Logout global e reinicialização do registo
     const handleLogout = async () => {
@@ -457,7 +441,6 @@ export function useRegistroPSE() {
         telaAtiva,
         setTelaAtiva,
         handleLogout,
-        buscarDados,
 
         etapaAtualId,
         passoVisual,

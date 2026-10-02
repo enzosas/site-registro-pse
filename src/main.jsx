@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { DadosProvider } from './context/DadosContext.jsx';
 import { RegistroPSEProvider } from './context/RegistroPSEContext.jsx';
 
 import './styles/variables.css';
@@ -13,9 +14,11 @@ import './styles/outros.css';
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
 		<AuthProvider>
-			<RegistroPSEProvider>
-				<App />
-			</RegistroPSEProvider>
+			<DadosProvider>
+				<RegistroPSEProvider>
+					<App />
+				</RegistroPSEProvider>
+			</DadosProvider>
 		</AuthProvider>
 	</StrictMode>
 );
