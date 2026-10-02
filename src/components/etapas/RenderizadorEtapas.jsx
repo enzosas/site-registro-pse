@@ -20,6 +20,8 @@ export function RenderizadorEtapas({ form: p }) {
                 setMes={p.setMes}
                 ano={p.ano}
                 setAno={p.setAno}
+                turno={p.turno}
+                setTurno={p.setTurno}
                 onAvancar={p.avancarEtapa}
                 onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
             />

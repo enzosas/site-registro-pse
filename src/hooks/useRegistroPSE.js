@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { autenticarUsuario, carregarEscolasDB, deslogarUsuario } from '../services/supabaseService';
 import * as Constantes from '../constantes';
-import { formatarData, formatarProfissionais } from '../utils/formatadores';
-import { TELAS, ETAPAS, TIPO_USUARIO } from '../constantes';
+import { formatarData, formatarProfissionais, formatarDataComTurno } from '../utils/formatadores';
+import { TELAS, ETAPAS, TIPO_USUARIO, TURNOS } from '../constantes';
 
 export function useRegistroPSE() {
     // Dados do Supabase
@@ -32,6 +32,7 @@ export function useRegistroPSE() {
     const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'));
     const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'));
     const [ano, setAno] = useState(String(hoje.getFullYear()));
+    const [turno, setTurno] = useState(TURNOS.MANHA);
     const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState([]);
 
     // Escolas e Turmas
@@ -340,7 +341,7 @@ export function useRegistroPSE() {
         const nomeTurmasRelatorio = turmasArray.map((t) => t.nome).join(', ');
 
         return {
-            data: `${dia}/${mes}/${ano}`,
+            data: formatarDataComTurno(dia, mes, ano, turno),
             escola: escolaSelecionada?.nome || '',
             turma: nomeTurmasRelatorio,
             profissionaisResponsaveis: profissionaisResponsaveis,
@@ -403,6 +404,7 @@ export function useRegistroPSE() {
 
     const reiniciarRegistro = () => {
         setEtapaAtualId(ETAPAS.DATA);
+        setTurno(TURNOS.MANHA);
         setAlunoAtualIndex(0);
         setEscolaSelecionada(null);
         setBuscaEscola('');
@@ -458,6 +460,8 @@ export function useRegistroPSE() {
         setMes,
         ano,
         setAno,
+        turno,
+        setTurno,
         profissionaisResponsaveis,
         setProfissionaisResponsaveis,
 

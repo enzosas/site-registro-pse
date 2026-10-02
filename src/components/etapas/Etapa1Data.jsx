@@ -1,5 +1,6 @@
 import { IconeVoltar } from '../Icones';
 import { isDataValida } from '../../utils/validadoresData';
+import { LISTA_TURNOS } from '../../constantes';
 
 export function Etapa1Data({
     dia,
@@ -8,6 +9,8 @@ export function Etapa1Data({
     setMes,
     ano,
     setAno,
+    turno,
+    setTurno,
     onAvancar,
     onVoltar,
 }) {
@@ -17,7 +20,8 @@ export function Etapa1Data({
     };
 
     const dataEhValida = isDataValida(dia, mes, ano);
-    const isFormValido =  dataEhValida;
+    const isFormValido = dataEhValida && Boolean(turno);
+
     return (
         <form
             onSubmit={(e) => {
@@ -57,6 +61,22 @@ export function Etapa1Data({
                     value={ano}
                     onChange={handleApenasNumeros(setAno, 4)}
                 />
+            </div>
+
+            <div className='app__input-group'>
+                <label>Turno</label>
+                <select
+                    className="app__select"
+                    value={turno}
+                    onChange={(e) => setTurno(e.target.value)}
+                    required
+                >
+                    {LISTA_TURNOS.map((op) => (
+                        <option key={op} value={op}>
+                            {op}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className='app__footer'>

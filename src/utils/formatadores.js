@@ -47,3 +47,7 @@ export function formatarDataHora(timestamp) {
         year: 'numeric',
     });
 }
+
+export function formatarDataComTurno(dia, mes, ano, turno) {
+    return `${dia}/${mes}/${ano} - Turno da ${turno}`
+}

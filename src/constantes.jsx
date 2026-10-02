@@ -115,3 +115,15 @@ export function formatarTipoUsuario(tipo) {
 	if (!tipo) return '';
 	return TIPO_USUARIO[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
 }
+
+export const TURNOS = Object.freeze({
+	MANHA: 'Manhã',
+	TARDE: 'Tarde',
+	NOITE: 'Noite',
+});
+
+export const LISTA_TURNOS = Object.freeze([
+	TURNOS.MANHA,
+	TURNOS.TARDE,
+	TURNOS.NOITE,
+]);
