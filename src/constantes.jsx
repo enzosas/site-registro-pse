@@ -73,7 +73,7 @@ export const TELAS = Object.freeze({
 	ETAPAS: 'ETAPAS',
 });
 
-export const TELAS_ADMIN = Object.freeze({
+export const TELAS_GESTAO = Object.freeze({
 	PAINEL_INICIAL: 'PAINEL_INICIAL',
 	PAINEL_USUARIOS: 'PAINEL_USUARIOS',
 	PAINEL_CRIAR_USUARIO: 'PAINEL_CRIAR_USUARIO',

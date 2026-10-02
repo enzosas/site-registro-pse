@@ -1,8 +1,8 @@
 import '../../styles/telas/TelaAdmin.css';
-import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
+import { TELAS_GESTAO, TIPO_USUARIO } from '../../constantes';
 import { useAuth } from '../../context/AuthContext';
 
-export function PainelAdminInicial({ onNavegar }) {
+export function PainelGestaoInicial({ onNavegar }) {
     const { nomeUsuario, tipoUsuario } = useAuth();
 
     const verTelaRegistros =
@@ -23,7 +23,7 @@ export function PainelAdminInicial({ onNavegar }) {
                 <button
                     type="button"
                     className="app__buttonSecondary admin__inicial__nav-button"
-                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_REGISTROS)}
+                    onClick={() => onNavegar(TELAS_GESTAO.PAINEL_REGISTROS)}
                 >
                     Gerenciar Registros
                 </button>
@@ -32,7 +32,7 @@ export function PainelAdminInicial({ onNavegar }) {
                 <button
                     type="button"
                     className="app__buttonSecondary admin__inicial__nav-button"
-                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_USUARIOS)}
+                    onClick={() => onNavegar(TELAS_GESTAO.PAINEL_USUARIOS)}
                 >
                     Gerenciar Usuários
                 </button>
@@ -41,7 +41,7 @@ export function PainelAdminInicial({ onNavegar }) {
                 <button
                     type="button"
                     className="app__buttonSecondary admin__inicial__nav-button"
-                    onClick={() => onNavegar(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
+                    onClick={() => onNavegar(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
                 >
                     Gerenciar Vínculo Escolas UBS
                 </button>

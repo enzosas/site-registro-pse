@@ -11,7 +11,7 @@ import { TelaLogin } from './telas/TelaLogin';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
 import { TelaResumo } from './telas/TelaResumo';
-import { TelaAdmin } from './telas/Admin/TelaAdmin';
+import { TelaGestao } from './telas/Admin/TelaGestao';
 
 function App() {
 	const { isLoggedIn, tipoUsuario } = useAuth();
@@ -114,7 +114,7 @@ function App() {
 
 			case TELAS.ADMIN:
 				return (
-					<TelaAdmin
+					<TelaGestao
 						onVoltar={() => setTelaAtiva(TELAS.INICIAL)}
 						cardRef={cardRef}
 					/>
