@@ -392,3 +392,37 @@ export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
         return { sucesso: false, erro: 'Erro inesperado ao salvar alterações.' };
     }
 }
+
+export async function salvarRegistroAtividadeDB(payload) {
+    try {
+        const { data, error } = await supabase
+            .from('registros_atividade')
+            .insert([
+                {
+                    data_atividade: payload.dataAtividade,
+                    turno: payload.turno,
+                    escola_id: payload.escolaId,
+                    escola_nome: payload.escolaNome,
+                    turmas: payload.turmas,
+                    profissionais: payload.profissionais,
+                    usuario_id: payload.usuarioId || null,
+                    registrador_nome: payload.registradorNome,
+                    eixos_tematicos: payload.eixosTematicos,
+                    observacoes: payload.observacoes || null,
+                    alunos_dados: payload.alunosDados,
+                },
+            ])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erro ao salvar registro de atividade:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        return { sucesso: true, data };
+    } catch (err) {
+        console.error('Erro inesperado ao salvar registro:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
+    }
+}

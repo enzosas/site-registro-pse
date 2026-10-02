@@ -116,10 +116,11 @@ export function RenderizadorEtapas({ form: p }) {
         ),
         [ETAPAS.CONCLUSAO]: (
             <Etapa8Conclusao
-                dia={p.dia}
-                mes={p.mes}
-                ano={p.ano}
                 dadosRelatorio={p.gerarObjetoRelatorio()}
+                salvandoBanco={p.salvandoBanco}
+                registroSalvo={p.registroSalvo}
+                erroSalvarBanco={p.erroSalvarBanco}
+                onSalvarBanco={p.handleSalvarNoBanco}
                 onVerResumo={() => p.setTelaAtiva(TELAS.RESUMO)}
                 onReiniciarRegistro={p.reiniciarRegistro}
                 onVoltar={p.voltarEtapa}

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { autenticarUsuario, carregarEscolasDB, deslogarUsuario } from '../services/supabaseService';
+import { autenticarUsuario, carregarEscolasDB, deslogarUsuario, salvarRegistroAtividadeDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
-import { formatarData, formatarProfissionais, formatarDataComTurno } from '../utils/formatadores';
+import { formatarData, formatarProfissionais, formatarDataComTurno, formatarTurmas } from '../utils/formatadores';
 import { TELAS, ETAPAS, TIPO_USUARIO, TURNOS } from '../constantes';
 
 export function useRegistroPSE() {
@@ -63,6 +63,48 @@ export function useRegistroPSE() {
 
     // Resumo final
     const [copiado, setCopiado] = useState(false);
+
+    // Persistência no banco
+    const [salvandoBanco, setSalvandoBanco] = useState(false);
+    const [registroSalvo, setRegistroSalvo] = useState(false);
+    const [erroSalvarBanco, setErroSalvarBanco] = useState('');
+
+    const handleSalvarNoBanco = async () => {
+        if (registroSalvo || salvandoBanco) return;
+
+        setSalvandoBanco(true);
+        setErroSalvarBanco('');
+
+        const relatorio = gerarObjetoRelatorio();
+
+        const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+
+        const idEscolaValido = typeof escolaSelecionada?.id === 'number' ? escolaSelecionada.id : null;
+
+        const payload = {
+            dataAtividade: dataIso,
+            turno: turno,
+            escolaId: idEscolaValido,
+            escolaNome: escolaSelecionada?.nome || escolaManual || '',
+            turmas: relatorio.turma,
+            profissionais: profissionaisResponsaveis.filter((p) => p && p.trim().length > 0),
+            usuarioId: usuarioId || null,
+            registradorNome: nomeUsuario || '',
+            eixosTematicos: formatarEixosTematicosSelecionados(),
+            observacoes: observacoes || '',
+            alunosDados: relatorio.alunosPresentes,
+        };
+
+        const resultado = await salvarRegistroAtividadeDB(payload);
+        setSalvandoBanco(false);
+
+        if (!resultado.sucesso) {
+            setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
+            return;
+        }
+
+        setRegistroSalvo(true);
+    };
 
     // Refs de UI
     const cardRef = useRef(null);
@@ -363,7 +405,7 @@ export function useRegistroPSE() {
         return {
             data: formatarDataComTurno(dia, mes, ano, turno),
             escola: escolaSelecionada?.nome || '',
-            turma: nomeTurmasRelatorio,
+            turma: formatarTurmas(turmasArray.length > 0 ? turmasArray : turmaManual),
             profissionaisResponsaveis: profissionaisResponsaveis,
             Registrador: nomeUsuario,
             eixosTematicos: formatarEixosTematicosSelecionados(),
@@ -550,6 +592,12 @@ export function useRegistroPSE() {
         copiado,
         handleCopiarResumo,
         reiniciarRegistro,
+
+        // Persistência no banco
+        salvandoBanco,
+        registroSalvo,
+        erroSalvarBanco,
+        handleSalvarNoBanco,
 
         // Refs
         cardRef,

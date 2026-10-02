@@ -51,3 +51,14 @@ export function formatarDataHora(timestamp) {
 export function formatarDataComTurno(dia, mes, ano, turno) {
     return `${dia}/${mes}/${ano} - Turno da ${turno}`
 }
+
+export function formatarTurmas(turmas) {
+    if (!turmas) return '-';
+    if (Array.isArray(turmas)) {
+        return turmas
+            .map((t) => (typeof t === 'string' ? t.trim() : t?.nome?.trim()))
+            .filter(Boolean)
+            .join(', ') || '-';
+    }
+    return String(turmas).trim() || '-';
+}

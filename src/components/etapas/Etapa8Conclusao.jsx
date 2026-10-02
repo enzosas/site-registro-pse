@@ -1,12 +1,12 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { IconeVoltar } from '../Icones';
+import { IconeVoltar, IconeCheck } from '../Icones';
 import { RelatorioPDF } from '../../RelatorioPDF';
 
 export function Etapa8Conclusao({
-    dia,
-    mes,
-    ano,
-    dadosRelatorio,
+    salvandoBanco,
+    registroSalvo,
+    erroSalvarBanco,
+    onSalvarBanco,
     onVerResumo,
     onReiniciarRegistro,
     onVoltar,
@@ -16,7 +16,6 @@ export function Etapa8Conclusao({
             <button type="button" className="app__botao-voltar" onClick={onVoltar}>
                 <IconeVoltar />
             </button>
-
             <p className='app__title'>Tudo pronto!</p>
 
             <button
@@ -27,21 +26,35 @@ export function Etapa8Conclusao({
             </button>
 
             <div className='app__footer'>
-                <button className='app__buttonMain' onClick={onVerResumo}>
+                {erroSalvarBanco && (
+                    <div style={{ color: 'var(--cor-negative)', textAlign: 'center' }}>
+                        {erroSalvarBanco}
+                    </div>
+                )}
+
+                <button
+                    type="button"
+                    className='app__buttonMain'
+                    onClick={onVerResumo}
+                >
                     <p>Ver resumo</p>
                 </button>
 
-                <PDFDownloadLink
-                    document={<RelatorioPDF dados={dadosRelatorio} />}
-                    fileName={`Relatorio_PSE_${dia}_${mes}_${ano}.pdf`}
-                    style={{ textDecoration: 'none', display: 'block', width: '100%' }}
+                <button
+                    type="button"
+                    className="app__buttonMain"
+                    onClick={onSalvarBanco}
+                    disabled={salvandoBanco || registroSalvo}
                 >
-                    {() => (
-                        <button className='app__buttonMain'>
-                            <p>Gerar Relatório PDF</p>
-                        </button>
-                    )}
-                </PDFDownloadLink>
+                    <p style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        {registroSalvo
+                            ? 'Registro Salvo'
+                            : salvandoBanco
+                                ? 'Salvando no banco...'
+                                : 'Salvar Registro'}
+                        {registroSalvo && <IconeCheck bold />}
+                    </p>
+                </button>
             </div>
         </>
     );
