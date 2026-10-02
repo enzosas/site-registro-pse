@@ -1,7 +1,7 @@
 import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
-import { formatarData, formatarProfissionais } from '../utils/formatadores';
+import * as Formatadores from '../utils/formatadores';
 import * as Constantes from '../constantes';
 import { TELAS } from '../constantes';
 
@@ -40,7 +40,7 @@ export function TelaResumo() {
                 </div>
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Responsáveis pela ação</p>
-                    <p>{formatarProfissionais(dados.profissionaisResponsaveis)}</p>
+                    <p>{Formatadores.formatarProfissionais(dados.profissionaisResponsaveis)}</p>
                 </div>
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Escola</p>
@@ -65,7 +65,7 @@ export function TelaResumo() {
                         {dados.alunosPresentes.map((aluno) => (
                             <div key={aluno.id} className='app__resumo'>
                                 <span>{aluno.nome} - </span>
-                                <span>{formatarData(aluno.dataNascimento)}</span>
+                                <span>{Formatadores.formatarData(aluno.dataNascimento)}</span>
                                 {(aluno.peso || aluno.altura) && (
                                     <>
                                         {' - '}
@@ -74,10 +74,10 @@ export function TelaResumo() {
                                     </>
                                 )}
                                 {aluno.vacinado && (
-                                    <span> - Vacina: {Constantes.formatarVacinacao(aluno.vacinado)}</span>
+                                    <span> - Vacina: {Formatadores.formatarVacinacao(aluno.vacinado)}</span>
                                 )}
                                 {aluno.saudeOcular && (
-                                    <span> - Saúde Ocular: {Constantes.formatarSaudeOcular(aluno.saudeOcular)}</span>
+                                    <span> - Saúde Ocular: {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}</span>
                                 )}
                             </div>
                         ))}

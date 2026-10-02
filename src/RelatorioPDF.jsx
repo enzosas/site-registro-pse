@@ -1,6 +1,6 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import * as Constantes from './constantes';
-import { formatarData, formatarProfissionais } from './utils/formatadores';
+import * as Formatadores from './utils/formatadores';
 
 const styles = StyleSheet.create({
     page: {
@@ -67,7 +67,7 @@ export const RelatorioPDF = ({ dados }) => {
 
                 <View style={styles.section}>
                     <Text>Registrado por: {dados.Registrador || '-'}</Text>
-                    <Text>Profissionais que realizaram a ação: {formatarProfissionais(dados.profissionaisResponsaveis)}</Text>
+                    <Text>Profissionais que realizaram a ação: {Formatadores.formatarProfissionais(dados.profissionaisResponsaveis)}</Text>
                     <Text>Escola: {dados.escola}</Text>
                     <Text>Turma: {dados.turma}</Text>
                     <Text>Data da atividade: {dados.data}</Text>
@@ -97,7 +97,7 @@ export const RelatorioPDF = ({ dados }) => {
                     {alunos.map((aluno, i) => (
                         <View key={i} style={styles.row}>
                             <Text style={styles.cellNome}>{aluno.nome}</Text>
-                            <Text style={styles.cellSecundaria}>{formatarData(aluno.dataNascimento)}</Text>
+                            <Text style={styles.cellSecundaria}>{Formatadores.formatarData(aluno.dataNascimento)}</Text>
                             {temPeso && (
                                 <Text style={styles.cellSecundaria}>{aluno.peso ? `${aluno.peso}kg` : '-'}</Text>
                             )}
@@ -106,12 +106,12 @@ export const RelatorioPDF = ({ dados }) => {
                             )}
                             {temVacina && (
                                 <Text style={styles.cellSecundaria}>
-                                    {Constantes.formatarVacinacao(aluno.vacinado)}
+                                    {Formatadores.formatarVacinacao(aluno.vacinado)}
                                 </Text>
                             )}
                             {temVisao && (
                                 <Text style={styles.cellSecundaria}>
-                                    {Constantes.formatarSaudeOcular(aluno.saudeOcular)}
+                                    {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}
                                 </Text>
                             )}
                         </View>

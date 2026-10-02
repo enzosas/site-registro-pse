@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { deletarUsuarioDB } from '../../services/supabaseService';
-import { formatarTipoUsuario } from '../../constantes'
-import { formatarNome } from '../../utils/formatadores'
+import * as Formatadores from '../../utils/formatadores'
 
 export function PainelDetalhesUsuario({
     usuario,
@@ -71,13 +70,13 @@ export function PainelDetalhesUsuario({
 
                 <div>
                     <p className='admin__detalhes_usuario__label'>Tipo de usuário</p>
-                    <p className='admin__detalhes_usuario__value'>{formatarTipoUsuario(usuario.tipoUsuario)}</p>
+                    <p className='admin__detalhes_usuario__value'>{Formatadores.formatarTipoUsuario(usuario.tipoUsuario)}</p>
                 </div>
 
                 {usuario.escolaNome && (
                     <div>
                         <p className='admin__detalhes_usuario__label'>Escola vinculada</p>
-                        <p className='admin__detalhes_usuario__value'>{formatarNome(usuario.escolaNome)}</p>
+                        <p className='admin__detalhes_usuario__value'>{Formatadores.formatarNome(usuario.escolaNome)}</p>
                     </div>
                 )}
 

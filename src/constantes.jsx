@@ -49,19 +49,6 @@ export const OPCOES_VACINACAO = {
 	},
 };
 
-export const formatarVacinacao = (valor) => {
-	switch (valor) {
-		case OPCOES_VACINACAO.POSITIVO.valor:
-			return OPCOES_VACINACAO.POSITIVO.label;
-		case OPCOES_VACINACAO.NEGATIVO.valor:
-			return OPCOES_VACINACAO.NEGATIVO.label;
-		case OPCOES_VACINACAO.NAO_APRESENTADA.valor:
-			return OPCOES_VACINACAO.NAO_APRESENTADA.label;
-		default:
-			return '-';
-	}
-};
-
 export const OPCOES_SAUDE_OCULAR = {
 	POSITIVO: {
 		valor: 'normal',
@@ -71,12 +58,6 @@ export const OPCOES_SAUDE_OCULAR = {
 		valor: 'alterada',
 		label: 'Alterada',
 	}
-}
-
-export const formatarSaudeOcular = (valor) => {
-	if (valor === OPCOES_SAUDE_OCULAR.POSITIVO.valor) return OPCOES_SAUDE_OCULAR.POSITIVO.label
-	if (valor === OPCOES_SAUDE_OCULAR.NEGATIVO.valor) return OPCOES_SAUDE_OCULAR.NEGATIVO.label
-	return '-'
 }
 
 export const TELAS = Object.freeze({
@@ -121,11 +102,6 @@ export const TIPO_USUARIO = Object.freeze({
 	UBS: 'ubs',
 	COMUM: 'comum',
 });
-
-export function formatarTipoUsuario(tipo) {
-	if (!tipo) return '';
-	return TIPO_USUARIO[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
-}
 
 export const TURNOS = Object.freeze({
 	MANHA: 'Manhã',

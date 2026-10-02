@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { autenticarUsuario, carregarEscolasDB, deslogarUsuario, salvarRegistroAtividadeDB, carregarUbsDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
-import { formatarData, formatarProfissionais, formatarDataComTurno, formatarTurmas } from '../utils/formatadores';
+import * as Formatadores from '../utils/formatadores';
 import { TELAS, ETAPAS, TIPO_USUARIO, TURNOS } from '../constantes';
 
 export function useRegistroPSE() {
@@ -98,7 +98,7 @@ export function useRegistroPSE() {
             profissionais: profissionaisResponsaveis.filter((p) => p && p.trim().length > 0),
             usuarioId: usuarioId || null,
             registradorNome: nomeUsuario || '',
-            eixosTematicos: formatarEixosTematicosSelecionados(),
+            eixosTematicos: Formatadores.formatarEixosTematicosSelecionados(idsEixosSelecionados, nomeEixoLocal),
             observacoes: observacoes || '',
             alunosDados: relatorio.alunosPresentes,
         };
@@ -315,17 +315,6 @@ export function useRegistroPSE() {
         );
     };
 
-    const formatarEixosTematicosSelecionados = () => {
-        return Constantes.EIXOS_TEMATICOS
-            .filter((eixo) => idsEixosSelecionados.includes(eixo.id))
-            .map((eixo) => {
-                if (eixo.id === Constantes.EIXOS_ID.TEMATICA_LOCAL && nomeEixoLocal.trim()) {
-                    return `${eixo.label}: ${nomeEixoLocal.trim()}`;
-                }
-                return eixo.label;
-            });
-    };
-
     // Coleta individual de dados
     const handleAtualizarDadosAluno = (campo, valor) => {
         if (!alunoAtualTelaAntropometria) return;
@@ -424,12 +413,12 @@ export function useRegistroPSE() {
         const nomeTurmasRelatorio = turmasArray.map((t) => t.nome).join(', ');
 
         return {
-            data: formatarDataComTurno(dia, mes, ano, turno),
+            data: Formatadores.formatarDataComTurno(dia, mes, ano, turno),
             escola: escolaSelecionada?.nome || '',
-            turma: formatarTurmas(turmasArray.length > 0 ? turmasArray : turmaManual),
+            turma: Formatadores.formatarTurmas(turmasArray.length > 0 ? turmasArray : turmaManual),
             profissionaisResponsaveis: profissionaisResponsaveis,
             Registrador: nomeUsuario,
-            eixosTematicos: formatarEixosTematicosSelecionados(),
+            eixosTematicos: Formatadores.formatarEixosTematicosSelecionados(idsEixosSelecionados, nomeEixoLocal),
             observacoes: observacoes,
             alunosPresentes: alunosOrdenados
                 .filter((aluno) => idsAlunosPresentes.includes(aluno.id))
@@ -451,7 +440,7 @@ export function useRegistroPSE() {
             'Resumo da Atividade',
             '',
             `Registrado por: ${dados.Registrador}`,
-            `Profissionais que realizaram a ação: ${formatarProfissionais(dados.profissionaisResponsaveis)}`,
+            `Profissionais que realizaram a ação: ${Formatadores.formatarProfissionais(dados.profissionaisResponsaveis)}`,
             `Escola: ${dados.escola}`,
             `Turma: ${dados.turma}`,
             `Data de realização: ${dados.data}`,
@@ -464,12 +453,12 @@ export function useRegistroPSE() {
         ];
 
         dados.alunosPresentes.forEach((aluno) => {
-            let linhaAluno = `- ${aluno.nome} (${formatarData(aluno.dataNascimento)})`;
+            let linhaAluno = `- ${aluno.nome} (${Formatadores.formatarData(aluno.dataNascimento)})`;
             const detalhes = [];
             if (aluno.peso) detalhes.push(`${aluno.peso}kg`);
             if (aluno.altura) detalhes.push(`${aluno.altura}cm`);
-            if (aluno.vacinado) detalhes.push(`Vacina: ${Constantes.formatarVacinacao(aluno.vacinado)}`);
-            if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Constantes.formatarSaudeOcular(aluno.saudeOcular)}`);
+            if (aluno.vacinado) detalhes.push(`Vacina: ${Formatadores.formatarVacinacao(aluno.vacinado)}`);
+            if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Formatadores.formatarSaudeOcular(aluno.saudeOcular)}`);
             if (detalhes.length > 0) {
                 linhaAluno += ` [${detalhes.join(' - ')}]`;
             }

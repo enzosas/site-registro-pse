@@ -1,3 +1,11 @@
+import {
+    OPCOES_VACINACAO,
+    OPCOES_SAUDE_OCULAR,
+    TIPO_USUARIO,
+    EIXOS_TEMATICOS,
+    EIXOS_ID
+} from '../constantes';
+
 export const formatarData = (data) => {
     if (!data) return '';
     return data;
@@ -61,4 +69,40 @@ export function formatarTurmas(turmas) {
             .join(', ') || '-';
     }
     return String(turmas).trim() || '-';
+}
+
+
+export const formatarVacinacao = (valor) => {
+    switch (valor) {
+        case OPCOES_VACINACAO.POSITIVO.valor:
+            return OPCOES_VACINACAO.POSITIVO.label;
+        case OPCOES_VACINACAO.NEGATIVO.valor:
+            return OPCOES_VACINACAO.NEGATIVO.label;
+        case OPCOES_VACINACAO.NAO_APRESENTADA.valor:
+            return OPCOES_VACINACAO.NAO_APRESENTADA.label;
+        default:
+            return '-';
+    }
+};
+
+export const formatarSaudeOcular = (valor) => {
+    if (valor === OPCOES_SAUDE_OCULAR.POSITIVO.valor) return OPCOES_SAUDE_OCULAR.POSITIVO.label
+    if (valor === OPCOES_SAUDE_OCULAR.NEGATIVO.valor) return OPCOES_SAUDE_OCULAR.NEGATIVO.label
+    return '-'
+}
+
+export function formatarTipoUsuario(tipo) {
+    if (!tipo) return '';
+    return TIPO_USUARIO[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
+}
+
+export function formatarEixosTematicosSelecionados(idsEixosSelecionados = [], nomeEixoLocal = '') {
+    return EIXOS_TEMATICOS
+        .filter((eixo) => idsEixosSelecionados.includes(eixo.id))
+        .map((eixo) => {
+            if (eixo.id === EIXOS_ID.TEMATICA_LOCAL && nomeEixoLocal?.trim()) {
+                return `${eixo.label}: ${nomeEixoLocal.trim()}`;
+            }
+            return eixo.label;
+        });
 }
