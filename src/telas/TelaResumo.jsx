@@ -1,52 +1,55 @@
+import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
 import { formatarData, formatarProfissionais } from '../utils/formatadores';
 import * as Constantes from '../constantes';
+import { TELAS } from '../constantes';
 
-export function TelaResumo({
-    etapa,
-    totalEtapas,
-    dados,
-    observacoes,
-    copiado,
-    onCopiarResumo,
-    onVoltar,
-    cardRef,
-}) {
+export function TelaResumo() {
+    const {
+        totalEtapas,
+        gerarObjetoRelatorio,
+        observacoes,
+        copiado,
+        handleCopiarResumo,
+        setTelaAtiva,
+        cardRef,
+    } = useRegistro();
+
+    const dados = gerarObjetoRelatorio();
+
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
+            <HeaderRegistro etapaAtual={totalEtapas} totalEtapas={totalEtapas} />
             <div className='app__card' ref={cardRef}>
-                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+                <button
+                    type="button"
+                    className="app__botao-voltar"
+                    onClick={() => setTelaAtiva(TELAS.ETAPAS)}
+                >
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Resumo da Atividade</p>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Data de realização da ação</p>
                     <p>{dados.data}</p>
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Registrado por</p>
                     <p>{dados.Registrador}</p>
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Responsáveis pela ação</p>
                     <p>{formatarProfissionais(dados.profissionaisResponsaveis)}</p>
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Escola</p>
                     <p>{dados.escola}</p>
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Turma</p>
                     <p>{dados.turma}</p>
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Eixos Selecionados</p>
                     <>
@@ -56,7 +59,6 @@ export function TelaResumo({
                     </>
                     {observacoes && <p>Observações: {dados.observacoes}</p>}
                 </div>
-
                 <div className='app__resumo'>
                     <p className='app__resumo__subtitle'>Alunos que participaram da ação</p>
                     <div className='app__resumo'>
@@ -81,9 +83,8 @@ export function TelaResumo({
                         ))}
                     </div>
                 </div>
-
                 <div className='app__footer'>
-                    <button className='app__buttonMain' onClick={onCopiarResumo}>
+                    <button className='app__buttonMain' onClick={handleCopiarResumo}>
                         <p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
                     </button>
                 </div>

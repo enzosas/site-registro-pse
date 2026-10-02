@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { TELAS_ADMIN } from '../../constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { PainelAdminInicial } from './PainelAdminInicial';
@@ -11,7 +12,15 @@ import { PainelCriarUbs } from './PainelCriarUbs';
 import { PainelRemoverUbs } from './PainelRemoverUbs';
 import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
 
-export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuarioId = null, escolaId = null,ubsId = null }) {
+export function TelaAdmin({ onVoltar, cardRef }) {
+    const {
+        tipoUsuario,
+        nomeUsuario,
+        usuarioId,
+        escolaIdUsuario,
+        ubsIdUsuario,
+    } = useRegistro();
+
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_ADMIN.PAINEL_INICIAL);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
@@ -41,8 +50,8 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                 return (
                     <PainelUsuarios
                         tipoUsuario={tipoUsuario}
-                        escolaId={escolaId}
-                        ubsId={ubsId}
+                        escolaId={escolaIdUsuario}
+                        ubsId={ubsIdUsuario}
                         onCriarUsuario={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_CRIAR_USUARIO)}
                         onSelecionarUsuario={(usuario) => {
                             setUsuarioSelecionado(usuario);
@@ -50,7 +59,6 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                         }}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_DETALHES_USUARIO:
                 return (
                     <PainelDetalhesUsuario
@@ -66,24 +74,21 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                         }}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_CRIAR_USUARIO:
                 return (
                     <PainelCriarUsuario
                         tipoUsuarioLogado={tipoUsuario}
-                        escolaIdLogado={escolaId}
-                        ubsIdLogado={ubsId}
+                        escolaIdLogado={escolaIdUsuario}
+                        ubsIdLogado={ubsIdUsuario}
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_USUARIOS)}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_REGISTROS:
                 return (
                     <PainelRegistros
                         tipoUsuario={tipoUsuario}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_ESCOLAUBS:
                 return (
                     <PainelEscolaUbs
@@ -93,28 +98,24 @@ export function TelaAdmin({ onVoltar, tipoUsuario, cardRef, nomeUsuario, usuario
                         onEditar={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_EDITAR_ESCOLAUBS)}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_CRIAR_UBS:
                 return (
                     <PainelCriarUbs
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_REMOVER_UBS:
                 return (
                     <PainelRemoverUbs
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_EDITAR_ESCOLAUBS:
                 return (
                     <PainelEditarEscolaUbs
                         onSucesso={() => setSubtelaAtiva(TELAS_ADMIN.PAINEL_ESCOLAUBS)}
                     />
                 );
-
             case TELAS_ADMIN.PAINEL_INICIAL:
             default:
                 return (

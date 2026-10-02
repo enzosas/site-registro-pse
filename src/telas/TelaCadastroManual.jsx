@@ -1,43 +1,49 @@
+import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
+import { TELAS } from '../constantes';
 
-export function TelaCadastroManual({
-    etapa,
-    totalEtapas,
-    escolaManual,
-    setEscolaManual,
-    turmaManual,
-    setTurmaManual,
-    ubsManualTexto,
-    setUbsManualTexto,
-    listaUbs = [],
-    onSalvarManual,
-    onVoltar,
-    cardRef,
-}) {
+export function TelaCadastroManual() {
+    const {
+        passoVisual,
+        totalEtapas,
+        escolaManual,
+        setEscolaManual,
+        turmaManual,
+        setTurmaManual,
+        ubsManualTexto,
+        setUbsManualTexto,
+        listaUbs,
+        handleSalvarManual,
+        setTelaAtiva,
+        cardRef,
+    } = useRegistro();
+
     const ubsEncontrada = listaUbs.find(
         (ubs) => ubs.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
     );
-
     const isFormValido = escolaManual.trim() && turmaManual.trim() && Boolean(ubsEncontrada);
 
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
+            <HeaderRegistro etapaAtual={passoVisual} totalEtapas={totalEtapas} />
             <form
                 className='app__card'
                 ref={cardRef}
                 onSubmit={(e) => {
                     e.preventDefault();
                     if (!isFormValido) return;
-                    onSalvarManual();
+                    handleSalvarManual();
                 }}
             >
-                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+                <button
+                    type="button"
+                    className="app__botao-voltar"
+                    onClick={() => setTelaAtiva(TELAS.ETAPAS)}
+                >
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Cadastro Manual</p>
-
                 <div className='app__input-group'>
                     <label>Nome da Escola</label>
                     <input
@@ -48,7 +54,6 @@ export function TelaCadastroManual({
                         required
                     />
                 </div>
-
                 <div className='app__input-group'>
                     <label>Nome da Turma</label>
                     <input
@@ -59,13 +64,11 @@ export function TelaCadastroManual({
                         required
                     />
                 </div>
-
                 <datalist id="lista-ubs-datalist">
                     {listaUbs.map((ubs) => (
                         <option key={ubs.id} value={ubs.nome} />
                     ))}
                 </datalist>
-
                 <div className='app__input-group'>
                     <label>UBS Responsável pela Ação</label>
                     <input
@@ -78,7 +81,6 @@ export function TelaCadastroManual({
                         required
                     />
                 </div>
-
                 <div className='app__footer'>
                     <button
                         type="submit"

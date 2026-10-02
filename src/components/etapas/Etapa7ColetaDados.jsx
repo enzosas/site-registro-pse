@@ -1,24 +1,28 @@
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { OpcaoBinariaGroup } from '../OpcaoBinariaGroup';
 import * as Constantes from '../../constantes';
 
-export function Etapa7ColetaDados({
-    alunoAtualIndex,
-    alunosPresentes,
-    alunoAtual,
-    dadosAlunos,
-    handleAtualizarDadosAluno,
-    temAntropometria,
-    temVacinacao,
-    temSaudeOcular,
-    alturaInputRef,
-    mostrarAlunosPendentes,
-    obterAlunosPendentes,
-    onSelecionarAlunoPendente,
-    onProximo,
-    onAnterior,
-    onVoltar,
-}) {
+export function Etapa7ColetaDados() {
+    const {
+        alunoAtualIndex,
+        setAlunoAtualIndex,
+        alunosPresentes,
+        alunoAtualTelaAntropometria: alunoAtual,
+        dadosAlunos,
+        handleAtualizarDadosAluno,
+        temAntropometria,
+        temVacinacao,
+        temSaudeOcular,
+        alturaInputRef,
+        mostrarAlunosPendentes,
+        setMostrarAlunosPendentes,
+        obterAlunosPendentes,
+        proximoAluno,
+        alunoAnterior,
+        voltarEtapa,
+    } = useRegistro();
+
     const isUltimoAluno = alunoAtualIndex === alunosPresentes.length - 1;
     const pendentes = obterAlunosPendentes();
 
@@ -26,20 +30,18 @@ export function Etapa7ColetaDados({
         <form
             onSubmit={(e) => {
                 e.preventDefault();
-                onProximo();
+                proximoAluno();
             }}
             style={{ display: 'contents' }}
         >
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={voltarEtapa}>
                 <IconeVoltar />
             </button>
-
             <p className='app__title'>Preencha os dados de cada aluno:</p>
             <p className='app__contador'>
                 {alunoAtualIndex + 1}/{alunosPresentes.length}
             </p>
             <p className='app__nomeAluno'>{alunoAtual?.nome || ''}</p>
-
             {alunoAtual && temAntropometria && (
                 <>
                     <div className='app__input-group'>
@@ -63,7 +65,6 @@ export function Etapa7ColetaDados({
                     </div>
                 </>
             )}
-
             {temVacinacao && alunoAtual && (
                 <OpcaoBinariaGroup
                     label="Situação do esquema vacinal:"
@@ -72,7 +73,6 @@ export function Etapa7ColetaDados({
                     onChange={(novoValor) => handleAtualizarDadosAluno('vacinado', novoValor)}
                 />
             )}
-
             {temSaudeOcular && alunoAtual && (
                 <OpcaoBinariaGroup
                     label="Avaliação da saúde ocular:"
@@ -81,7 +81,6 @@ export function Etapa7ColetaDados({
                     onChange={(novoValor) => handleAtualizarDadosAluno('saudeOcular', novoValor)}
                 />
             )}
-
             <div className='app__footer'>
                 {mostrarAlunosPendentes && pendentes.length > 0 && (
                     <>
@@ -91,16 +90,19 @@ export function Etapa7ColetaDados({
                         {pendentes.map((aluno) => (
                             <div
                                 key={aluno.id}
-                                onClick={() => onSelecionarAlunoPendente(aluno.id)}
+                                onClick={() => {
+                                    const index = alunosPresentes.findIndex((a) => a.id === aluno.id);
+                                    setAlunoAtualIndex(index);
+                                    setMostrarAlunosPendentes(false);
+                                }}
                             >
                                 <span className='app__tela-vacinacao__pendentes'>{aluno.nome}</span>
                             </div>
                         ))}
                     </>
                 )}
-
                 <div className='app__dados-aluno__footer'>
-                    <button type="button" className="app__botao-voltar" onClick={onAnterior}>
+                    <button type="button" className="app__botao-voltar" onClick={alunoAnterior}>
                         <IconeVoltar />
                     </button>
                     <button type="submit" className='app__buttonMain'>

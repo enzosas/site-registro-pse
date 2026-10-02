@@ -1,9 +1,6 @@
-import { useRegistroPSE } from './hooks/useRegistroPSE';
-import { formatarNome } from './utils/formatadores';
+import { useRegistro } from './context/RegistroPSEContext';
 import { TELAS } from './constantes';
 import { RenderizadorEtapas } from './components/etapas/RenderizadorEtapas';
-
-// Componentes
 import { IconeVoltar } from './components/Icones';
 
 // Telas
@@ -15,66 +12,61 @@ import { TelaAddAluno } from './telas/TelaAddAluno';
 import { TelaResumo } from './telas/TelaResumo';
 import { TelaAdmin } from './telas/Admin/TelaAdmin';
 
-
 function App() {
-	const p = useRegistroPSE();
+	const {
+		telaAtiva,
+		setTelaAtiva,
+		isLoggedIn,
+		tipoUsuario,
+		handleLogout,
+		cardRef,
+		bgRef,
+	} = useRegistro();
 
 	const renderizarConteudo = () => {
-		switch (p.telaAtiva) {
+		switch (telaAtiva) {
 			case TELAS.INICIAL:
 				return (
 					<TelaInicial
-						isLoggedIn={p.isLoggedIn}
-						tipoUsuario={p.tipoUsuario}
-						onLogout={p.handleLogout}
-						onAdministracao={() => {
-							p.setTelaAtiva(TELAS.ADMIN);
-						}}
+						isLoggedIn={isLoggedIn}
+						tipoUsuario={tipoUsuario}
+						onLogout={handleLogout}
+						onAdministracao={() => setTelaAtiva(TELAS.ADMIN)}
 						onComecar={() => {
-							if (p.isLoggedIn) {
-								p.setTelaAtiva(TELAS.ETAPAS);
+							if (isLoggedIn) {
+								setTelaAtiva(TELAS.ETAPAS);
 							} else {
-								p.setTelaAtiva(TELAS.LOGIN);
+								setTelaAtiva(TELAS.LOGIN);
 							}
 						}}
-						onAjuda={() => p.setTelaAtiva(TELAS.AJUDA)}
+						onAjuda={() => setTelaAtiva(TELAS.AJUDA)}
 					/>
 				);
 
 			case TELAS.AJUDA:
 				return (
 					<TelaAjuda
-						onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
-						cardRef={p.cardRef}
+						onVoltar={() => setTelaAtiva(TELAS.INICIAL)}
+						cardRef={cardRef}
 					/>
 				);
 
 			case TELAS.LOGIN:
 				return (
 					<TelaLogin
-						loginInput={p.loginInput}
-						setLoginInput={p.setLoginInput}
-						senhaInput={p.senhaInput}
-						setSenhaInput={p.setSenhaInput}
-						mensagemErro={p.mensagemErro}
-						handleLogin={p.handleLogin}
-						onVoltar={() => {
-							p.setMensagemErro('');
-							p.setTelaAtiva(TELAS.INICIAL);
-						}}
-						onEsqueciSenha={() => p.setTelaAtiva(TELAS.ESQUECI_SENHA)}
-						cardRef={p.cardRef}
+						onVoltar={() => setTelaAtiva(TELAS.INICIAL)}
+						onEsqueciSenha={() => setTelaAtiva(TELAS.ESQUECI_SENHA)}
 					/>
 				);
 
 			case TELAS.ESQUECI_SENHA:
 				return (
 					<div className='app__input-group'>
-						<div className='app__card' ref={p.cardRef}>
+						<div className='app__card' ref={cardRef}>
 							<button
 								type="button"
 								className="app__botao-voltar"
-								onClick={() => p.setTelaAtiva(TELAS.LOGIN)}
+								onClick={() => setTelaAtiva(TELAS.LOGIN)}
 							>
 								<IconeVoltar />
 							</button>
@@ -88,12 +80,12 @@ function App() {
 
 			case TELAS.ADD_ESCOLA:
 				return (
-					<div className='app__card' ref={p.cardRef}>
+					<div className='app__card' ref={cardRef}>
 						<div className='app__input-group'>
 							<button
 								type="button"
 								className="app__botao-voltar"
-								onClick={() => p.setTelaAtiva(TELAS.ETAPAS)}
+								onClick={() => setTelaAtiva(TELAS.ETAPAS)}
 							>
 								<IconeVoltar />
 							</button>
@@ -102,7 +94,7 @@ function App() {
 								<input type='text' />
 								<button
 									className='app__buttonMain'
-									onClick={() => p.setTelaAtiva(TELAS.ETAPAS)}
+									onClick={() => setTelaAtiva(TELAS.ETAPAS)}
 								>
 									<label>Cadastrar Escola</label>
 								</button>
@@ -112,83 +104,30 @@ function App() {
 				);
 
 			case TELAS.CADASTRO_MANUAL:
-				return (
-					<TelaCadastroManual
-						etapa={p.passoVisual}
-						totalEtapas={p.totalEtapas}
-						escolaManual={p.escolaManual}
-						setEscolaManual={p.setEscolaManual}
-						turmaManual={p.turmaManual}
-						setTurmaManual={p.setTurmaManual}
-						ubsManualTexto={p.ubsManualTexto}
-						setUbsManualTexto={p.setUbsManualTexto}
-						listaUbs={p.listaUbs}
-						onSalvarManual={p.handleSalvarManual}
-						onVoltar={() => p.setTelaAtiva(TELAS.ETAPAS)}
-						cardRef={p.cardRef}
-					/>
-				);
+				return <TelaCadastroManual />;
 
 			case TELAS.ADD_ALUNO:
-				return (
-					<TelaAddAluno
-						etapa={p.passoVisual}
-						totalEtapas={p.totalEtapas}
-						novoAlunoNome={p.novoAlunoNome}
-						setNovoAlunoNome={p.setNovoAlunoNome}
-						novoAlunoDataNascimento={p.novoAlunoDataNascimento}
-						setNovoAlunoDataNascimento={p.setNovoAlunoDataNascimento}
-						alunoAdicionadoAnim={p.alunoAdicionadoAnim}
-						onAdicionarAluno={p.handleAdicionarAluno}
-						onVoltar={() => p.setTelaAtiva(TELAS.ETAPAS)}
-						nomeInputRef={p.nomeInputRef}
-						cardRef={p.cardRef}
-					/>
-				);
+				return <TelaAddAluno />;
 
-			case TELAS.RESUMO: {
-				const dados = p.gerarObjetoRelatorio();
-				return (
-					<TelaResumo
-						etapa={p.passoVisual}
-						totalEtapas={p.totalEtapas}
-						dados={dados}
-						observacoes={p.observacoes}
-						copiado={p.copiado}
-						onCopiarResumo={() => {
-							console.log(JSON.stringify(dados, null, 2));
-							p.handleCopiarResumo();
-						}}
-						onVoltar={() => p.setTelaAtiva(TELAS.ETAPAS)}
-						cardRef={p.cardRef}
-					/>
-				);
-			}
+			case TELAS.RESUMO:
+				return <TelaResumo />;
 
-			case TELAS.ADMIN: {
+			case TELAS.ADMIN:
 				return (
 					<TelaAdmin
-						nomeUsuario={p.nomeUsuario}
-						usuarioId={p.usuarioId}
-						tipoUsuario={p.tipoUsuario}
-						escolaId={p.escolaIdUsuario}
-						ubsId={p.ubsIdUsuario}
-						onVoltar={() => p.setTelaAtiva(TELAS.INICIAL)}
-						cardRef={p.cardRef}
+						onVoltar={() => setTelaAtiva(TELAS.INICIAL)}
+						cardRef={cardRef}
 					/>
 				);
-			}
 
 			case TELAS.ETAPAS:
 			default:
-				return (
-					<RenderizadorEtapas form={p} />
-				);
+				return <RenderizadorEtapas />;
 		}
 	};
 
 	return (
-		<div className='app__background' ref={p.bgRef}>
+		<div className='app__background' ref={bgRef}>
 			<div className='app__column'>{renderizarConteudo()}</div>
 		</div>
 	);

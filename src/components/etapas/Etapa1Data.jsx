@@ -1,19 +1,22 @@
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { isDataValida } from '../../utils/validadoresData';
-import { LISTA_TURNOS } from '../../constantes';
+import { LISTA_TURNOS, TELAS } from '../../constantes';
 
-export function Etapa1Data({
-    dia,
-    setDia,
-    mes,
-    setMes,
-    ano,
-    setAno,
-    turno,
-    setTurno,
-    onAvancar,
-    onVoltar,
-}) {
+export function Etapa1Data() {
+    const {
+        dia,
+        setDia,
+        mes,
+        setMes,
+        ano,
+        setAno,
+        turno,
+        setTurno,
+        avancarEtapa,
+        setTelaAtiva,
+    } = useRegistro();
+
     const handleApenasNumeros = (setter, tamanhoMax) => (e) => {
         const val = e.target.value.replace(/\D/g, '').slice(0, tamanhoMax);
         setter(val);
@@ -27,14 +30,17 @@ export function Etapa1Data({
             onSubmit={(e) => {
                 e.preventDefault();
                 if (!isFormValido) return;
-                onAvancar();
+                avancarEtapa();
             }}
             style={{ display: 'contents' }}
         >
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button
+                type="button"
+                className="app__botao-voltar"
+                onClick={() => setTelaAtiva(TELAS.INICIAL)}
+            >
                 <IconeVoltar />
             </button>
-
             <p className='app__title'>Digite a data da atividade:</p>
             <div className='app__date-group'>
                 <input
@@ -62,7 +68,6 @@ export function Etapa1Data({
                     onChange={handleApenasNumeros(setAno, 4)}
                 />
             </div>
-
             <div className='app__input-group'>
                 <label>Turno</label>
                 <select
@@ -78,7 +83,6 @@ export function Etapa1Data({
                     ))}
                 </select>
             </div>
-
             <div className='app__footer'>
                 <button
                     type="submit"

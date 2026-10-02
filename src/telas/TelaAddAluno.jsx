@@ -1,36 +1,44 @@
+import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
 import { aplicarMascaraData, isDataStringValida } from '../utils/validadoresData';
+import { TELAS } from '../constantes';
 
-export function TelaAddAluno({
-    etapa,
-    totalEtapas,
-    novoAlunoNome,
-    setNovoAlunoNome,
-    novoAlunoDataNascimento,
-    setNovoAlunoDataNascimento,
-    alunoAdicionadoAnim,
-    onAdicionarAluno,
-    onVoltar,
-    nomeInputRef,
-    cardRef,
-}) {
+export function TelaAddAluno() {
+    const {
+        passoVisual,
+        totalEtapas,
+        novoAlunoNome,
+        setNovoAlunoNome,
+        novoAlunoDataNascimento,
+        setNovoAlunoDataNascimento,
+        alunoAdicionadoAnim,
+        handleAdicionarAluno,
+        nomeInputRef,
+        cardRef,
+        setTelaAtiva,
+    } = useRegistro();
+
     const dataValida = isDataStringValida(novoAlunoDataNascimento);
     const isDisabled = !novoAlunoNome.trim() || !dataValida;
 
     return (
         <>
-            <HeaderRegistro etapaAtual={etapa} totalEtapas={totalEtapas} />
+            <HeaderRegistro etapaAtual={passoVisual} totalEtapas={totalEtapas} />
             <form
                 className='app__card'
                 ref={cardRef}
                 onSubmit={(e) => {
                     e.preventDefault();
                     if (isDisabled) return;
-                    onAdicionarAluno();
+                    handleAdicionarAluno();
                 }}
             >
-                <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+                <button
+                    type="button"
+                    className="app__botao-voltar"
+                    onClick={() => setTelaAtiva(TELAS.ETAPAS)}
+                >
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Adicionar aluno</p>

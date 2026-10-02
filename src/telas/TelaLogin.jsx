@@ -1,16 +1,17 @@
+import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 
-export function TelaLogin({
-    loginInput,
-    setLoginInput,
-    senhaInput,
-    setSenhaInput,
-    mensagemErro,
-    handleLogin,
-    onVoltar,
-    onEsqueciSenha,
-    cardRef,
-}) {
+export function TelaLogin({ onVoltar, onEsqueciSenha }) {
+    const {
+        loginInput,
+        setLoginInput,
+        senhaInput,
+        setSenhaInput,
+        mensagemErro,
+        handleLogin,
+        cardRef,
+    } = useRegistro();
+
     return (
         <>
             <p className='app__title app__title__tela-inicial'>
@@ -23,7 +24,6 @@ export function TelaLogin({
                 <p className='app__title'>Login</p>
                 <p>Programa Saúde na Escola</p>
                 <p>Santa Maria, RS</p>
-
                 <div className='login__input-group'>
                     <div className='app__input-group'>
                         <label>login</label>
@@ -43,7 +43,6 @@ export function TelaLogin({
                     </div>
                     {mensagemErro && <p style={{ color: 'red', marginTop: '10px' }}>{mensagemErro}</p>}
                 </div>
-
                 <div className='app__footer'>
                     <button type="button" className='app__buttonSecondary' onClick={onEsqueciSenha}>
                         <p>Esqueci a senha</p>

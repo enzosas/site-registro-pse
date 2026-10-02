@@ -1,25 +1,26 @@
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { SearchableList } from '../SearchableList';
+import { TELAS } from '../../constantes';
 
-export function Etapa3Escola({
-    buscaEscola,
-    setBuscaEscola,
-    escolasFiltradas,
-    escolaSelecionada,
-    setEscolaSelecionada,
-    formatarNome,
-    onAvancar,
-    onVoltar,
-    onCadastroManual,
-}) {
+export function Etapa3Escola() {
+    const {
+        buscaEscola,
+        setBuscaEscola,
+        escolasFiltradas,
+        escolaSelecionada,
+        setEscolaSelecionada,
+        avancarEtapa,
+        voltarEtapa,
+        setTelaAtiva,
+    } = useRegistro();
+
     return (
         <>
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={voltarEtapa}>
                 <IconeVoltar />
             </button>
-
             <p className='app__title'>Selecione sua escola:</p>
-
             <SearchableList
                 busca={buscaEscola}
                 onBuscaChange={setBuscaEscola}
@@ -27,15 +28,17 @@ export function Etapa3Escola({
                 itemSelecionado={escolaSelecionada}
                 onSelecionarItem={setEscolaSelecionada}
             />
-
             <div className='app__footer'>
-                <button className='app__buttonSecondary' onClick={onCadastroManual}>
+                <button
+                    className='app__buttonSecondary'
+                    onClick={() => setTelaAtiva(TELAS.CADASTRO_MANUAL)}
+                >
                     <p>A escola não está na lista</p>
                 </button>
                 <button
                     className={'app__buttonMain'}
                     onClick={() => {
-                        if (escolaSelecionada) onAvancar();
+                        if (escolaSelecionada) avancarEtapa();
                     }}
                     disabled={!escolaSelecionada}
                 >

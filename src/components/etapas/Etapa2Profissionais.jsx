@@ -1,12 +1,15 @@
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 
-export function Etapa2Profissionais({
-    registradorNome,
-    profissionaisResponsaveis = [],
-    setProfissionaisResponsaveis,
-    onAvancar,
-    onVoltar,
-}) {
+export function Etapa2Profissionais() {
+    const {
+        nomeUsuario,
+        profissionaisResponsaveis,
+        setProfissionaisResponsaveis,
+        avancarEtapa,
+        voltarEtapa,
+    } = useRegistro();
+
     const handleAlterarProfissional = (index, novoValor) => {
         setProfissionaisResponsaveis((prev) => {
             const copia = [...prev];
@@ -27,17 +30,14 @@ export function Etapa2Profissionais({
 
     const listaProfissionais =
         profissionaisResponsaveis.length > 0 ? profissionaisResponsaveis : [''];
-
     const estaVazio = !listaProfissionais.some((p) => p && p.trim().length > 0);
 
     return (
         <>
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button type="button" className="app__botao-voltar" onClick={voltarEtapa}>
                 <IconeVoltar />
             </button>
-
             <h2 className="app__title">Preencha os profissionais responsáveis:</h2>
-
             {listaProfissionais.map((profissional, index) => (
                 <div key={index} className="app__tela-profissionais__row">
                     <input
@@ -48,7 +48,6 @@ export function Etapa2Profissionais({
                         value={profissional}
                         onChange={(e) => handleAlterarProfissional(index, e.target.value)}
                     />
-
                     {listaProfissionais.length > 1 && (
                         <button
                             type="button"
@@ -61,7 +60,6 @@ export function Etapa2Profissionais({
                     )}
                 </div>
             ))}
-
             <button
                 type="button"
                 className="app__buttonSecondary app__tela-profissionais__btn-adicionar"
@@ -69,15 +67,14 @@ export function Etapa2Profissionais({
             >
                 + Adicionar novo responsável
             </button>
-
             <div className="app__footer">
-                {registradorNome && (
-                    <p>O responsável por esse registro é: <strong>{registradorNome}</strong>.</p>
+                {nomeUsuario && (
+                    <p>O responsável por esse registro é: <strong>{nomeUsuario}</strong>.</p>
                 )}
                 <button
                     type="button"
                     className="app__buttonMain"
-                    onClick={onAvancar}
+                    onClick={avancarEtapa}
                     disabled={estaVazio}
                 >
                     Avançar

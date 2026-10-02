@@ -1,22 +1,34 @@
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { SearchableMultiList } from '../SearchableMultiList';
+import { TELAS } from '../../constantes';
 
-export function Etapa4Turma({
-    buscaTurma,
-    setBuscaTurma,
-    turmasFiltradas,
-    turmasSelecionadas = [],
-    toggleTurma,
-    onAvancar,
-    onVoltar,
-    onCadastroManual,
-}) {
-    const temTurmasSelecionadas = turmasSelecionadas.length > 0;
-    const temMultiplasTurmas = turmasSelecionadas.length > 1;
+export function Etapa4Turma() {
+    const {
+        buscaTurma,
+        setBuscaTurma,
+        turmasFiltradas,
+        turmaSelecionada,
+        setTurmaSelecionada,
+        toggleTurma,
+        avancarEtapa,
+        voltarEtapa,
+        setTelaAtiva,
+    } = useRegistro();
+
+    const temTurmasSelecionadas = turmaSelecionada.length > 0;
+    const temMultiplasTurmas = turmaSelecionada.length > 1;
 
     return (
         <>
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button
+                type="button"
+                className="app__botao-voltar"
+                onClick={() => {
+                    setTurmaSelecionada([]);
+                    voltarEtapa();
+                }}
+            >
                 <IconeVoltar />
             </button>
             <p className='app__title'>Selecione as turmas em que foi realizada a atividade:</p>
@@ -24,17 +36,20 @@ export function Etapa4Turma({
                 busca={buscaTurma}
                 onBuscaChange={setBuscaTurma}
                 itens={turmasFiltradas}
-                itensSelecionados={turmasSelecionadas}
+                itensSelecionados={turmaSelecionada}
                 onToggleItem={toggleTurma}
             />
             <div className='app__footer'>
-                <button className='app__buttonSecondary' onClick={onCadastroManual}>
+                <button
+                    className='app__buttonSecondary'
+                    onClick={() => setTelaAtiva(TELAS.CADASTRO_MANUAL)}
+                >
                     <p>A turma não está na lista</p>
                 </button>
                 <button
                     className={'app__buttonMain'}
                     onClick={() => {
-                        if (temTurmasSelecionadas) onAvancar();
+                        if (temTurmasSelecionadas) avancarEtapa();
                     }}
                     disabled={!temTurmasSelecionadas}
                 >

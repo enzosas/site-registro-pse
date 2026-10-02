@@ -1,16 +1,18 @@
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
-import { RelatorioPDF } from '../../RelatorioPDF';
+import { TELAS } from '../../constantes';
 
-export function Etapa8Conclusao({
-    salvandoBanco,
-    registroSalvo,
-    erroSalvarBanco,
-    onSalvarBanco,
-    onVerResumo,
-    onReiniciarRegistro,
-    onVoltar,
-}) {
+export function Etapa8Conclusao() {
+    const {
+        salvandoBanco,
+        registroSalvo,
+        erroSalvarBanco,
+        handleSalvarNoBanco,
+        setTelaAtiva,
+        reiniciarRegistro,
+        voltarEtapa,
+    } = useRegistro();
+
     return (
         <>
             <button
@@ -18,9 +20,9 @@ export function Etapa8Conclusao({
                 className="app__botao-voltar"
                 onClick={() => {
                     if (registroSalvo) {
-                        onReiniciarRegistro();
+                        reiniciarRegistro();
                     } else {
-                        onVoltar();
+                        voltarEtapa();
                     }
                 }}
                 title={registroSalvo ? "Voltar ao início" : "Voltar à etapa anterior"}
@@ -28,36 +30,34 @@ export function Etapa8Conclusao({
                 <IconeVoltar />
             </button>
             <p className='app__title'>Tudo pronto!</p>
-
             <p className='app__tooltip'>Agora, revise as informações no resumo ou clique abaixo para registrar a atividade.</p>
             <button
+                type="button"
                 className='app__buttonSecondary app__buttonSecondary__left-anchor'
-                onClick={onReiniciarRegistro}
+                onClick={reiniciarRegistro}
             >
                 Voltar para o início
             </button>
-
             <div className='app__footer'>
                 {erroSalvarBanco && (
                     <div style={{ color: 'var(--cor-negative)', textAlign: 'center' }}>
                         {erroSalvarBanco}
                     </div>
                 )}
-                { registroSalvo && (
-                    <p>Registro salvo! Você já pode voltar para o início com o botão acima</p>
+                {registroSalvo && (
+                    <p>Registro salvo! Você pode voltar para o início com o botão acima</p>
                 )}
                 <button
                     type="button"
                     className='app__buttonMain'
-                    onClick={onVerResumo}
+                    onClick={() => setTelaAtiva(TELAS.RESUMO)}
                 >
                     <p>Ver resumo</p>
                 </button>
-
                 <button
                     type="button"
                     className="app__buttonMain"
-                    onClick={onSalvarBanco}
+                    onClick={handleSalvarNoBanco}
                     disabled={salvandoBanco || registroSalvo}
                 >
                     <p style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
