@@ -488,6 +488,7 @@ export function useRegistroPSE() {
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
         setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
         setAno(String(dataAtual.getFullYear()));
+        setRegistroSalvo(false);
     };
 
     return {
