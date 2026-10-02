@@ -32,21 +32,43 @@ export function Etapa6Presenca({
 
             <div className='app__tela-com-lista__gap'>
                 <div className='app__list'>
-                    {alunosOrdenados.map((aluno) => (
-                        <label key={aluno.id}>
-                            <input
-                                type="checkbox"
-                                checked={idsAlunosPresentes.includes(aluno.id)}
-                                onChange={() => toggleAluno(aluno.id)}
-                            />
-                            <div className='app__list__aluno-nascimento'>
-                                {aluno.nome}
-                                <p className='app__list__aluno-nascimento__nascimento'>
-                                    {formatarData(aluno.dataNascimento)}
-                                </p>
+                    {(() => {
+                        const gruposPorTurma = Object.entries(
+                            alunosOrdenados.reduce((acc, aluno) => {
+                                const turma = aluno.turmaNome || 'Sem turma';
+                                if (!acc[turma]) acc[turma] = [];
+                                acc[turma].push(aluno);
+                                return acc;
+                            }, {})
+                        );
+
+                        const temMultiplasTurmas = gruposPorTurma.length > 1;
+
+                        return gruposPorTurma.map(([nomeTurma, alunosDaTurma]) => (
+                            <div key={nomeTurma}>
+                                {temMultiplasTurmas && (
+                                    <p className='app__list__subtitle'>
+                                        {nomeTurma}
+                                    </p>
+                                )}
+                                {alunosDaTurma.map((aluno) => (
+                                    <label key={aluno.id}>
+                                        <input
+                                            type="checkbox"
+                                            checked={idsAlunosPresentes.includes(aluno.id)}
+                                            onChange={() => toggleAluno(aluno.id)}
+                                        />
+                                        <div className='app__list__aluno-nascimento'>
+                                            {aluno.nome}
+                                            <p className='app__list__aluno-nascimento__nascimento'>
+                                                {formatarData(aluno.dataNascimento)}
+                                            </p>
+                                        </div>
+                                    </label>
+                                ))}
                             </div>
-                        </label>
-                    ))}
+                        ));
+                    })()}
                 </div>
 
                 {dataFormatada && (

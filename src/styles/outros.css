@@ -38,8 +38,14 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0rem;
-	margin-top: -1rem;
 	margin-bottom: -1rem;
+}
+
+.app__list__subtitle {
+	font-size: 1.25em;
+	font-weight: 500;
+	margin-top: 2rem;
+	margin-bottom: 1rem;
 }
 
 .app__tela-com-lista__gap {

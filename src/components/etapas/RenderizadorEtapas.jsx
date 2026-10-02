@@ -50,11 +50,11 @@ export function RenderizadorEtapas({ form: p }) {
                 buscaTurma={p.buscaTurma}
                 setBuscaTurma={p.setBuscaTurma}
                 turmasFiltradas={p.turmasFiltradas}
-                turmaSelecionada={p.turmaSelecionada}
-                setTurmaSelecionada={p.setTurmaSelecionada}
+                turmasSelecionadas={p.turmaSelecionada}
+                toggleTurma={p.toggleTurma}
                 onAvancar={p.avancarEtapa}
                 onVoltar={() => {
-                    p.setTurmaSelecionada(null);
+                    p.setTurmaSelecionada([]);
                     p.voltarEtapa();
                 }}
                 onCadastroManual={() => p.setTelaAtiva(TELAS.CADASTRO_MANUAL)}

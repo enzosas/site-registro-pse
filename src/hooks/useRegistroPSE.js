@@ -38,7 +38,7 @@ export function useRegistroPSE() {
     const [buscaEscola, setBuscaEscola] = useState('');
     const [escolaSelecionada, setEscolaSelecionada] = useState(null);
     const [buscaTurma, setBuscaTurma] = useState('');
-    const [turmaSelecionada, setTurmaSelecionada] = useState(null);
+    const [turmaSelecionada, setTurmaSelecionada] = useState([]);
 
     // Cadastro Manual
     const [escolaManual, setEscolaManual] = useState('');
@@ -156,7 +156,7 @@ export function useRegistroPSE() {
     }, [temAvaliacaoIndividual]);
 
     const indiceEtapaAtual = etapasAtivas.indexOf(etapaAtualId);
-    
+
     const avancarEtapa = () => {
         if (indiceEtapaAtual < etapasAtivas.length - 1) {
             setEtapaAtualId(etapasAtivas[indiceEtapaAtual + 1]);
@@ -184,10 +184,23 @@ export function useRegistroPSE() {
             ?.filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
             .sort((a, b) => a.nome.localeCompare(b.nome)) || [];
 
-    const alunosOrdenados = [...(turmaSelecionada?.alunos || [])].sort((a, b) =>
-        (a.nome || '').localeCompare(b.nome || '')
-    );
+    const toggleTurma = (turma) => {
+        setTurmaSelecionada((prev) => {
+            const lista = Array.isArray(prev) ? prev : [];
+            return lista.some((t) => t.id === turma.id)
+                ? lista.filter((t) => t.id !== turma.id)
+                : [...lista, turma];
+        });
+    };
 
+    const turmasArray = Array.isArray(turmaSelecionada)
+        ? turmaSelecionada
+        : (turmaSelecionada ? [turmaSelecionada] : []);
+
+    const alunosOrdenados = turmasArray
+        .flatMap((t) => (t.alunos || []).map((a) => ({ ...a, turmaNome: t.nome })))
+        .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+    
     const alunosPresentes = alunosOrdenados.filter((aluno) =>
         idsAlunosPresentes.includes(aluno.id)
     );
@@ -202,7 +215,7 @@ export function useRegistroPSE() {
     };
 
     const todosEstaoPresentes =
-        turmaSelecionada &&
+        turmasArray.length > 0 &&
         alunosOrdenados.length > 0 &&
         idsAlunosPresentes.length === alunosOrdenados.length;
 
@@ -215,7 +228,7 @@ export function useRegistroPSE() {
     };
 
     const marcarTodosPresentes = () => {
-        if (turmaSelecionada) {
+        if (turmasArray.length > 0) {
             setIdsAlunosPresentes(alunosOrdenados.map((aluno) => aluno.id));
         }
     };
@@ -292,14 +305,18 @@ export function useRegistroPSE() {
 
     // Inclusões manuais
     const handleAdicionarAluno = () => {
-        if (!novoAlunoNome || !turmaSelecionada) return;
+        if (!novoAlunoNome || turmasArray.length === 0) return;
         const novoAlunoId = Date.now();
         const novoAluno = {
             id: novoAlunoId,
             nome: novoAlunoNome,
             dataNascimento: novoAlunoDataNascimento,
         };
-        setTurmaSelecionada((prev) => ({ ...prev, alunos: [...prev.alunos, novoAluno] }));
+        setTurmaSelecionada((prev) => {
+            const lista = Array.isArray(prev) ? prev : [prev];
+            const primeira = { ...lista[0], alunos: [...(lista[0]?.alunos || []), novoAluno] };
+            return [primeira, ...lista.slice(1)];
+        });
         setIdsAlunosPresentes((prev) => [...prev, novoAlunoId]);
         setNovoAlunoNome('');
         setNovoAlunoDataNascimento('');
@@ -312,18 +329,20 @@ export function useRegistroPSE() {
 
     const handleSalvarManual = () => {
         setEscolaSelecionada({ id: 'manual_escola', nome: escolaManual, turmas: [] });
-        setTurmaSelecionada({ id: 'manual_turma', nome: turmaManual, alunos: [] });
+        setTurmaSelecionada([{ id: 'manual_turma', nome: turmaManual, alunos: [] }]);
         setIdsAlunosPresentes([]);
-        setEtapa(4);
-        setTelaAtiva('ETAPAS');
+        setEtapaAtualId(ETAPAS.EIXOS);
+        setTelaAtiva(TELAS.ETAPAS);
     };
 
     // Relatório e Resumo
     const gerarObjetoRelatorio = () => {
+        const nomeTurmasRelatorio = turmasArray.map((t) => t.nome).join(', ');
+
         return {
             data: `${dia}/${mes}/${ano}`,
             escola: escolaSelecionada?.nome || '',
-            turma: turmaSelecionada?.nome || '',
+            turma: nomeTurmasRelatorio,
             profissionaisResponsaveis: profissionaisResponsaveis,
             Registrador: nomeUsuario,
             eixosTematicos: formatarEixosTematicosSelecionados(),
@@ -344,9 +363,6 @@ export function useRegistroPSE() {
 
     const handleCopiarResumo = async () => {
         const dados = gerarObjetoRelatorio();
-        const textoProfissionais = Array.isArray(dados.profissionaisResponsaveis)
-            ? dados.profissionaisResponsaveis.map((p) => p.trim()).filter(Boolean).join(', ')
-            : (dados.profissionaisResponsaveis || '-');
         const linhas = [
             'Resumo da Atividade',
             '',
@@ -386,11 +402,11 @@ export function useRegistroPSE() {
     };
 
     const reiniciarRegistro = () => {
-        setEtapa(1);
+        setEtapaAtualId(ETAPAS.DATA);
         setAlunoAtualIndex(0);
         setEscolaSelecionada(null);
         setBuscaEscola('');
-        setTurmaSelecionada(null);
+        setTurmaSelecionada([]);
         setBuscaTurma('');
         setEscolaManual('');
         setTurmaManual('');
@@ -455,6 +471,7 @@ export function useRegistroPSE() {
         setBuscaTurma,
         turmaSelecionada,
         setTurmaSelecionada,
+        toggleTurma,
         turmasFiltradas,
         escolaManual,
         setEscolaManual,
