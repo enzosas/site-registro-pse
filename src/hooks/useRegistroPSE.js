@@ -156,6 +156,26 @@ export function useRegistroPSE() {
         return lista;
     }, [temAvaliacaoIndividual]);
 
+    const totalEtapas = etapasAtivas.length;
+
+    const mapaEtapaNumero = useMemo(() => {
+        const mapa = {};
+        etapasAtivas.forEach((id, index) => {
+            mapa[id] = index + 1;
+        });
+        mapa[TELAS.CADASTRO_MANUAL] = mapa[ETAPAS.ESCOLA] || 3;
+        mapa[TELAS.ADD_ALUNO] = mapa[ETAPAS.PRESENCA] || 6;
+        mapa[TELAS.RESUMO] = mapa[ETAPAS.CONCLUSAO] || totalEtapas;
+        return mapa;
+    }, [etapasAtivas, totalEtapas]);
+
+    const passoVisual = useMemo(() => {
+        if (telaAtiva === TELAS.ETAPAS) {
+            return mapaEtapaNumero[etapaAtualId] || 1;
+        }
+        return mapaEtapaNumero[telaAtiva] || 1;
+    }, [telaAtiva, etapaAtualId, mapaEtapaNumero]);
+
     const indiceEtapaAtual = etapasAtivas.indexOf(etapaAtualId);
 
     const avancarEtapa = () => {
@@ -450,6 +470,9 @@ export function useRegistroPSE() {
 
         // Etapa e navegação
         etapaAtualId,
+        passoVisual,
+        totalEtapas,
+        mapaEtapaNumero,
         avancarEtapa,
         voltarEtapa,
 

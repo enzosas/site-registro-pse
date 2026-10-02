@@ -114,7 +114,7 @@ function App() {
 			case TELAS.CADASTRO_MANUAL:
 				return (
 					<TelaCadastroManual
-						etapa={p.etapa}
+						etapa={p.passoVisual}
 						escolaManual={p.escolaManual}
 						setEscolaManual={p.setEscolaManual}
 						turmaManual={p.turmaManual}
@@ -128,7 +128,7 @@ function App() {
 			case TELAS.ADD_ALUNO:
 				return (
 					<TelaAddAluno
-						etapa={p.etapa}
+						etapa={p.passoVisual}
 						novoAlunoNome={p.novoAlunoNome}
 						setNovoAlunoNome={p.setNovoAlunoNome}
 						novoAlunoDataNascimento={p.novoAlunoDataNascimento}
@@ -145,7 +145,7 @@ function App() {
 				const dados = p.gerarObjetoRelatorio();
 				return (
 					<TelaResumo
-						etapa={p.etapa}
+						etapa={p.passoVisual}
 						dados={dados}
 						observacoes={p.observacoes}
 						copiado={p.copiado}
