@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { deletarUsuarioDB } from '../../services/supabaseService';
-import * as Formatadores from '../../utils/formatadores'
+import * as Formatadores from '../../utils/formatadores';
+import { useAuth } from '../../context/AuthContext';
 
 export function PainelDetalhesUsuario({
     usuario,
-    usuarioLogadoId = null,
     onVoltar,
     onSucessoExclusao
 }) {
+    const { usuarioId: usuarioLogadoId } = useAuth();
+
     const [deletando, setDeletando] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
 
@@ -26,14 +28,11 @@ export function PainelDetalhesUsuario({
         const confirmou = window.confirm(
             `Tem certeza de que deseja excluir o usuário "${usuario.nome}"? Esta ação não pode ser desfeita.`
         );
-
         if (!confirmou) return;
 
         setMensagemErro('');
         setDeletando(true);
-
         const resultado = await deletarUsuarioDB(usuario.id);
-
         setDeletando(false);
 
         if (!resultado.sucesso) {
@@ -50,36 +49,30 @@ export function PainelDetalhesUsuario({
     return (
         <>
             <p className="app__title">Detalhes do Usuário</p>
-
             {mensagemErro && (
                 <div className="app__alerta-erro">
                     <p>{mensagemErro}</p>
                 </div>
             )}
-
             <div className='admin__detalhes_usuario__frame'>
                 <div>
                     <p className='admin__detalhes_usuario__label'>Nome</p>
                     <p className='admin__detalhes_usuario__value'>{usuario.nome}</p>
                 </div>
-
                 <div>
                     <p className='admin__detalhes_usuario__label'>E-mail</p>
                     <p className='admin__detalhes_usuario__value'>{usuario.email}</p>
                 </div>
-
                 <div>
                     <p className='admin__detalhes_usuario__label'>Tipo de usuário</p>
                     <p className='admin__detalhes_usuario__value'>{Formatadores.formatarTipoUsuario(usuario.tipoUsuario)}</p>
                 </div>
-
                 {usuario.escolaNome && (
                     <div>
                         <p className='admin__detalhes_usuario__label'>Escola vinculada</p>
                         <p className='admin__detalhes_usuario__value'>{Formatadores.formatarNome(usuario.escolaNome)}</p>
                     </div>
                 )}
-
                 {usuario.ubsNome && (
                     <div>
                         <p className='admin__detalhes_usuario__label'>UBS vinculada</p>
@@ -87,9 +80,7 @@ export function PainelDetalhesUsuario({
                     </div>
                 )}
             </div>
-
             <div className="app__footer">
-
                 <button
                     type="button"
                     className="app__buttonMain"

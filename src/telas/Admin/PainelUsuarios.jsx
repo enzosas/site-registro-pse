@@ -1,6 +1,7 @@
 import { IconePesquisa } from '../../components/Icones';
 import { useState, useEffect, useMemo } from 'react';
 import { TIPO_USUARIO } from '../../constantes';
+import { useAuth } from '../../context/AuthContext';
 import {
     carregarUsuariosDB,
     carregarEscolasDB,
@@ -8,43 +9,36 @@ import {
 } from '../../services/supabaseService';
 
 export function PainelUsuarios({
-    tipoUsuario,
-    escolaId = null,
-    ubsId = null,
     onCriarUsuario,
     onSelecionarUsuario
 }) {
+    const { tipoUsuario, escolaIdUsuario: escolaId, ubsIdUsuario: ubsId } = useAuth();
+
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
 
     const [usuarios, setUsuarios] = useState([]);
     const [termoBusca, setTermoBusca] = useState('');
     const [carregando, setCarregando] = useState(true);
-
     const [filtroTipo, setFiltroTipo] = useState('');
     const [filtroEscola, setFiltroEscola] = useState('');
     const [filtroUbs, setFiltroUbs] = useState('');
-
     const [listaEscolas, setListaEscolas] = useState([]);
     const [listaUbs, setListaUbs] = useState([]);
 
     useEffect(() => {
         let montado = true;
-
         async function carregarDadosPainel() {
             setCarregando(true);
-
             const dadosUsuarios = await carregarUsuariosDB({
                 tipoUsuario,
                 escolaId,
                 ubsId,
             });
-
             const [respEscolas, respUbs] = await Promise.all([
                 carregarEscolasDB(),
                 carregarUbsDB(),
             ]);
-
             if (montado) {
                 setUsuarios(dadosUsuarios || []);
                 setListaEscolas(respEscolas || []);
@@ -70,11 +64,9 @@ export function PainelUsuarios({
             const bateNome = user.nome.toLowerCase().includes(busca);
             const bateEmail = user.email.toLowerCase().includes(busca);
             const passaBusca = !busca || bateNome || bateEmail;
-
             const passaTipo = !filtroTipo || user.tipoUsuario === filtroTipo;
             const passaEscola = !filtroEscola || String(user.escolaId) === String(filtroEscola);
             const passaUbs = !filtroUbs || String(user.ubsId) === String(filtroUbs);
-
             return passaBusca && passaTipo && passaEscola && passaUbs;
         });
     }, [usuarios, termoBusca, filtroTipo, filtroEscola, filtroUbs]);
@@ -86,14 +78,12 @@ export function PainelUsuarios({
                 ? `Exibindo usuários vinculados à Escola ${escola.nome}`
                 : 'Exibindo usuários vinculados à sua Escola';
         }
-
         if (tipoUsuario === TIPO_USUARIO.UBS && ubsId) {
             const ubs = listaUbs.find((u) => String(u.id) === String(ubsId));
             return ubs
                 ? `Exibindo usuários vinculados à UBS ${ubs.nome}`
                 : 'Exibindo usuários vinculados à sua UBS';
         }
-
         if (isAdmin) {
             if (filtroEscola) {
                 const escola = listaEscolas.find((e) => String(e.id) === String(filtroEscola));
@@ -109,7 +99,6 @@ export function PainelUsuarios({
             }
             return 'Exibindo todos os usuários cadastrados no sistema';
         }
-
         return '';
     }, [tipoUsuario, escolaId, ubsId, isAdmin, filtroEscola, filtroUbs, listaEscolas, listaUbs]);
 
@@ -126,7 +115,6 @@ export function PainelUsuarios({
         <>
             <p className="app__title">Gerenciar Usuários</p>
             {subtituloContexto && <p className='admin__usuario__subtitulo'>{subtituloContexto}</p>}
-
             <div className="admin__grupo-filtros">
                 <div className="app__combobox-group">
                     <label>Tipo</label>
@@ -142,7 +130,6 @@ export function PainelUsuarios({
                         <option value={TIPO_USUARIO.COMUM}>Comum</option>
                     </select>
                 </div>
-
                 {isAdmin && (
                     <div className="app__combobox-group">
                         <label>Escola</label>
@@ -160,7 +147,6 @@ export function PainelUsuarios({
                         </select>
                     </div>
                 )}
-
                 {isAdmin && (
                     <div className="app__combobox-group">
                         <label>UBS</label>
@@ -179,7 +165,6 @@ export function PainelUsuarios({
                     </div>
                 )}
             </div>
-
             <div className="app__search-bar">
                 <input
                     type="text"
@@ -189,20 +174,17 @@ export function PainelUsuarios({
                 />
                 <IconePesquisa />
             </div>
-
             <div className="app__search-list">
                 {carregando && (
                     <div>
                         <p>Carregando usuários...</p>
                     </div>
                 )}
-
                 {!carregando && usuariosFiltrados.length === 0 && (
                     <div>
                         <p>Nenhum usuário encontrado.</p>
                     </div>
                 )}
-
                 {!carregando && usuariosFiltrados.map((user) => (
                     <div
                         key={user.id}
@@ -217,7 +199,6 @@ export function PainelUsuarios({
                     </div>
                 ))}
             </div>
-
             <div className="app__footer">
                 <button
                     type="button"

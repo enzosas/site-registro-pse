@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { TIPO_USUARIO } from '../../constantes';
+import { useAuth } from '../../context/AuthContext';
 import {
     carregarEscolasDB,
     carregarUbsDB,
     criarNovoUsuarioAdmin
 } from '../../services/supabaseService';
 
-export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, ubsIdLogado = null, onSucesso }) {
+export function PainelCriarUsuario({ onSucesso }) {
+    const { tipoUsuario: tipoUsuarioLogado, escolaIdUsuario: escolaIdLogado, ubsIdUsuario: ubsIdLogado } = useAuth();
 
     const isGestorEscola = tipoUsuarioLogado === TIPO_USUARIO.ESCOLA;
     const isGestorUbs = tipoUsuarioLogado === TIPO_USUARIO.UBS;
@@ -17,26 +19,21 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [unidadeTexto, setUnidadeTexto] = useState('');
-
     const [listaEscolas, setListaEscolas] = useState([]);
     const [listaUbs, setListaUbs] = useState([]);
     const [carregandoDados, setCarregandoDados] = useState(false);
-
     const [salvando, setSalvando] = useState(false);
     const [mensagemErro, setMensagemErro] = useState('');
 
     useEffect(() => {
         let ativo = true;
-
         async function buscarUnidades() {
-
             setCarregandoDados(true);
             try {
                 const [escolas, ubs] = await Promise.all([
                     carregarEscolasDB(),
                     carregarUbsDB(),
                 ]);
-
                 if (ativo) {
                     setListaEscolas(escolas || []);
                     setListaUbs(ubs || []);
@@ -47,9 +44,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
                 if (ativo) setCarregandoDados(false);
             }
         }
-
         buscarUnidades();
-
         return () => {
             ativo = false;
         };
@@ -96,7 +91,6 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValido || salvando || carregandoDados) return;
-
         setMensagemErro('');
         setSalvando(true);
 
@@ -109,7 +103,6 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
             ubsId = ubsIdLogado;
         } else if (precisaEscolherUnidade) {
             const digitado = unidadeTexto.trim().toLowerCase();
-
             const opcaoEncontrada = opcoesDatalist.find((op) => {
                 const matchFormatado = op.valorFormatado.toLowerCase() === digitado;
                 const matchOriginal = op.nomeOriginal && op.nomeOriginal.toLowerCase() === digitado;
@@ -166,7 +159,6 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
     return (
         <>
             <p className="app__title">Criar Usuário</p>
-
             <div className="app__combobox-group">
                 <label>Tipo de usuário</label>
                 <select
@@ -265,7 +257,7 @@ export function PainelCriarUsuario({ tipoUsuarioLogado, escolaIdLogado = null, u
 
             <div className="app__footer">
                 {mensagemErro && (
-                    <div style={{ color: 'var(--cor-erro, #ff4d4f)'}}>
+                    <div style={{ color: 'var(--cor-erro, #ff4d4f)' }}>
                         {mensagemErro}
                     </div>
                 )}

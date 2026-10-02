@@ -1,6 +1,8 @@
-import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
+import { useAuth } from '../../context/AuthContext';
+import { TIPO_USUARIO } from '../../constantes';
 
-export function PainelRegistros({ tipoUsuario }) {
+export function PainelRegistros() {
+    const { tipoUsuario } = useAuth();
     const isAdminGeral = tipoUsuario === TIPO_USUARIO.ADMIN;
 
     return (

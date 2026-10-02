@@ -1,66 +1,58 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { autenticarUsuario, carregarEscolasDB, deslogarUsuario, salvarRegistroAtividadeDB, carregarUbsDB } from '../services/supabaseService';
+import { carregarEscolasDB, carregarUbsDB, salvarRegistroAtividadeDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import * as Formatadores from '../utils/formatadores';
-import { TELAS, ETAPAS, TIPO_USUARIO, TURNOS } from '../constantes';
+import { TELAS, ETAPAS, TURNOS } from '../constantes';
+import { useAuth } from '../context/AuthContext';
 
 export function useRegistroPSE() {
-    // Dados do Supabase
+    const { usuarioId, nomeUsuario, ubsIdUsuario, logout } = useAuth();
+
+    // Dados base carregados do Supabase
     const [escolas, setEscolas] = useState([]);
+    const [listaUbs, setListaUbs] = useState([]);
 
-    // Estados de navegação e telas
+    // Navegação global de ecrãs
     const [telaAtiva, setTelaAtiva] = useState(TELAS.INICIAL);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Autenticação
-    const [loginInput, setLoginInput] = useState('');
-    const [senhaInput, setSenhaInput] = useState('');
-    const [mensagemErro, setMensagemErro] = useState('');
-
-    // Identificação do utilizador autenticado
-    const [usuarioId, setUsuarioId] = useState('');
-    const [nomeUsuario, setNomeUsuario] = useState('');
-    const [tipoUsuario, setTipoUsuario] = useState('');
-    const [escolaIdUsuario, setEscolaIdUsuario] = useState(null);
-    const [ubsIdUsuario, setUbsIdUsuario] = useState(null);
-
-    // A etapa atual
+    // Etapa atual do formulário
     const [etapaAtualId, setEtapaAtualId] = useState(ETAPAS.DATA);
 
-    // Dados da atividade
+    // Etapa 1: Dados da atividade
     const hoje = new Date();
     const [dia, setDia] = useState(String(hoje.getDate()).padStart(2, '0'));
     const [mes, setMes] = useState(String(hoje.getMonth() + 1).padStart(2, '0'));
     const [ano, setAno] = useState(String(hoje.getFullYear()));
     const [turno, setTurno] = useState(TURNOS.MANHA);
-    const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState([]);
 
-    // Escolas e Turmas
+    // Etapa 2: Profissionais responsáveis (inicia com o nome do utilizador logado)
+    const [profissionaisResponsaveis, setProfissionaisResponsaveis] = useState(
+        nomeUsuario ? [nomeUsuario] : ['']
+    );
+
+    // Etapas 3 e 4: Escolas e Turmas
     const [buscaEscola, setBuscaEscola] = useState('');
     const [escolaSelecionada, setEscolaSelecionada] = useState(null);
     const [buscaTurma, setBuscaTurma] = useState('');
     const [turmaSelecionada, setTurmaSelecionada] = useState([]);
 
-    // Cadastro Manual
+    // Cadastro Manual de Escola / Turma / UBS
     const [escolaManual, setEscolaManual] = useState('');
     const [turmaManual, setTurmaManual] = useState('');
-    
-    // Carregar UBS para cadastro manual
     const [ubsManualTexto, setUbsManualTexto] = useState('');
-    const [listaUbs, setListaUbs] = useState([]);
 
-    // Eixos temáticos
+    // Etapa 5: Eixos temáticos
     const [idsEixosSelecionados, setIdsEixosSelecionados] = useState([]);
     const [nomeEixoLocal, setNomeEixoLocal] = useState('');
     const [observacoes, setObservacoes] = useState('');
 
-    // Alunos e Presença
+    // Etapa 6: Presença de alunos
     const [idsAlunosPresentes, setIdsAlunosPresentes] = useState([]);
     const [novoAlunoNome, setNovoAlunoNome] = useState('');
     const [novoAlunoDataNascimento, setNovoAlunoDataNascimento] = useState('');
     const [alunoAdicionadoAnim, setAlunoAdicionadoAnim] = useState(false);
 
-    // Coleta individual
+    // Etapa 7: Coleta individual
     const [alunoAtualIndex, setAlunoAtualIndex] = useState(0);
     const [dadosAlunos, setDadosAlunos] = useState({});
     const [mostrarAlunosPendentes, setMostrarAlunosPendentes] = useState(false);
@@ -68,59 +60,18 @@ export function useRegistroPSE() {
     // Resumo final
     const [copiado, setCopiado] = useState(false);
 
-    // Persistência no banco
+    // Persistência na base de dados
     const [salvandoBanco, setSalvandoBanco] = useState(false);
     const [registroSalvo, setRegistroSalvo] = useState(false);
     const [erroSalvarBanco, setErroSalvarBanco] = useState('');
 
-    const handleSalvarNoBanco = async () => {
-        if (registroSalvo || salvandoBanco) return;
-
-        setSalvandoBanco(true);
-        setErroSalvarBanco('');
-
-        const relatorio = gerarObjetoRelatorio();
-        const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-
-        const idEscolaValido = typeof escolaSelecionada?.id === 'number' ? escolaSelecionada.id : null;
-
-        const ubsIdParaSalvar = idEscolaValido !== null
-            ? null
-            : (escolaSelecionada?.ubsManualId || (ubsManualTexto ? listaUbs.find(u => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase())?.id : null) || null);
-
-        const payload = {
-            dataAtividade: dataIso,
-            turno: turno,
-            escolaId: idEscolaValido,
-            ubsId: ubsIdParaSalvar,
-            escolaNome: escolaSelecionada?.nome || escolaManual || '',
-            turmas: relatorio.turma,
-            profissionais: profissionaisResponsaveis.filter((p) => p && p.trim().length > 0),
-            usuarioId: usuarioId || null,
-            registradorNome: nomeUsuario || '',
-            eixosTematicos: Formatadores.formatarEixosTematicosSelecionados(idsEixosSelecionados, nomeEixoLocal),
-            observacoes: observacoes || '',
-            alunosDados: relatorio.alunosPresentes,
-        };
-
-        const resultado = await salvarRegistroAtividadeDB(payload);
-        setSalvandoBanco(false);
-
-        if (!resultado.sucesso) {
-            setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
-            return;
-        }
-
-        setRegistroSalvo(true);
-    };
-
-    // Refs de UI
+    // Refs de interface
     const cardRef = useRef(null);
     const bgRef = useRef(null);
     const nomeInputRef = useRef(null);
     const alturaInputRef = useRef(null);
 
-    // Scroll automático para o topo em mudanças de tela
+    // Scroll automático para o topo em transições
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
         if (cardRef.current) {
@@ -128,64 +79,35 @@ export function useRegistroPSE() {
         }
     }, [etapaAtualId, alunoAtualIndex, telaAtiva]);
 
-    // Busca inicial dos dados no Supabase
+    // Atualiza o profissional padrão quando o utilizador muda
+    useEffect(() => {
+        if (nomeUsuario) {
+            setProfissionaisResponsaveis([nomeUsuario]);
+        }
+    }, [nomeUsuario]);
+
+    // Carregamento de unidades escolares e de saúde
     const buscarDados = async () => {
         const [escolasCarregadas, ubsCarregadas] = await Promise.all([
             carregarEscolasDB(),
             carregarUbsDB(),
         ]);
-        setEscolas(escolasCarregadas);
+        setEscolas(escolasCarregadas || []);
         setListaUbs(ubsCarregadas || []);
     };
 
-    // Login
-    const handleLogin = async (e) => {
-        if (e) e.preventDefault();
-        setMensagemErro('');
-        const resultado = await autenticarUsuario(loginInput, senhaInput);
-        if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro);
-            return;
-        }
+    useEffect(() => {
+        buscarDados();
+    }, []);
 
-        if (resultado.id) {
-            setUsuarioId(resultado.id);
-        }
-        if (resultado.nome) {
-            setNomeUsuario(resultado.nome);
-            setProfissionaisResponsaveis([resultado.nome]);
-        }
-
-        const perfilTipo = resultado.tipoUsuario || '';
-        setTipoUsuario(perfilTipo);
-        setEscolaIdUsuario(resultado.escolaId || null);
-        setUbsIdUsuario(resultado.ubsId || null);
-
-        setIsLoggedIn(true);
-        setMensagemErro('');
-        await buscarDados();
-
-        if (perfilTipo === TIPO_USUARIO.COMUM) {
-            setTelaAtiva(TELAS.ETAPAS);
-        } else {
-            setTelaAtiva(TELAS.INICIAL);
-        }
-    };
-
-    // Logout
+    // Logout global e reinicialização do registo
     const handleLogout = async () => {
-        await deslogarUsuario();
-        setIsLoggedIn(false);
-        setUsuarioId('');
-        setNomeUsuario('');
-        setTipoUsuario('');
-        setEscolaIdUsuario(null);
-        setUbsIdUsuario(null);
-        setProfissionaisResponsaveis([]);
+        await logout();
         reiniciarRegistro();
+        setTelaAtiva(TELAS.INICIAL);
     };
 
-    // Computed values: Eixos
+    // Avaliações ativas conforme os eixos selecionados
     const temAntropometria = idsEixosSelecionados.includes(Constantes.EIXOS_ID.ANTROPOMETRIA);
     const temVacinacao = idsEixosSelecionados.includes(Constantes.EIXOS_ID.VACINACAO);
     const temSaudeOcular = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_OCULAR);
@@ -201,11 +123,9 @@ export function useRegistroPSE() {
             ETAPAS.EIXOS,
             ETAPAS.PRESENCA,
         ];
-
         if (temAvaliacaoIndividual) {
             lista.push(ETAPAS.COLETA);
         }
-
         lista.push(ETAPAS.CONCLUSAO);
         return lista;
     }, [temAvaliacaoIndividual]);
@@ -243,13 +163,12 @@ export function useRegistroPSE() {
             setAlunoAtualIndex(0);
             setMostrarAlunosPendentes(false);
         }
-
         if (indiceEtapaAtual > 0) {
             setEtapaAtualId(etapasAtivas[indiceEtapaAtual - 1]);
         }
     };
 
-    // Filtros de listas
+    // Filtros e ordenação
     const escolasFiltradas = escolas
         .filter((escola) => escola.nome.toLowerCase().includes(buscaEscola.toLowerCase()))
         .sort((a, b) => a.nome.localeCompare(b.nome));
@@ -270,19 +189,18 @@ export function useRegistroPSE() {
 
     const turmasArray = Array.isArray(turmaSelecionada)
         ? turmaSelecionada
-        : (turmaSelecionada ? [turmaSelecionada] : []);
+        : turmaSelecionada ? [turmaSelecionada] : [];
 
     const alunosOrdenados = turmasArray
         .flatMap((t) => (t.alunos || []).map((a) => ({ ...a, turmaNome: t.nome })))
         .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-    
+
     const alunosPresentes = alunosOrdenados.filter((aluno) =>
         idsAlunosPresentes.includes(aluno.id)
     );
 
     const alunoAtualTelaAntropometria = alunosPresentes[alunoAtualIndex];
 
-    // Presença
     const toggleAluno = (idAluno) => {
         setIdsAlunosPresentes((prev) =>
             prev.includes(idAluno) ? prev.filter((id) => id !== idAluno) : [...prev, idAluno]
@@ -308,14 +226,12 @@ export function useRegistroPSE() {
         }
     };
 
-    // Eixos
     const toggleEixo = (idEixo) => {
         setIdsEixosSelecionados((prev) =>
             prev.includes(idEixo) ? prev.filter((id) => id !== idEixo) : [...prev, idEixo]
         );
     };
 
-    // Coleta individual de dados
     const handleAtualizarDadosAluno = (campo, valor) => {
         if (!alunoAtualTelaAntropometria) return;
         setDadosAlunos((prev) => ({
@@ -367,7 +283,6 @@ export function useRegistroPSE() {
         }
     };
 
-    // Inclusões manuais
     const handleAdicionarAluno = () => {
         if (!novoAlunoNome || turmasArray.length === 0) return;
         const novoAlunoId = Date.now();
@@ -395,7 +310,6 @@ export function useRegistroPSE() {
         const ubsEncontrada = listaUbs.find(
             (u) => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
         );
-
         setEscolaSelecionada({
             id: 'manual_escola',
             nome: escolaManual,
@@ -408,10 +322,7 @@ export function useRegistroPSE() {
         setTelaAtiva(TELAS.ETAPAS);
     };
 
-    // Relatório e Resumo
     const gerarObjetoRelatorio = () => {
-        const nomeTurmasRelatorio = turmasArray.map((t) => t.nome).join(', ');
-
         return {
             data: Formatadores.formatarDataComTurno(dia, mes, ano, turno),
             escola: escolaSelecionada?.nome || '',
@@ -432,6 +343,46 @@ export function useRegistroPSE() {
                     saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
                 })),
         };
+    };
+
+    const handleSalvarNoBanco = async () => {
+        if (registroSalvo || salvandoBanco) return;
+
+        setSalvandoBanco(true);
+        setErroSalvarBanco('');
+
+        const relatorio = gerarObjetoRelatorio();
+        const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const idEscolaValido = typeof escolaSelecionada?.id === 'number' ? escolaSelecionada.id : null;
+
+        const ubsIdParaSalvar = idEscolaValido !== null
+            ? null
+            : (escolaSelecionada?.ubsManualId || (ubsManualTexto ? listaUbs.find(u => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase())?.id : null) || null);
+
+        const payload = {
+            dataAtividade: dataIso,
+            turno: turno,
+            escolaId: idEscolaValido,
+            ubsId: ubsIdParaSalvar,
+            escolaNome: escolaSelecionada?.nome || escolaManual || '',
+            turmas: relatorio.turma,
+            profissionais: profissionaisResponsaveis.filter((p) => p && p.trim().length > 0),
+            usuarioId: usuarioId || null,
+            registradorNome: nomeUsuario || '',
+            eixosTematicos: Formatadores.formatarEixosTematicosSelecionados(idsEixosSelecionados, nomeEixoLocal),
+            observacoes: observacoes || '',
+            alunosDados: relatorio.alunosPresentes,
+        };
+
+        const resultado = await salvarRegistroAtividadeDB(payload);
+        setSalvandoBanco(false);
+
+        if (!resultado.sucesso) {
+            setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
+            return;
+        }
+
+        setRegistroSalvo(true);
     };
 
     const handleCopiarResumo = async () => {
@@ -494,35 +445,20 @@ export function useRegistroPSE() {
         setUbsManualTexto('');
         setMostrarAlunosPendentes(false);
         setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
-        setTelaAtiva(TELAS.INICIAL);
+        setRegistroSalvo(false);
+
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
         setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
         setAno(String(dataAtual.getFullYear()));
-        setRegistroSalvo(false);
     };
 
     return {
-        // Estados de UI
         telaAtiva,
         setTelaAtiva,
-        isLoggedIn,
-
-        // Login
-        usuarioId,
-        loginInput,
-        setLoginInput,
-        senhaInput,
-        setSenhaInput,
-        mensagemErro,
-        setMensagemErro,
-        handleLogin,
         handleLogout,
-        tipoUsuario,
-        escolaIdUsuario,
-        ubsIdUsuario,
+        buscarDados,
 
-        // Etapa e navegação
         etapaAtualId,
         passoVisual,
         totalEtapas,
@@ -530,7 +466,6 @@ export function useRegistroPSE() {
         avancarEtapa,
         voltarEtapa,
 
-        // Etapa 1
         dia,
         setDia,
         mes,
@@ -542,7 +477,6 @@ export function useRegistroPSE() {
         profissionaisResponsaveis,
         setProfissionaisResponsaveis,
 
-        // Etapas 2 e 3
         buscaEscola,
         setBuscaEscola,
         escolaSelecionada,
@@ -563,7 +497,6 @@ export function useRegistroPSE() {
         setUbsManualTexto,
         listaUbs,
 
-        // Etapa 4
         idsEixosSelecionados,
         toggleEixo,
         temEixoLocal,
@@ -572,7 +505,6 @@ export function useRegistroPSE() {
         observacoes,
         setObservacoes,
 
-        // Etapa 5
         alunosOrdenados,
         idsAlunosPresentes,
         toggleAluno,
@@ -586,7 +518,6 @@ export function useRegistroPSE() {
         alunoAdicionadoAnim,
         handleAdicionarAluno,
 
-        // Etapa 6
         alunoAtualIndex,
         setAlunoAtualIndex,
         alunosPresentes,
@@ -602,26 +533,19 @@ export function useRegistroPSE() {
         proximoAluno,
         alunoAnterior,
 
-        // Etapa 7 e Resumo
         gerarObjetoRelatorio,
         copiado,
         handleCopiarResumo,
         reiniciarRegistro,
 
-        // Persistência no banco
         salvandoBanco,
         registroSalvo,
         erroSalvarBanco,
         handleSalvarNoBanco,
 
-        // Refs
         cardRef,
         bgRef,
         nomeInputRef,
         alturaInputRef,
-
-        // Outros
-        nomeUsuario,
-        setNomeUsuario,
     };
 }

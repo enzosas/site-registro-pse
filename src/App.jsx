@@ -1,3 +1,4 @@
+import { useAuth } from './context/AuthContext';
 import { useRegistro } from './context/RegistroPSEContext';
 import { TELAS } from './constantes';
 import { RenderizadorEtapas } from './components/etapas/RenderizadorEtapas';
@@ -13,11 +14,10 @@ import { TelaResumo } from './telas/TelaResumo';
 import { TelaAdmin } from './telas/Admin/TelaAdmin';
 
 function App() {
+	const { isLoggedIn, tipoUsuario } = useAuth();
 	const {
 		telaAtiva,
 		setTelaAtiva,
-		isLoggedIn,
-		tipoUsuario,
 		handleLogout,
 		cardRef,
 		bgRef,

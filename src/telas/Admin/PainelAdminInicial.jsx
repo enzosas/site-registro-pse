@@ -1,17 +1,24 @@
 import '../../styles/telas/TelaAdmin.css';
 import { TELAS_ADMIN, TIPO_USUARIO } from '../../constantes';
+import { useAuth } from '../../context/AuthContext';
 
-export function PainelAdminInicial({ nomeUsuario, tipoUsuario, onNavegar }) {
-    
-    const verTelaRegistros = tipoUsuario === TIPO_USUARIO.ADMIN || tipoUsuario === TIPO_USUARIO.ESCOLA || tipoUsuario === TIPO_USUARIO.UBS;
-    const verTelaUsuarios = tipoUsuario === TIPO_USUARIO.ADMIN || tipoUsuario === TIPO_USUARIO.ESCOLA || tipoUsuario === TIPO_USUARIO.UBS;
+export function PainelAdminInicial({ onNavegar }) {
+    const { nomeUsuario, tipoUsuario } = useAuth();
+
+    const verTelaRegistros =
+        tipoUsuario === TIPO_USUARIO.ADMIN ||
+        tipoUsuario === TIPO_USUARIO.ESCOLA ||
+        tipoUsuario === TIPO_USUARIO.UBS;
+    const verTelaUsuarios =
+        tipoUsuario === TIPO_USUARIO.ADMIN ||
+        tipoUsuario === TIPO_USUARIO.ESCOLA ||
+        tipoUsuario === TIPO_USUARIO.UBS;
     const verTelaEscolaUBS = tipoUsuario === TIPO_USUARIO.ADMIN;
 
     return (
         <>
             <p className="app__title">Painel Administrativo</p>
             <p className='admin__inicial__saudacoes'> Olá, {nomeUsuario}!</p>
-
             {verTelaRegistros && (
                 <button
                     type="button"
