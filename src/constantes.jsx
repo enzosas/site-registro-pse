@@ -42,14 +42,25 @@ export const OPCOES_VACINACAO = {
 	NEGATIVO: {
 		valor: 'incompleto',
 		label: 'Incompleto',
-	}
-}
+	},
+	NAO_APRESENTADA: {
+		valor: 'nao_apresentada',
+		label: 'Caderneta não apresentada',
+	},
+};
 
 export const formatarVacinacao = (valor) => {
-	if (valor === OPCOES_VACINACAO.POSITIVO.valor) return OPCOES_VACINACAO.POSITIVO.label
-	if (valor === OPCOES_VACINACAO.NEGATIVO.valor) return OPCOES_VACINACAO.NEGATIVO.label
-	return '-'
-}
+	switch (valor) {
+		case OPCOES_VACINACAO.POSITIVO.valor:
+			return OPCOES_VACINACAO.POSITIVO.label;
+		case OPCOES_VACINACAO.NEGATIVO.valor:
+			return OPCOES_VACINACAO.NEGATIVO.label;
+		case OPCOES_VACINACAO.NAO_APRESENTADA.valor:
+			return OPCOES_VACINACAO.NAO_APRESENTADA.label;
+		default:
+			return '-';
+	}
+};
 
 export const OPCOES_SAUDE_OCULAR = {
 	POSITIVO: {
