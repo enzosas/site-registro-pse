@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { formatarNome } from '../utils/formatadores';
-import { TIPO_USUARIO } from '../constantes';
+import { TIPO_USUARIO } from '../utils/constantes';
 
 export async function autenticarUsuario(email, password) {
     try {

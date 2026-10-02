@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TELAS_GESTAO } from '../../constantes';
+import { TELAS_GESTAO } from '../../utils/constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { PainelGestaoInicial } from './PainelGestaoInicial';
 import { PainelRegistros } from './PainelRegistros';

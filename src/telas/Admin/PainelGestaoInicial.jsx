@@ -1,5 +1,5 @@
 import '../../styles/telas/TelaAdmin.css';
-import { TELAS_GESTAO, TIPO_USUARIO } from '../../constantes';
+import { TELAS_GESTAO, TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 
 export function PainelGestaoInicial({ onNavegar }) {

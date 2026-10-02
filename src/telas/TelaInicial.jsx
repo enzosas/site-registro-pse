@@ -1,5 +1,5 @@
 import '../styles/telas/TelaInicial.css';
-import { TIPO_USUARIO } from '../constantes.js';
+import { TIPO_USUARIO } from '../utils/constantes.js';
 
 export function TelaInicial({ onComecar, onAjuda, isLoggedIn, onLogout, tipoUsuario, onAdministracao }) {
     

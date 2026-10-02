@@ -1,6 +1,6 @@
 import { useAuth } from './context/AuthContext';
 import { useRegistro } from './context/RegistroPSEContext';
-import { TELAS } from './constantes';
+import { TELAS } from './utils/constantes';
 import { RenderizadorEtapas } from './components/etapas/RenderizadorEtapas';
 import { IconeVoltar } from './components/Icones';
 

@@ -1,5 +1,5 @@
 import { useAuth } from '../../context/AuthContext';
-import { TIPO_USUARIO } from '../../constantes';
+import { TIPO_USUARIO } from '../../utils/constantes';
 
 export function PainelRegistros() {
     const { tipoUsuario } = useAuth();

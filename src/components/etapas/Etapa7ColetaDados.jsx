@@ -1,7 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { OpcaoBinariaGroup } from '../OpcaoBinariaGroup';
-import * as Constantes from '../../constantes';
+import * as Constantes from '../../utils/constantes';
 
 export function Etapa7ColetaDados() {
     const {

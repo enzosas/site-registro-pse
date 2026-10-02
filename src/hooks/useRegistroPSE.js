@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { carregarEscolasDB, carregarUbsDB, salvarRegistroAtividadeDB } from '../services/supabaseService';
-import * as Constantes from '../constantes';
+import * as Constantes from '../utils/constantes';
 import * as Formatadores from '../utils/formatadores';
-import { TELAS, ETAPAS, TURNOS } from '../constantes';
+import { TELAS, ETAPAS, TURNOS } from '../utils/constantes';
 import { useAuth } from '../context/AuthContext';
 
 export function useRegistroPSE() {

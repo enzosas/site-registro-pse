@@ -1,7 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { formatarData, formatarDataHora } from '../../utils/formatadores';
-import { TELAS } from '../../constantes';
+import { TELAS } from '../../utils/constantes';
 
 export function Etapa6Presenca() {
     const {

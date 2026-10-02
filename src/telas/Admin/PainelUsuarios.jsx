@@ -1,6 +1,6 @@
 import { IconePesquisa } from '../../components/Icones';
 import { useState, useEffect, useMemo } from 'react';
-import { TIPO_USUARIO } from '../../constantes';
+import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import {
     carregarUsuariosDB,

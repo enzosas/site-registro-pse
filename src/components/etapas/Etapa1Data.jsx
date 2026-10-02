@@ -1,7 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { isDataValida } from '../../utils/validadoresData';
-import { LISTA_TURNOS, TELAS } from '../../constantes';
+import { LISTA_TURNOS, TELAS } from '../../utils/constantes';
 
 export function Etapa1Data() {
     const {

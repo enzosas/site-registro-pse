@@ -2,7 +2,7 @@ import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
 import { aplicarMascaraData, isDataStringValida } from '../utils/validadoresData';
-import { TELAS } from '../constantes';
+import { TELAS } from '../utils/constantes';
 
 export function TelaAddAluno() {
     const {

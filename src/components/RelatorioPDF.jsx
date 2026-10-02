@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import * as Constantes from '../constantes';
+import * as Constantes from '../utils/constantes';
 import * as Formatadores from '../utils/formatadores';
 
 const styles = StyleSheet.create({

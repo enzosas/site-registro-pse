@@ -2,8 +2,8 @@ import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
 import * as Formatadores from '../utils/formatadores';
-import * as Constantes from '../constantes';
-import { TELAS } from '../constantes';
+import * as Constantes from '../utils/constantes';
+import { TELAS } from '../utils/constantes';
 
 export function TelaResumo() {
     const {

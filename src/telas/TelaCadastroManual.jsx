@@ -1,7 +1,7 @@
 import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
-import { TELAS } from '../constantes';
+import { TELAS } from '../utils/constantes';
 
 export function TelaCadastroManual() {
     const {

@@ -1,6 +1,6 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { HeaderRegistro } from '../HeaderRegistro';
-import { ETAPAS } from '../../constantes';
+import { ETAPAS } from '../../utils/constantes';
 
 import { Etapa1Data } from './Etapa1Data';
 import { Etapa2Profissionais } from './Etapa2Profissionais';

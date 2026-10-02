@@ -1,7 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { SearchableMultiList } from '../SearchableMultiList';
-import { TELAS } from '../../constantes';
+import { TELAS } from '../../utils/constantes';
 
 export function Etapa4Turma() {
     const {

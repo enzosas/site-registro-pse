@@ -1,6 +1,6 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
-import { TELAS } from '../../constantes';
+import { TELAS } from '../../utils/constantes';
 
 export function Etapa8Conclusao() {
     const {

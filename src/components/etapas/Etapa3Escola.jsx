@@ -1,7 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { SearchableList } from '../SearchableList';
-import { TELAS } from '../../constantes';
+import { TELAS } from '../../utils/constantes';
 
 export function Etapa3Escola() {
     const {

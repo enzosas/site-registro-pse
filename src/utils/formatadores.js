@@ -4,7 +4,7 @@ import {
     TIPO_USUARIO,
     EIXOS_TEMATICOS,
     EIXOS_ID
-} from '../constantes';
+} from './constantes';
 
 export const formatarData = (data) => {
     if (!data) return '';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
-import { TELAS, TIPO_USUARIO } from '../constantes';
+import { TELAS, TIPO_USUARIO } from '../utils/constantes';
 
 export function TelaLogin({ onVoltar, onEsqueciSenha }) {
     const { login, mensagemErro } = useAuth();
