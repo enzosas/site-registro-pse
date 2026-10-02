@@ -45,7 +45,7 @@ export function Etapa6Presenca({
                         const temMultiplasTurmas = gruposPorTurma.length > 1;
 
                         return gruposPorTurma.map(([nomeTurma, alunosDaTurma]) => (
-                            <div key={nomeTurma}>
+                            <div key={nomeTurma} className='app__list__bloco_interno_turma'>
                                 {temMultiplasTurmas && (
                                     <p className='app__list__subtitle'>
                                         {nomeTurma}

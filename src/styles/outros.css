@@ -41,10 +41,15 @@
 	margin-bottom: -1rem;
 }
 
+.app__list__bloco_interno_turma ~ .app__list__bloco_interno_turma {
+	margin-top: 1rem;
+}
+
+
 .app__list__subtitle {
 	font-size: 1.25em;
 	font-weight: 500;
-	margin-top: 2rem;
+	margin-top: 1rem;
 	margin-bottom: 1rem;
 }
 
