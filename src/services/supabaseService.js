@@ -2,6 +2,8 @@ import { supabase } from './supabaseClient';
 import { formatarNome } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../utils/constantes';
 
+const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
+
 export async function autenticarUsuario(email, password) {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -247,10 +249,26 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
     }
 }
 
-export async function deletarUsuarioDB(usuarioId) {
+export async function deletarUsuarioDB(usuarioId, email = '') {
     try {
         if (!usuarioId) {
             return { sucesso: false, erro: 'ID do usuário não fornecido.' };
+        }
+
+        if (EMAIL_PROTEGIDO && email && email.trim().toLowerCase() === EMAIL_PROTEGIDO) {
+            return { sucesso: false, erro: 'Este usuário é protegido pelo sistema e não pode ser excluído.' };
+        }
+
+        if (EMAIL_PROTEGIDO) {
+            const { data: usuarioAlvo, error: erroConsulta } = await supabase
+                .from('usuarios')
+                .select('email')
+                .eq('id', usuarioId)
+                .maybeSingle();
+
+            if (!erroConsulta && usuarioAlvo?.email?.trim().toLowerCase() === EMAIL_PROTEGIDO) {
+                return { sucesso: false, erro: 'Este usuário é protegido pelo sistema e não pode ser excluído.' };
+            }
         }
 
         const { error } = await supabase.rpc('deletar_usuario_por_admin', {

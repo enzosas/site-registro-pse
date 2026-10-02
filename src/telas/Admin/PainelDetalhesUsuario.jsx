@@ -3,6 +3,8 @@ import { deletarUsuarioDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
 import { useAuth } from '../../context/AuthContext';
 
+const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
+
 export function PainelDetalhesUsuario({
     usuario,
     onVoltar,
@@ -18,10 +20,16 @@ export function PainelDetalhesUsuario({
     }
 
     const isProprioUsuario = usuarioLogadoId && usuario.id === usuarioLogadoId;
+    const isUsuarioProtegido = Boolean(EMAIL_PROTEGIDO) && usuario.email?.trim().toLowerCase() === EMAIL_PROTEGIDO;
 
     const handleDeletar = async () => {
         if (isProprioUsuario) {
             setMensagemErro('Você não pode excluir a sua própria conta.');
+            return;
+        }
+
+        if (isUsuarioProtegido) {
+            setMensagemErro('Este usuário é protegido pelo sistema e não pode ser excluído.');
             return;
         }
 
@@ -32,7 +40,7 @@ export function PainelDetalhesUsuario({
 
         setMensagemErro('');
         setDeletando(true);
-        const resultado = await deletarUsuarioDB(usuario.id);
+        const resultado = await deletarUsuarioDB(usuario.id, usuario.email);
         setDeletando(false);
 
         if (!resultado.sucesso) {
@@ -85,7 +93,7 @@ export function PainelDetalhesUsuario({
                     type="button"
                     className="app__buttonMain"
                     onClick={handleDeletar}
-                    disabled={deletando || isProprioUsuario}
+                    disabled={deletando || isProprioUsuario || isUsuarioProtegido}
                 >
                     <p>{deletando ? 'Excluindo...' : 'Excluir Usuário'}</p>
                 </button>
