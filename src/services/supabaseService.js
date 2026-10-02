@@ -402,6 +402,7 @@ export async function salvarRegistroAtividadeDB(payload) {
                     data_atividade: payload.dataAtividade,
                     turno: payload.turno,
                     escola_id: payload.escolaId,
+                    ubs_id: payload.ubsId || null,
                     escola_nome: payload.escolaNome,
                     turmas: payload.turmas,
                     profissionais: payload.profissionais,

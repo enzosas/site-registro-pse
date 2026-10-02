@@ -114,12 +114,15 @@ function App() {
 			case TELAS.CADASTRO_MANUAL:
 				return (
 					<TelaCadastroManual
-						etapa={p.passoVisual}    
+						etapa={p.passoVisual}
 						totalEtapas={p.totalEtapas}
 						escolaManual={p.escolaManual}
 						setEscolaManual={p.setEscolaManual}
 						turmaManual={p.turmaManual}
 						setTurmaManual={p.setTurmaManual}
+						ubsManualTexto={p.ubsManualTexto}
+						setUbsManualTexto={p.setUbsManualTexto}
+						listaUbs={p.listaUbs}
 						onSalvarManual={p.handleSalvarManual}
 						onVoltar={() => p.setTelaAtiva(TELAS.ETAPAS)}
 						cardRef={p.cardRef}

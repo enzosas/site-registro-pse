@@ -8,11 +8,18 @@ export function TelaCadastroManual({
     setEscolaManual,
     turmaManual,
     setTurmaManual,
+    ubsManualTexto,
+    setUbsManualTexto,
+    listaUbs = [],
     onSalvarManual,
     onVoltar,
     cardRef,
 }) {
-    const isDisabled = !escolaManual.trim() || !turmaManual.trim();
+    const ubsEncontrada = listaUbs.find(
+        (ubs) => ubs.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
+    );
+
+    const isFormValido = escolaManual.trim() && turmaManual.trim() && Boolean(ubsEncontrada);
 
     return (
         <>
@@ -22,7 +29,7 @@ export function TelaCadastroManual({
                 ref={cardRef}
                 onSubmit={(e) => {
                     e.preventDefault();
-                    if (isDisabled) return;
+                    if (!isFormValido) return;
                     onSalvarManual();
                 }}
             >
@@ -30,27 +37,53 @@ export function TelaCadastroManual({
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Cadastro Manual</p>
+
                 <div className='app__input-group'>
                     <label>Nome da Escola</label>
                     <input
                         type='text'
+                        placeholder="Digite o nome da escola"
                         value={escolaManual}
                         onChange={(e) => setEscolaManual(e.target.value)}
+                        required
                     />
                 </div>
+
                 <div className='app__input-group'>
                     <label>Nome da Turma</label>
                     <input
                         type='text'
+                        placeholder="Digite o nome da turma"
                         value={turmaManual}
                         onChange={(e) => setTurmaManual(e.target.value)}
+                        required
                     />
                 </div>
+
+                <datalist id="lista-ubs-datalist">
+                    {listaUbs.map((ubs) => (
+                        <option key={ubs.id} value={ubs.nome} />
+                    ))}
+                </datalist>
+
+                <div className='app__input-group'>
+                    <label>UBS Responsável pela Ação</label>
+                    <input
+                        type="text"
+                        placeholder="Digite ou selecione a UBS de referência"
+                        list="lista-ubs-datalist"
+                        value={ubsManualTexto}
+                        onChange={(e) => setUbsManualTexto(e.target.value)}
+                        autoComplete="off"
+                        required
+                    />
+                </div>
+
                 <div className='app__footer'>
                     <button
                         type="submit"
                         className={'app__buttonMain'}
-                        disabled={isDisabled}
+                        disabled={!isFormValido}
                     >
                         <p>Avançar</p>
                     </button>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { autenticarUsuario, carregarEscolasDB, deslogarUsuario, salvarRegistroAtividadeDB } from '../services/supabaseService';
+import { autenticarUsuario, carregarEscolasDB, deslogarUsuario, salvarRegistroAtividadeDB, carregarUbsDB } from '../services/supabaseService';
 import * as Constantes from '../constantes';
 import { formatarData, formatarProfissionais, formatarDataComTurno, formatarTurmas } from '../utils/formatadores';
 import { TELAS, ETAPAS, TIPO_USUARIO, TURNOS } from '../constantes';
@@ -44,6 +44,10 @@ export function useRegistroPSE() {
     // Cadastro Manual
     const [escolaManual, setEscolaManual] = useState('');
     const [turmaManual, setTurmaManual] = useState('');
+    
+    // Carregar UBS para cadastro manual
+    const [ubsManualTexto, setUbsManualTexto] = useState('');
+    const [listaUbs, setListaUbs] = useState([]);
 
     // Eixos temáticos
     const [idsEixosSelecionados, setIdsEixosSelecionados] = useState([]);
@@ -76,15 +80,19 @@ export function useRegistroPSE() {
         setErroSalvarBanco('');
 
         const relatorio = gerarObjetoRelatorio();
-
         const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
         const idEscolaValido = typeof escolaSelecionada?.id === 'number' ? escolaSelecionada.id : null;
+
+        const ubsIdParaSalvar = idEscolaValido !== null
+            ? null
+            : (escolaSelecionada?.ubsManualId || (ubsManualTexto ? listaUbs.find(u => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase())?.id : null) || null);
 
         const payload = {
             dataAtividade: dataIso,
             turno: turno,
             escolaId: idEscolaValido,
+            ubsId: ubsIdParaSalvar,
             escolaNome: escolaSelecionada?.nome || escolaManual || '',
             turmas: relatorio.turma,
             profissionais: profissionaisResponsaveis.filter((p) => p && p.trim().length > 0),
@@ -122,8 +130,12 @@ export function useRegistroPSE() {
 
     // Busca inicial dos dados no Supabase
     const buscarDados = async () => {
-        const escolasCarregadas = await carregarEscolasDB();
+        const [escolasCarregadas, ubsCarregadas] = await Promise.all([
+            carregarEscolasDB(),
+            carregarUbsDB(),
+        ]);
         setEscolas(escolasCarregadas);
+        setListaUbs(ubsCarregadas || []);
     };
 
     // Login
@@ -391,7 +403,16 @@ export function useRegistroPSE() {
     };
 
     const handleSalvarManual = () => {
-        setEscolaSelecionada({ id: 'manual_escola', nome: escolaManual, turmas: [] });
+        const ubsEncontrada = listaUbs.find(
+            (u) => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
+        );
+
+        setEscolaSelecionada({
+            id: 'manual_escola',
+            nome: escolaManual,
+            turmas: [],
+            ubsManualId: ubsEncontrada ? ubsEncontrada.id : null,
+        });
         setTurmaSelecionada([{ id: 'manual_turma', nome: turmaManual, alunos: [] }]);
         setIdsAlunosPresentes([]);
         setEtapaAtualId(ETAPAS.EIXOS);
@@ -481,6 +502,7 @@ export function useRegistroPSE() {
         setObservacoes('');
         setIdsAlunosPresentes([]);
         setDadosAlunos({});
+        setUbsManualTexto('');
         setMostrarAlunosPendentes(false);
         setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
         setTelaAtiva(TELAS.INICIAL);
@@ -548,6 +570,9 @@ export function useRegistroPSE() {
         turmaManual,
         setTurmaManual,
         handleSalvarManual,
+        ubsManualTexto,
+        setUbsManualTexto,
+        listaUbs,
 
         // Etapa 4
         idsEixosSelecionados,
