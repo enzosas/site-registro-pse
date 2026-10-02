@@ -13,16 +13,28 @@ export function Etapa8Conclusao({
 }) {
     return (
         <>
-            <button type="button" className="app__botao-voltar" onClick={onVoltar}>
+            <button
+                type="button"
+                className="app__botao-voltar"
+                onClick={() => {
+                    if (registroSalvo) {
+                        onReiniciarRegistro();
+                    } else {
+                        onVoltar();
+                    }
+                }}
+                title={registroSalvo ? "Voltar ao início" : "Voltar à etapa anterior"}
+            >
                 <IconeVoltar />
             </button>
             <p className='app__title'>Tudo pronto!</p>
 
+            <p className='app__tooltip'>Agora, revise as informações no resumo ou clique abaixo para registrar a atividade.</p>
             <button
                 className='app__buttonSecondary app__buttonSecondary__left-anchor'
                 onClick={onReiniciarRegistro}
             >
-                Iniciar novo registro
+                Voltar para o início
             </button>
 
             <div className='app__footer'>
@@ -31,7 +43,9 @@ export function Etapa8Conclusao({
                         {erroSalvarBanco}
                     </div>
                 )}
-
+                { registroSalvo && (
+                    <p>Registro salvo! Você já pode voltar para o início com o botão acima</p>
+                )}
                 <button
                     type="button"
                     className='app__buttonMain'

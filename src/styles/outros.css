@@ -142,6 +142,10 @@
 	line-height: 1.25em;
 }
 
+.app__tooltip {
+	line-height: 1.25em;
+}
+
 .app__ajuda__paragrafo {
 	margin-bottom: 0.5em;
 	text-align: justify;
