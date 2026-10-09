@@ -153,3 +153,97 @@
     width: 100%;
     font-size: 1.25rem;
 }
+
+.admin__registros__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.25rem;
+}
+
+.admin__registro-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--cor-frame);
+    border: var(--input-border);
+    border-radius: 1rem;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    transition: transform 0.1s ease, filter 0.2s ease, border-color 0.2s ease;
+}
+
+.admin__registro-card:hover {
+    filter: brightness(0.95);
+}
+
+.admin__registro-card:active {
+    transform: scale(0.95);
+}
+
+.admin__registro-card:focus-visible {
+    outline: 0.2rem solid var(--cor-botao);
+    outline-offset: 0em;
+}
+
+.admin__registro-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin__registro-card__escola {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cor-texto);
+    line-height: 1.25;
+}
+
+.admin__registro-card__turma {
+    font-size: 0.95rem;
+    color: var(--cor-botao2);
+    line-height: 1.25;
+}
+
+.admin__registro-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.admin__registro-card__badge {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2rem;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+.admin__registro-card__footer {
+    border-top: var(--input-border);
+    padding-top: 0.5rem;
+    margin-top: auto;
+}
+
+.admin__registro-card__autor {
+    font-size: 0.8rem;
+    color: var(--cor-botao2);
+}
+
+.admin__registro-card__autor span {
+    color: var(--cor-texto);
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .admin__registros__grid {
+        grid-template-columns: 1fr;
+    }
+}

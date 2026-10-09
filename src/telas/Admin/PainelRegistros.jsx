@@ -183,38 +183,49 @@ export function PainelRegistros() {
                 <IconePesquisa />
             </div>
 
-            <div className="app__search-list">
-                {carregando && <p>Carregando registros...</p>}
-
+            <div className="admin__registros__grid">
+                {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
                 {!carregando && erro && (
-                    <p style={{ color: 'var(--cor-negative)' }}>Não foi possível carregar os registros: {erro}</p>
+                    <p className="admin__alerta-erro">Não foi possível carregar os registros: {erro}</p>
                 )}
-
                 {!carregando && !erro && registrosFiltrados.length === 0 && (
-                    <p>
+                    <p className="admin__escola_ubs__vazio">
                         {temFiltroAtivo
                             ? 'Nenhum registro encontrado com esses filtros.'
                             : 'Nenhum registro encontrado.'}
                     </p>
                 )}
+                {!carregando && registrosFiltrados.map((r) => {
+                    const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
+                    return (
+                        <button
+                            key={r.id}
+                            type="button"
+                            className="admin__registro-card"
+                            onClick={() => setSelecionado(r)}
+                        >
+                            <div className="admin__registro-card__header">
+                                <p className="admin__registro-card__escola">{r.escola_nome}</p>
+                                <p className="admin__registro-card__turma">{formatarTurmas(r.turmas)}</p>
+                            </div>
 
-                {!carregando && registrosFiltrados.map((r) => (
-                    <button
-                        key={r.id}
-                        className="admin__usuario__tabela__line"
-                        onClick={() => setSelecionado(r)}
-                    >
-                        <p className="admin__usuario__tabela__line__nome">
-                            {r.escola_nome} - {formatarTurmas(r.turmas)}
-                        </p>
-                        <p className="admin__usuario__tabela__line__email">
-                            Registrado por: {r.registrador_nome || '-'}
-                        </p>
-                        <p className="admin__usuario__tabela__line__info">
-                            {formatarDataIso(r.data_atividade)} - {r.turno}
-                        </p>
-                    </button>
-                ))}
+                            <div className="admin__registro-card__tags">
+                                <span className="admin__registro-card__badge">
+                                    {formatarDataIso(r.data_atividade)} - {r.turno}
+                                </span>
+                                <span className="admin__registro-card__badge admin__registro-card__badge--destaque">
+                                    {totalAlunos} {totalAlunos === 1 ? 'aluno' : 'alunos'}
+                                </span>
+                            </div>
+
+                            <div className="admin__registro-card__footer">
+                                <p className="admin__registro-card__autor">
+                                    Registrado por: <span>{r.registrador_nome || '-'}</span>
+                                </p>
+                            </div>
+                        </button>
+                    );
+                })}
             </div>
 
             {!carregando && temFiltroAtivo && (
