@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from '../../components/RelatorioPDF';
+import { useAuth } from '../../context/AuthContext';
+import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
 
-export function PainelDetalhesRegistro({ registro }) {
+export function PainelDetalhesRegistro({ registro: registroInicial }) {
+    const { usuarioId, nomeUsuario } = useAuth();
+    const [registro, setRegistro] = useState(registroInicial);
+    const [marcando, setMarcando] = useState(false);
+    const [erro, setErro] = useState('');
+
     if (!registro) {
         return null;
     }
 
+    const jaExportado = Boolean(registro.exportado_outro_sistema);
     const alunos = Array.isArray(registro.alunos_dados) ? registro.alunos_dados : [];
     const eixos = Array.isArray(registro.eixos_tematicos) ? registro.eixos_tematicos : [];
 
@@ -24,6 +33,44 @@ export function PainelDetalhesRegistro({ registro }) {
     const nomeArquivo = `relatorio-pse-${registro.escola_nome || 'registro'}-${registro.data_atividade || 'data'}.pdf`
         .toLowerCase()
         .replace(/\s+/g, '-');
+
+    const handleMarcarComoLancado = async () => {
+        if (jaExportado || marcando) return;
+
+        const confirmou = window.confirm(
+            `Deseja marcar este registro como lançado no sistema MV? O responsável pelo lançamento será "${nomeUsuario || 'usuário logado'}".`
+        );
+
+        if (!confirmou) return;
+
+        setErro('');
+        setMarcando(true);
+
+        const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId);
+        setMarcando(false);
+
+        if (!resultado.sucesso) {
+            setErro(resultado.erro || 'Falha ao marcar o registro no banco.');
+            return;
+        }
+
+        // Atualiza o estado local preservando o nome de quem acabou de lançar
+        setRegistro({
+            ...resultado.data,
+            exportador_nome: nomeUsuario,
+        });
+
+        alert('Registro marcado como lançado no sistema MV com sucesso!');
+    };
+
+    const formatarDataHoraLancamento = (timestamp) => {
+        if (!timestamp) return '';
+        const d = new Date(timestamp);
+        if (isNaN(d.getTime())) return '';
+        const dataFormatada = d.toLocaleDateString('pt-BR');
+        const horaFormatada = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        return `${dataFormatada} às ${horaFormatada}`;
+    };
 
     return (
         <>
@@ -93,7 +140,28 @@ export function PainelDetalhesRegistro({ registro }) {
                 </div>
             </div>
 
-            <div className="app__footer">
+            <div className="app__resumo">
+                <p className="app__resumo__subtitle">Lançamento no Sistema MV</p>
+                {jaExportado ? (
+                    <p>
+                        Status: <strong>Lançado</strong>
+                        {registro.exportado_em && ` em ${formatarDataHoraLancamento(registro.exportado_em)}`}
+                        {(registro.exportador_nome || (registro.exportado_por_usuario_id === usuarioId && nomeUsuario)) && (
+                            <> por <strong>{registro.exportador_nome || nomeUsuario}</strong></>
+                        )}
+                    </p>
+                ) : (
+                    <p>Ainda não lançado no MV</p>
+                )}
+            </div>
+
+            <div className="app__footer app__footer--extra_margin">
+                {erro && (
+                    <div className="app__alerta-erro">
+                        <p>{erro}</p>
+                    </div>
+                )}
+
                 <PDFDownloadLink
                     document={<RelatorioPDF dados={dadosRelatorio} />}
                     fileName={nomeArquivo}
@@ -104,6 +172,21 @@ export function PainelDetalhesRegistro({ registro }) {
                         <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
                     )}
                 </PDFDownloadLink>
+
+                <button
+                    type="button"
+                    className="app__buttonMain"
+                    onClick={handleMarcarComoLancado}
+                    disabled={jaExportado || marcando}
+                >
+                    <p>
+                        {jaExportado
+                            ? 'Lançado no Sistema MV'
+                            : marcando
+                                ? 'Atualizando...'
+                                : 'Marcar como lançado no sistema MV'}
+                    </p>
+                </button>
             </div>
         </>
     );

@@ -41,6 +41,10 @@
     gap: 1rem;
 }
 
+.app__footer--extra_margin {
+    margin-top: 2rem;
+}
+
 @media (max-width: 1000px) {
     .app__background {
         padding: 1rem;

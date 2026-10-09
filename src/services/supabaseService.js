@@ -445,6 +445,7 @@ export async function salvarRegistroAtividadeDB(payload) {
         return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
     }
 }
+
 export async function carregarRegistrosAtividadeDB() {
     try {
         const { data, error } = await supabase
@@ -463,18 +464,56 @@ export async function carregarRegistrosAtividadeDB() {
                 registrador_nome,
                 eixos_tematicos,
                 observacoes,
-                alunos_dados
+                alunos_dados,
+                exportado_outro_sistema,
+                exportado_por_usuario_id,
+                exportado_em,
+                usuarios!registros_atividade_exportado_por_usuario_id_fkey ( nome )
             `)
             .order('data_atividade', { ascending: false });
- 
+
         if (error) {
             console.error('Erro ao buscar registros de atividade:', error);
             return { sucesso: false, erro: error.message, data: [] };
         }
- 
-        return { sucesso: true, data: data || [] };
+
+        const formatados = (data || []).map((reg) => ({
+            ...reg,
+            exportador_nome: reg.usuarios?.nome || null,
+        }));
+
+        return { sucesso: true, data: formatados };
     } catch (err) {
         console.error('Erro inesperado ao carregar registros de atividade:', err);
         return { sucesso: false, erro: 'Erro inesperado ao carregar os registros.', data: [] };
+    }
+}
+
+export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
+    try {
+        if (!registroId || !usuarioId) {
+            return { sucesso: false, erro: 'Identificadores inválidos.' };
+        }
+
+        const { data, error } = await supabase
+            .from('registros_atividade')
+            .update({
+                exportado_outro_sistema: true,
+                exportado_por_usuario_id: usuarioId,
+                exportado_em: new Date().toISOString(),
+            })
+            .eq('id', registroId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Erro ao marcar registro como exportado:', error);
+            return { sucesso: false, erro: error.message };
+        }
+
+        return { sucesso: true, data };
+    } catch (err) {
+        console.error('Erro inesperado ao exportar registro:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao atualizar o registro.' };
     }
 }
