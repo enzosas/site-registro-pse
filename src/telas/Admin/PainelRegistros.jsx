@@ -3,20 +3,12 @@ import { IconePesquisa } from '../../components/Icones';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
-import { formatarProfissionais, formatarTurmas } from '../../utils/formatadores';
-
-// 'AAAA-MM-DD' -> 'DD/MM/AAAA' (sem usar Date, para evitar erro de fuso horário)
-function formatarDataIso(dataIso) {
-    if (!dataIso) return '-';
-    const [ano, mes, dia] = String(dataIso).slice(0, 10).split('-');
-    return `${dia}/${mes}/${ano}`;
-}
-
-function listaParaTexto(valor) {
-    if (!valor) return '-';
-    if (Array.isArray(valor)) return valor.filter(Boolean).join('; ') || '-';
-    return String(valor);
-}
+import {
+    formatarProfissionais,
+    formatarTurmas,
+    formatarDataIso,
+    formatarListaParaTexto,
+} from '../../utils/formatadores';
 
 export function PainelRegistros() {
     const { tipoUsuario } = useAuth();
@@ -97,7 +89,7 @@ export function PainelRegistros() {
                     <p><strong>Data:</strong> {formatarDataIso(selecionado.data_atividade)} - Turno da {selecionado.turno || '-'}</p>
                     <p><strong>Registrado por:</strong> {selecionado.registrador_nome || '-'}</p>
                     <p><strong>Profissionais:</strong> {formatarProfissionais(selecionado.profissionais)}</p>
-                    <p><strong>Eixos temáticos:</strong> {listaParaTexto(selecionado.eixos_tematicos)}</p>
+                    <p><strong>Eixos temáticos:</strong> {formatarListaParaTexto(selecionado.eixos_tematicos)}</p>
                     <p><strong>Observações:</strong> {selecionado.observacoes || '-'}</p>
                     <p><strong>Alunos presentes ({alunos.length}):</strong></p>
                     {alunos.map((a, i) => (
@@ -183,18 +175,19 @@ export function PainelRegistros() {
                 <IconePesquisa />
             </div>
 
+            {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
+            {!carregando && erro && (
+                <p className="admin__alerta-erro">Não foi possível carregar os registros: {erro}</p>
+            )}
+            {!carregando && !erro && registrosFiltrados.length === 0 && (
+                <p className="admin__escola_ubs__vazio">
+                    {temFiltroAtivo
+                        ? 'Nenhum registro encontrado com esses filtros.'
+                        : 'Nenhum registro encontrado.'}
+                </p>
+            )}
+            
             <div className="admin__registros__grid">
-                {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
-                {!carregando && erro && (
-                    <p className="admin__alerta-erro">Não foi possível carregar os registros: {erro}</p>
-                )}
-                {!carregando && !erro && registrosFiltrados.length === 0 && (
-                    <p className="admin__escola_ubs__vazio">
-                        {temFiltroAtivo
-                            ? 'Nenhum registro encontrado com esses filtros.'
-                            : 'Nenhum registro encontrado.'}
-                    </p>
-                )}
                 {!carregando && registrosFiltrados.map((r) => {
                     const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
                     return (

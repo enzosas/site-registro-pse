@@ -106,3 +106,15 @@ export function formatarEixosTematicosSelecionados(idsEixosSelecionados = [], no
             return eixo.label;
         });
 }
+
+export function formatarDataIso(dataIso) {
+    if (!dataIso) return '-';
+    const [ano, mes, dia] = String(dataIso).slice(0, 10).split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
+export function formatarListaParaTexto(valor) {
+    if (!valor) return '-';
+    if (Array.isArray(valor)) return valor.filter(Boolean).join('; ') || '-';
+    return String(valor);
+}
