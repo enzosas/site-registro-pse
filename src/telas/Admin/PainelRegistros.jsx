@@ -4,13 +4,11 @@ import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
 import {
-    formatarProfissionais,
     formatarTurmas,
     formatarDataIso,
-    formatarListaParaTexto,
 } from '../../utils/formatadores';
 
-export function PainelRegistros() {
+export function PainelRegistros({ onSelecionarRegistro }) {
     const { tipoUsuario } = useAuth();
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
@@ -18,7 +16,6 @@ export function PainelRegistros() {
     const [registros, setRegistros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState('');
-    const [selecionado, setSelecionado] = useState(null);
 
     const [termoBusca, setTermoBusca] = useState('');
     const [filtroRegistrador, setFiltroRegistrador] = useState('');
@@ -32,7 +29,7 @@ export function PainelRegistros() {
             setCarregando(true);
             const resultado = await carregarRegistrosAtividadeDB();
             if (!montado) return;
-            setRegistros(resultado.data);
+            setRegistros(resultado.data || []);
             setErro(resultado.sucesso ? '' : resultado.erro);
             setCarregando(false);
         }
@@ -77,33 +74,6 @@ export function PainelRegistros() {
         setDataInicio('');
         setDataFim('');
     };
-
-    if (selecionado) {
-        const alunos = Array.isArray(selecionado.alunos_dados) ? selecionado.alunos_dados : [];
-        return (
-            <>
-                <p className="app__title">Detalhes do registro</p>
-                <div className="app__search-list">
-                    <p><strong>Escola:</strong> {selecionado.escola_nome || '-'}</p>
-                    <p><strong>Turma(s):</strong> {formatarTurmas(selecionado.turmas)}</p>
-                    <p><strong>Data:</strong> {formatarDataIso(selecionado.data_atividade)} - Turno da {selecionado.turno || '-'}</p>
-                    <p><strong>Registrado por:</strong> {selecionado.registrador_nome || '-'}</p>
-                    <p><strong>Profissionais:</strong> {formatarProfissionais(selecionado.profissionais)}</p>
-                    <p><strong>Eixos temáticos:</strong> {formatarListaParaTexto(selecionado.eixos_tematicos)}</p>
-                    <p><strong>Observações:</strong> {selecionado.observacoes || '-'}</p>
-                    <p><strong>Alunos presentes ({alunos.length}):</strong></p>
-                    {alunos.map((a, i) => (
-                        <p key={a.id ?? i}>- {a.nome}</p>
-                    ))}
-                </div>
-                <div className="app__footer">
-                    <button type="button" className="app__buttonMain" onClick={() => setSelecionado(null)}>
-                        <p>Voltar à lista</p>
-                    </button>
-                </div>
-            </>
-        );
-    }
 
     return (
         <>
@@ -186,7 +156,7 @@ export function PainelRegistros() {
                         : 'Nenhum registro encontrado.'}
                 </p>
             )}
-            
+
             <div className="admin__registros__grid">
                 {!carregando && registrosFiltrados.map((r) => {
                     const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
@@ -195,7 +165,7 @@ export function PainelRegistros() {
                             key={r.id}
                             type="button"
                             className="admin__registro-card"
-                            onClick={() => setSelecionado(r)}
+                            onClick={() => onSelecionarRegistro && onSelecionarRegistro(r)}
                         >
                             <div className="admin__registro-card__header">
                                 <p className="admin__registro-card__escola">{r.escola_nome}</p>

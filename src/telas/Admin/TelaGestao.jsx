@@ -3,6 +3,7 @@ import { TELAS_GESTAO } from '../../utils/constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { PainelGestaoInicial } from './PainelGestaoInicial';
 import { PainelRegistros } from './PainelRegistros';
+import { PainelDetalhesRegistro } from './PainelDetalhesRegistro';
 import { PainelUsuarios } from './PainelUsuarios';
 import { PainelEscolaUbs } from './PainelEscolaUbs';
 import { PainelCriarUsuario } from './PainelCriarUsuario';
@@ -14,6 +15,7 @@ import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
 export function TelaGestao({ onVoltar, cardRef }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_GESTAO.PAINEL_INICIAL);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+    const [registroSelecionado, setRegistroSelecionado] = useState(null);
 
     const handleVoltar = () => {
         if (
@@ -22,6 +24,9 @@ export function TelaGestao({ onVoltar, cardRef }) {
         ) {
             setUsuarioSelecionado(null);
             setSubtelaAtiva(TELAS_GESTAO.PAINEL_USUARIOS);
+        } else if (subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_REGISTRO) {
+            setRegistroSelecionado(null);
+            setSubtelaAtiva(TELAS_GESTAO.PAINEL_REGISTROS);
         } else if (
             subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_UBS ||
             subtelaAtiva === TELAS_GESTAO.PAINEL_REMOVER_UBS ||
@@ -68,7 +73,24 @@ export function TelaGestao({ onVoltar, cardRef }) {
                     />
                 );
             case TELAS_GESTAO.PAINEL_REGISTROS:
-                return <PainelRegistros />;
+                return (
+                    <PainelRegistros
+                        onSelecionarRegistro={(registro) => {
+                            setRegistroSelecionado(registro);
+                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_DETALHES_REGISTRO);
+                        }}
+                    />
+                );
+            case TELAS_GESTAO.PAINEL_DETALHES_REGISTRO:
+                return (
+                    <PainelDetalhesRegistro
+                        registro={registroSelecionado}
+                        onVoltar={() => {
+                            setRegistroSelecionado(null);
+                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_REGISTROS);
+                        }}
+                    />
+                );
             case TELAS_GESTAO.PAINEL_ESCOLAUBS:
                 return (
                     <PainelEscolaUbs
