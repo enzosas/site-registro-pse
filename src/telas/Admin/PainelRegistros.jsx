@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { IconePesquisa, IconeCheck } from '../../components/Icones';
-import { TIPO_USUARIO } from '../../utils/constantes';
+import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
 import {
@@ -17,7 +17,9 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState('');
 
+    const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [termoBusca, setTermoBusca] = useState('');
+    const [filtroEixo, setFiltroEixo] = useState('');
     const [filtroRegistrador, setFiltroRegistrador] = useState('');
     const [filtroEscola, setFiltroEscola] = useState('');
     const [dataInicio, setDataInicio] = useState('');
@@ -57,18 +59,26 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 (r.escola_nome || '').toLowerCase().includes(busca) ||
                 formatarTurmas(r.turmas).toLowerCase().includes(busca) ||
                 (r.registrador_nome || '').toLowerCase().includes(busca);
+
+            const eixosLista = Array.isArray(r.eixos_tematicos) ? r.eixos_tematicos : [];
+            const passaEixo = !filtroEixo || eixosLista.some((eixo) =>
+                String(eixo).toLowerCase().includes(filtroEixo.toLowerCase())
+            );
+
             const passaRegistrador = !filtroRegistrador || r.registrador_nome === filtroRegistrador;
             const passaEscola = !filtroEscola || r.escola_nome === filtroEscola;
             const passaInicio = !dataInicio || r.data_atividade >= dataInicio;
             const passaFim = !dataFim || r.data_atividade <= dataFim;
-            return passaBusca && passaRegistrador && passaEscola && passaInicio && passaFim;
-        });
-    }, [registros, termoBusca, filtroRegistrador, filtroEscola, dataInicio, dataFim]);
 
-    const temFiltroAtivo = termoBusca || filtroRegistrador || filtroEscola || dataInicio || dataFim;
+            return passaBusca && passaEixo && passaRegistrador && passaEscola && passaInicio && passaFim;
+        });
+    }, [registros, termoBusca, filtroEixo, filtroRegistrador, filtroEscola, dataInicio, dataFim]);
+
+    const temFiltroAtivo = termoBusca || filtroEixo || filtroRegistrador || filtroEscola || dataInicio || dataFim;
 
     const limparFiltros = () => {
         setTermoBusca('');
+        setFiltroEixo('');
         setFiltroRegistrador('');
         setFiltroEscola('');
         setDataInicio('');
@@ -87,50 +97,84 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             </p>
 
             {isAdmin && (
-                <div className="admin__grupo-filtros">
-                    <div className="app__combobox-group">
-                        <label>Registrador</label>
-                        <select
-                            className="app__select"
-                            value={filtroRegistrador}
-                            onChange={(e) => setFiltroRegistrador(e.target.value)}
-                        >
-                            <option value="">Sem filtro</option>
-                            {registradores.map((nome) => (
-                                <option key={nome} value={nome}>{nome}</option>
-                            ))}
-                        </select>
+                <button
+                    type="button"
+                    className="app__buttonSecondary"
+                    onClick={() => setMostrarFiltros((prev) => !prev)}
+                >
+                    <p>{mostrarFiltros ? 'Ocultar Filtros' : 'Mostrar Filtros'}</p>
+                </button>
+            )}
+
+            {isAdmin && mostrarFiltros && (
+                <div className="admin__filtros-container">
+                    <div className="admin__filtros-linha">
+                        <div className="app__combobox-group">
+                            <label>Eixo Temático</label>
+                            <select
+                                className="app__select"
+                                value={filtroEixo}
+                                onChange={(e) => setFiltroEixo(e.target.value)}
+                            >
+                                <option value="">Sem filtro</option>
+                                {EIXOS_TEMATICOS.map((eixo) => (
+                                    <option key={eixo.id} value={eixo.label}>
+                                        {eixo.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                    <div className="app__combobox-group">
-                        <label>Escola</label>
-                        <select
-                            className="app__select"
-                            value={filtroEscola}
-                            onChange={(e) => setFiltroEscola(e.target.value)}
-                        >
-                            <option value="">Sem filtro</option>
-                            {escolas.map((nome) => (
-                                <option key={nome} value={nome}>{nome}</option>
-                            ))}
-                        </select>
+
+                    <div className="admin__filtros-linha">
+                        
+                        <div className="app__combobox-group">
+                            <label>Escola</label>
+                            <select
+                                className="app__select"
+                                value={filtroEscola}
+                                onChange={(e) => setFiltroEscola(e.target.value)}
+                            >
+                                <option value="">Sem filtro</option>
+                                {escolas.map((nome) => (
+                                    <option key={nome} value={nome}>{nome}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="app__combobox-group">
+                            <label>Registrado por</label>
+                            <select
+                                className="app__select"
+                                value={filtroRegistrador}
+                                onChange={(e) => setFiltroRegistrador(e.target.value)}
+                            >
+                                <option value="">Sem filtro</option>
+                                {registradores.map((nome) => (
+                                    <option key={nome} value={nome}>{nome}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                    <div className="app__combobox-group">
-                        <label>De</label>
-                        <input
-                            type="date"
-                            className="app__select"
-                            value={dataInicio}
-                            onChange={(e) => setDataInicio(e.target.value)}
-                        />
-                    </div>
-                    <div className="app__combobox-group">
-                        <label>Até</label>
-                        <input
-                            type="date"
-                            className="app__select"
-                            value={dataFim}
-                            onChange={(e) => setDataFim(e.target.value)}
-                        />
+
+                    <div className="admin__filtros-linha">
+                        <div className="app__combobox-group">
+                            <label>De</label>
+                            <input
+                                type="date"
+                                className="app__select"
+                                value={dataInicio}
+                                onChange={(e) => setDataInicio(e.target.value)}
+                            />
+                        </div>
+                        <div className="app__combobox-group">
+                            <label>Até</label>
+                            <input
+                                type="date"
+                                className="app__select"
+                                value={dataFim}
+                                onChange={(e) => setDataFim(e.target.value)}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
