@@ -1,12 +1,29 @@
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { RelatorioPDF } from '../../components/RelatorioPDF';
 import * as Formatadores from '../../utils/formatadores';
 
-export function PainelDetalhesRegistro({ registro, onVoltar }) {
+export function PainelDetalhesRegistro({ registro }) {
     if (!registro) {
         return null;
     }
 
     const alunos = Array.isArray(registro.alunos_dados) ? registro.alunos_dados : [];
     const eixos = Array.isArray(registro.eixos_tematicos) ? registro.eixos_tematicos : [];
+
+    const dadosRelatorio = {
+        data: `${Formatadores.formatarDataIso(registro.data_atividade)} - Turno da ${registro.turno || '-'}`,
+        escola: registro.escola_nome ? Formatadores.formatarNome(registro.escola_nome) : '',
+        turma: Formatadores.formatarTurmas(registro.turmas),
+        profissionaisResponsaveis: registro.profissionais || [],
+        Registrador: registro.registrador_nome || '',
+        eixosTematicos: eixos,
+        observacoes: registro.observacoes || '',
+        alunosPresentes: alunos,
+    };
+
+    const nomeArquivo = `relatorio-pse-${registro.escola_nome || 'registro'}-${registro.data_atividade || 'data'}.pdf`
+        .toLowerCase()
+        .replace(/\s+/g, '-');
 
     return (
         <>
@@ -77,9 +94,16 @@ export function PainelDetalhesRegistro({ registro, onVoltar }) {
             </div>
 
             <div className="app__footer">
-                <button type="button" className="app__buttonMain" onClick={onVoltar}>
-                    <p>Voltar à lista</p>
-                </button>
+                <PDFDownloadLink
+                    document={<RelatorioPDF dados={dadosRelatorio} />}
+                    fileName={nomeArquivo}
+                    className="app__buttonMain"
+                    style={{ textDecoration: 'none' }}
+                >
+                    {({ loading }) => (
+                        <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
+                    )}
+                </PDFDownloadLink>
             </div>
         </>
     );
