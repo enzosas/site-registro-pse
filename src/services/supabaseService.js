@@ -445,3 +445,36 @@ export async function salvarRegistroAtividadeDB(payload) {
         return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
     }
 }
+export async function carregarRegistrosAtividadeDB() {
+    try {
+        const { data, error } = await supabase
+            .from('registros_atividade')
+            .select(`
+                id,
+                criado_em,
+                data_atividade,
+                turno,
+                escola_id,
+                ubs_id,
+                escola_nome,
+                turmas,
+                profissionais,
+                usuario_id,
+                registrador_nome,
+                eixos_tematicos,
+                observacoes,
+                alunos_dados
+            `)
+            .order('data_atividade', { ascending: false });
+ 
+        if (error) {
+            console.error('Erro ao buscar registros de atividade:', error);
+            return { sucesso: false, erro: error.message, data: [] };
+        }
+ 
+        return { sucesso: true, data: data || [] };
+    } catch (err) {
+        console.error('Erro inesperado ao carregar registros de atividade:', err);
+        return { sucesso: false, erro: 'Erro inesperado ao carregar os registros.', data: [] };
+    }
+}
