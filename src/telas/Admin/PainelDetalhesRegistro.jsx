@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from '../../components/RelatorioPDF';
+import { IconeCheck } from '../../components/Icones';
 import { useAuth } from '../../context/AuthContext';
 import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
@@ -54,7 +55,6 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
             return;
         }
 
-        // Atualiza o estado local preservando o nome de quem acabou de lançar
         setRegistro({
             ...resultado.data,
             exportador_nome: nomeUsuario,
@@ -143,13 +143,18 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Lançamento no Sistema MV</p>
                 {jaExportado ? (
-                    <p>
-                        Status: <strong>Lançado</strong>
-                        {registro.exportado_em && ` em ${formatarDataHoraLancamento(registro.exportado_em)}`}
-                        {(registro.exportador_nome || (registro.exportado_por_usuario_id === usuarioId && nomeUsuario)) && (
-                            <> por <strong>{registro.exportador_nome || nomeUsuario}</strong></>
-                        )}
-                    </p>
+                    <div className="admin__detalhes__status-container">
+                        <p>
+                            Status: <strong>Lançado</strong>
+                            {registro.exportado_em && ` em ${formatarDataHoraLancamento(registro.exportado_em)}`}
+                            {(registro.exportador_nome || (registro.exportado_por_usuario_id === usuarioId && nomeUsuario)) && (
+                                <> por <strong>{registro.exportador_nome || nomeUsuario}</strong></>
+                            )}
+                        </p>
+                         <div className="admin__registro-card__check-badge">
+                            <IconeCheck bold />
+                        </div>
+                    </div>
                 ) : (
                     <p>Ainda não lançado no MV</p>
                 )}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { IconePesquisa } from '../../components/Icones';
+import { IconePesquisa, IconeCheck } from '../../components/Icones';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
@@ -89,7 +89,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             {isAdmin && (
                 <div className="admin__grupo-filtros">
                     <div className="app__combobox-group">
-                        <label>Registrado por</label>
+                        <label>Registrador</label>
                         <select
                             className="app__select"
                             value={filtroRegistrador}
@@ -160,15 +160,24 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             <div className="admin__registros__grid">
                 {!carregando && registrosFiltrados.map((r) => {
                     const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
+                    const isLancado = Boolean(r.exportado_outro_sistema);
+
                     return (
                         <button
                             key={r.id}
                             type="button"
-                            className="admin__registro-card"
+                            className={`admin__registro-card ${isLancado ? 'admin__registro-card--lancado' : ''}`}
                             onClick={() => onSelecionarRegistro && onSelecionarRegistro(r)}
                         >
                             <div className="admin__registro-card__header">
-                                <p className="admin__registro-card__escola">{r.escola_nome}</p>
+                                <div className="admin__registro-card__header-top">
+                                    <p className="admin__registro-card__escola">{r.escola_nome}</p>
+                                    {isLancado && (
+                                        <div className="admin__registro-card__check-badge" title="Lançado no Sistema MV">
+                                            <IconeCheck bold />
+                                        </div>
+                                    )}
+                                </div>
                                 <p className="admin__registro-card__turma">{formatarTurmas(r.turmas)}</p>
                             </div>
 
