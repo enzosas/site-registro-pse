@@ -199,7 +199,7 @@ export function PainelRegistros() {
                 )}
 
                 {!carregando && registrosFiltrados.map((r) => (
-                    <div
+                    <button
                         key={r.id}
                         className="admin__usuario__tabela__line"
                         onClick={() => setSelecionado(r)}
@@ -213,7 +213,7 @@ export function PainelRegistros() {
                         <p className="admin__usuario__tabela__line__info">
                             {formatarDataIso(r.data_atividade)} - {r.turno}
                         </p>
-                    </div>
+                    </button>
                 ))}
             </div>
 

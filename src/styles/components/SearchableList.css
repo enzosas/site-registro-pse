@@ -51,8 +51,24 @@
     stroke-width: 0.1rem;
     align-items: center;
     flex-shrink: 0;
+    background: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
+    color: inherit;
+    border-radius: 0.5rem;
 }
 
 .app__search-list__unidade svg {
     flex-shrink: 0;
+}
+
+.app__search-bar:focus-within {
+    outline: 0.2rem solid var(--cor-botao);
+    outline-offset: 0em;
+}
+
+.app__search-list__unidade:focus-visible {
+    outline: 0.2rem solid var(--cor-botao);
+    outline-offset: 0.2em;
 }

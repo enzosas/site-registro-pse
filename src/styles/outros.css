@@ -24,7 +24,8 @@
 }
 
 .app__date-input:focus {
-	border-color: var(--cor-texto);
+	outline: 0.2rem solid var(--cor-botao);
+	outline-offset: 0em;
 }
 
 .login__input-group {
@@ -127,7 +128,8 @@
 }
 
 .app__input-group input:focus {
-	border-color: var(--cor-texto);
+	outline: 0.2rem solid var(--cor-botao);
+	outline-offset: 0em;
 }
 
 .app__resumo__subtitle {
@@ -232,4 +234,9 @@
 
 .app__select:hover:not(:disabled) {
 	filter: brightness(0.95);
+}
+
+.app__select:focus-visible {
+	outline: 0.2rem solid var(--cor-botao);
+	outline-offset: 0em;
 }

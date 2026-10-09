@@ -48,3 +48,8 @@ h5,
 h6 {
     overflow-wrap: break-word;
 }
+
+:focus-visible {
+    outline: 0.2rem solid var(--cor-botao);
+    outline-offset: 0.3rem;
+}

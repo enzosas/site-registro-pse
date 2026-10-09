@@ -19,11 +19,16 @@
     gap: 1rem;
     align-items: center;
     width: 100%;
-    padding: 0.75rem 0;
+    padding: 0.75rem 0.5rem;
     border-bottom: var(--input-border);
     cursor: pointer;
     background-color: var(--cor-frame);
     transition: transform 0.1s ease, filter 0.2s ease;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    text-align: left;
+    color: inherit;
 }
 
 .admin__usuario__tabela__line:hover {
@@ -35,6 +40,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.admin__usuario__tabela__line:focus-visible {
+    border-radius: 1rem;
+    z-index: 2;
+    outline-offset: 0rem;
 }
 
 .admin__detalhes_usuario__frame {

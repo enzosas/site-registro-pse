@@ -176,7 +176,7 @@ export function PainelUsuarios({
                     </div>
                 )}
                 {!carregando && usuariosFiltrados.map((user) => (
-                    <div
+                    <button
                         key={user.id}
                         className="admin__usuario__tabela__line"
                         onClick={() => onSelecionarUsuario && onSelecionarUsuario(user)}
@@ -186,7 +186,7 @@ export function PainelUsuarios({
                         <p className="admin__usuario__tabela__line__info">
                             {user.tipoUsuario}
                         </p>
-                    </div>
+                    </button>
                 ))}
             </div>
             <div className="app__footer">

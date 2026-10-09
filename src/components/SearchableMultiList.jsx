@@ -24,14 +24,15 @@ export function SearchableMultiList({
                 {itens.map((item) => {
                     const isSelecionado = itensSelecionados.some((i) => i.id === item.id);
                     return (
-                        <div
+                        <button
                             key={item.id}
+                            type="button"
                             onClick={() => onToggleItem(item)}
                             className='app__search-list__unidade'
                         >
                             {isSelecionado ? <IconeCheck /> : null}
-                            {formatarNome(item.nome)}
-                        </div>
+                            <span>{formatarNome(item.nome)}</span>
+                        </button>
                     );
                 })}
             </div>

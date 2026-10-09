@@ -1,6 +1,6 @@
 import { IconePesquisa, IconeCheck } from './Icones';
 import '../styles/components/SearchableList.css';
-import { formatarNome } from '../utils/formatadores'
+import { formatarNome } from '../utils/formatadores';
 
 export function SearchableList({ busca, onBuscaChange, itens, itemSelecionado, onSelecionarItem }) {
     return (
@@ -16,14 +16,15 @@ export function SearchableList({ busca, onBuscaChange, itens, itemSelecionado, o
             </div>
             <div className='app__search-list'>
                 {itens.map((item) => (
-                    <div
+                    <button
                         key={item.id}
+                        type="button"
                         onClick={() => onSelecionarItem(itemSelecionado?.id === item.id ? null : item)}
                         className='app__search-list__unidade'
                     >
                         {itemSelecionado?.id === item.id ? <IconeCheck /> : null}
-                        {formatarNome(item.nome)}
-                    </div>
+                        <span>{formatarNome(item.nome)}</span>
+                    </button>
                 ))}
             </div>
         </div>
