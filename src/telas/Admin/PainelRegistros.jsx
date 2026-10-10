@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { IconePesquisa, IconeCheck } from '../../components/Icones';
 import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
+import { useDados } from '../../context/DadosContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
 import {
     formatarTurmas,
@@ -11,6 +12,7 @@ import {
 
 export function PainelRegistros({ onSelecionarRegistro }) {
     const { tipoUsuario } = useAuth();
+    const { escolas: listaEscolas, listaUbs } = useDados();
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
 
@@ -21,42 +23,13 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [termoBusca, setTermoBusca] = useState('');
     const [filtroEixo, setFiltroEixo] = useState('');
-    const [filtroRegistrador, setFiltroRegistrador] = useState('');
     const [filtroEscola, setFiltroEscola] = useState('');
+    const [filtroUbs, setFiltroUbs] = useState('');
+    const [filtroRegistrador, setFiltroRegistrador] = useState('');
+    const [filtroLancadoPor, setFiltroLancadoPor] = useState('');
+    const [filtroStatusMv, setFiltroStatusMv] = useState('');
     const [dataInicio, setDataInicio] = useState('');
     const [dataFim, setDataFim] = useState('');
-
-    const subtituloContexto = useMemo(() => {
-        const partesFiltro = [];
-
-        if (filtroEixo) {
-            partesFiltro.push(`no eixo "${compactarEixo(filtroEixo)}"`);
-        }
-
-        if (filtroEscola) {
-            partesFiltro.push(`na escola "${filtroEscola}"`);
-        }
-
-        if (filtroRegistrador) {
-            partesFiltro.push(`registrados por "${filtroRegistrador}"`);
-        }
-
-        if (dataInicio && dataFim) {
-            partesFiltro.push(`no período de ${formatarDataIso(dataInicio)} até ${formatarDataIso(dataFim)}`);
-        } else if (dataInicio) {
-            partesFiltro.push(`a partir de ${formatarDataIso(dataInicio)}`);
-        } else if (dataFim) {
-            partesFiltro.push(`até ${formatarDataIso(dataFim)}`);
-        }
-
-        const baseTexto = 'Exibindo todos os registros';
-
-        if (partesFiltro.length === 0) {
-            return `${baseTexto}.`;
-        }
-
-        return `${baseTexto} ${partesFiltro.join(', ')}.`;
-    }, [filtroEixo, filtroEscola, filtroRegistrador, dataInicio, dataFim]);
 
     useEffect(() => {
         let montado = true;
@@ -79,8 +52,8 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         return [...new Set(nomes)].sort((a, b) => a.localeCompare(b));
     }, [registros]);
 
-    const escolas = useMemo(() => {
-        const nomes = registros.map((r) => r.escola_nome).filter(Boolean);
+    const lancadores = useMemo(() => {
+        const nomes = registros.map((r) => r.exportador_nome).filter(Boolean);
         return [...new Set(nomes)].sort((a, b) => a.localeCompare(b));
     }, [registros]);
 
@@ -98,22 +71,122 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 String(eixo).toLowerCase().includes(filtroEixo.toLowerCase())
             );
 
+            const passaEscola = !filtroEscola || String(r.escola_id) === String(filtroEscola);
+            const passaUbs = !filtroUbs || String(r.ubs_id) === String(filtroUbs);
             const passaRegistrador = !filtroRegistrador || r.registrador_nome === filtroRegistrador;
-            const passaEscola = !filtroEscola || r.escola_nome === filtroEscola;
+            const passaLancadoPor = !filtroLancadoPor || r.exportador_nome === filtroLancadoPor;
+
+            const passaStatusMv =
+                !filtroStatusMv ||
+                (filtroStatusMv === 'lancado' && Boolean(r.exportado_outro_sistema)) ||
+                (filtroStatusMv === 'nao_lancado' && !r.exportado_outro_sistema);
+
             const passaInicio = !dataInicio || r.data_atividade >= dataInicio;
             const passaFim = !dataFim || r.data_atividade <= dataFim;
 
-            return passaBusca && passaEixo && passaRegistrador && passaEscola && passaInicio && passaFim;
+            return (
+                passaBusca &&
+                passaEixo &&
+                passaEscola &&
+                passaUbs &&
+                passaRegistrador &&
+                passaLancadoPor &&
+                passaStatusMv &&
+                passaInicio &&
+                passaFim
+            );
         });
-    }, [registros, termoBusca, filtroEixo, filtroRegistrador, filtroEscola, dataInicio, dataFim]);
+    }, [
+        registros,
+        termoBusca,
+        filtroEixo,
+        filtroEscola,
+        filtroUbs,
+        filtroRegistrador,
+        filtroLancadoPor,
+        filtroStatusMv,
+        dataInicio,
+        dataFim,
+    ]);
 
-    const temFiltroAtivo = termoBusca || filtroEixo || filtroRegistrador || filtroEscola || dataInicio || dataFim;
+    const subtituloContexto = useMemo(() => {
+        const partesFiltro = [];
+
+        if (filtroEixo) {
+            partesFiltro.push(`no eixo "${compactarEixo(filtroEixo)}"`);
+        }
+
+        if (filtroEscola) {
+            const escolaObj = listaEscolas.find((e) => String(e.id) === String(filtroEscola));
+            partesFiltro.push(`na escola "${escolaObj ? escolaObj.nome : 'selecionada'}"`);
+        }
+
+        if (filtroUbs) {
+            const ubsObj = listaUbs.find((u) => String(u.id) === String(filtroUbs));
+            partesFiltro.push(`da UBS "${ubsObj ? ubsObj.nome : 'selecionada'}"`);
+        }
+
+        if (filtroRegistrador) {
+            partesFiltro.push(`registrados por "${filtroRegistrador}"`);
+        }
+
+        if (filtroLancadoPor) {
+            partesFiltro.push(`lançados por "${filtroLancadoPor}"`);
+        }
+
+        if (filtroStatusMv === 'lancado') {
+            partesFiltro.push('lançados no MV');
+        } else if (filtroStatusMv === 'nao_lancado') {
+            partesFiltro.push('não lançados no MV');
+        }
+
+        if (dataInicio && dataFim) {
+            partesFiltro.push(`no período de ${formatarDataIso(dataInicio)} até ${formatarDataIso(dataFim)}`);
+        } else if (dataInicio) {
+            partesFiltro.push(`a partir de ${formatarDataIso(dataInicio)}`);
+        } else if (dataFim) {
+            partesFiltro.push(`até ${formatarDataIso(dataFim)}`);
+        }
+
+        const baseTexto = 'Exibindo todos os registros';
+
+        if (partesFiltro.length === 0) {
+            return `${baseTexto}.`;
+        }
+
+        return `${baseTexto} ${partesFiltro.join(', ')}.`;
+    }, [
+        filtroEixo,
+        filtroEscola,
+        filtroUbs,
+        filtroRegistrador,
+        filtroLancadoPor,
+        filtroStatusMv,
+        dataInicio,
+        dataFim,
+        listaEscolas,
+        listaUbs,
+    ]);
+
+    const temFiltroAtivo =
+        termoBusca ||
+        filtroEixo ||
+        filtroEscola ||
+        filtroUbs ||
+        filtroRegistrador ||
+        filtroLancadoPor ||
+        filtroStatusMv ||
+        dataInicio ||
+        dataFim;
 
     const limparFiltros = () => {
         setTermoBusca('');
         setFiltroEixo('');
-        setFiltroRegistrador('');
         setFiltroEscola('');
+        setFiltroUbs('');
+        setFiltroRegistrador('');
+        setFiltroLancadoPor('');
+        setFiltroStatusMv('');
         setDataInicio('');
         setDataFim('');
     };
@@ -148,7 +221,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                                 <option value="">Sem filtro</option>
                                 {EIXOS_TEMATICOS.map((eixo) => (
                                     <option key={eixo.id} value={eixo.label}>
-                                        {eixo.label}
+                                        {compactarEixo(eixo.label)}
                                     </option>
                                 ))}
                             </select>
@@ -156,7 +229,6 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                     </div>
 
                     <div className="admin__filtros-linha">
-                        
                         <div className="app__combobox-group">
                             <label>Escola</label>
                             <select
@@ -165,11 +237,31 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                                 onChange={(e) => setFiltroEscola(e.target.value)}
                             >
                                 <option value="">Sem filtro</option>
-                                {escolas.map((nome) => (
-                                    <option key={nome} value={nome}>{nome}</option>
+                                {listaEscolas.map((escola) => (
+                                    <option key={escola.id} value={escola.id}>
+                                        {escola.nome}
+                                    </option>
                                 ))}
                             </select>
                         </div>
+                        <div className="app__combobox-group">
+                            <label>UBS</label>
+                            <select
+                                className="app__select"
+                                value={filtroUbs}
+                                onChange={(e) => setFiltroUbs(e.target.value)}
+                            >
+                                <option value="">Sem filtro</option>
+                                {listaUbs.map((ubs) => (
+                                    <option key={ubs.id} value={ubs.id}>
+                                        {ubs.nome}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="admin__filtros-linha">
                         <div className="app__combobox-group">
                             <label>Registrado por</label>
                             <select
@@ -181,6 +273,34 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                                 {registradores.map((nome) => (
                                     <option key={nome} value={nome}>{nome}</option>
                                 ))}
+                            </select>
+                        </div>
+                        <div className="app__combobox-group">
+                            <label>Lançado por</label>
+                            <select
+                                className="app__select"
+                                value={filtroLancadoPor}
+                                onChange={(e) => setFiltroLancadoPor(e.target.value)}
+                            >
+                                <option value="">Sem filtro</option>
+                                {lancadores.map((nome) => (
+                                    <option key={nome} value={nome}>{nome}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="admin__filtros-linha">
+                        <div className="app__combobox-group">
+                            <label>Situação no MV</label>
+                            <select
+                                className="app__select"
+                                value={filtroStatusMv}
+                                onChange={(e) => setFiltroStatusMv(e.target.value)}
+                            >
+                                <option value="">Ambos (Todos)</option>
+                                <option value="lancado">Lançados no MV</option>
+                                <option value="nao_lancado">Não lançados no MV</option>
                             </select>
                         </div>
                     </div>
@@ -273,13 +393,13 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 })}
             </div>
 
-            {!carregando && temFiltroAtivo && (
-                <div className="app__footer">
-                    <button type="button" className="app__buttonMain" onClick={limparFiltros}>
+            <div className="app__footer">
+                {!carregando && temFiltroAtivo && (
+                    <button type="button" className="app__buttonSecondary" onClick={limparFiltros}>
                         <p>Limpar filtros</p>
                     </button>
-                </div>
-            )}
+                )}
+            </div>
         </>
     );
 }
