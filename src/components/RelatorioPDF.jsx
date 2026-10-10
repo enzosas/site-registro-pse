@@ -74,6 +74,7 @@ export const TEXTOS_RELATORIO = {
     colVacina: 'VACINA',
     colVisao: 'VISÃO',
     traçoVazio: '-',
+    totalAlunos: 'Total de alunos:',
 };
 
 const styles = StyleSheet.create({
@@ -225,12 +226,13 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: ESPACO_RELATORIO.raioBordaSuave,
         borderBottomRightRadius: ESPACO_RELATORIO.raioBordaSuave,
         padding: 8,
+        paddingTop: 3,
         flexDirection: 'column',
         marginBottom: 12,
     },
     eixoItem: {
         width: '100%',
-        marginBottom: 5,
+        marginTop: 5,
         flexDirection: 'row',
         alignItems: 'flex-start',
     },
@@ -268,17 +270,6 @@ const styles = StyleSheet.create({
     },
 
     // secao tabela de alunos laranja
-    tableContainer: {
-        borderWidth: 1,
-        borderColor: CORES_RELATORIO.borda,
-        overflow: 'hidden',
-        borderTopWidth: 0,
-        borderColor: CORES_RELATORIO.borda,
-        borderBottomLeftRadius: ESPACO_RELATORIO.raioBordaSuave,
-        borderBottomRightRadius: ESPACO_RELATORIO.raioBordaSuave,
-        flexDirection: 'column',
-        marginBottom: 12,
-    },
     tableHeader: {
         flexDirection: 'row',
         backgroundColor: CORES_RELATORIO.laranjaPrincipal,
@@ -292,6 +283,16 @@ const styles = StyleSheet.create({
         fontFamily: FONTE_PESO.negrito,
         fontSize: FONTE_TAMANHO.tabela,
         textTransform: 'uppercase',
+    },
+    tableContainer: {
+        borderWidth: 1,
+        borderColor: CORES_RELATORIO.borda,
+        borderTopWidth: 0,
+        overflow: 'hidden',
+        borderBottomLeftRadius: ESPACO_RELATORIO.raioBordaSuave,
+        borderBottomRightRadius: ESPACO_RELATORIO.raioBordaSuave,
+        flexDirection: 'column',
+        marginBottom: 6,
     },
     tableRow: {
         flexDirection: 'row',
@@ -307,6 +308,15 @@ const styles = StyleSheet.create({
     tableCell: {
         fontSize: FONTE_TAMANHO.tabela,
         color: CORES_RELATORIO.textoPrincipal,
+    },
+
+    // total de alunos abaixo da tabela
+    totalAlunosTexto: {
+        fontSize: FONTE_TAMANHO.padrao,
+        fontFamily: FONTE_PESO.regular,
+        color: CORES_RELATORIO.textoSecundario,
+        marginBottom: 12,
+        paddingHorizontal: 2,
     },
 
     // colunas da tabela
@@ -460,11 +470,14 @@ export const RelatorioPDF = ({ dados }) => {
                     {temVisao && <Text style={[styles.tableHeaderCell, styles.colStatus]}>{TEXTOS_RELATORIO.colVisao}</Text>}
                 </View>
                 <View style={styles.tableContainer}>
-
                     {alunos.map((aluno, i) => (
                         <View
                             key={i}
-                            style={[styles.tableRow, i % 2 === 1 ? styles.tableRowEven : {}]}
+                            style={[
+                                styles.tableRow,
+                                i % 2 === 1 ? styles.tableRowEven : {},
+                                i === alunos.length - 1 ? { borderBottomWidth: 0 } : {},
+                            ]}
                             wrap={false}
                         >
                             <Text style={[styles.tableCell, styles.colNome]}>{aluno.nome}</Text>
@@ -495,10 +508,15 @@ export const RelatorioPDF = ({ dados }) => {
                     ))}
                 </View>
 
+                {/* total de alunos abaixo da tabela */}
+                <Text style={styles.totalAlunosTexto}>
+                    {TEXTOS_RELATORIO.totalAlunos} {alunos.length}
+                </Text>
+
                 {/* rodape com informacoes e bolinhas */}
                 <View style={styles.footer} fixed>
                     <Text style={styles.footerInfo}>
-                        Total de alunos: {alunos.length} • Gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                        Gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                     </Text>
                     <View style={styles.footerDots}>
                         <View style={[styles.dot, { backgroundColor: CORES_RELATORIO.verdePrincipal }]} />
