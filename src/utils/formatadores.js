@@ -118,3 +118,11 @@ export function formatarListaParaTexto(valor) {
     if (Array.isArray(valor)) return valor.filter(Boolean).join('; ') || '-';
     return String(valor);
 }
+
+export function compactarEixo(nomeEixo) {
+    if (!nomeEixo) return '';
+    return nomeEixo
+        .replace(/^\d+\.\s*/, '')
+        .replace(/\s*\([^)]*\)/g, '')
+        .trim();
+}

@@ -6,6 +6,7 @@ import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
 import {
     formatarTurmas,
     formatarDataIso,
+    compactarEixo,
 } from '../../utils/formatadores';
 
 export function PainelRegistros({ onSelecionarRegistro }) {
@@ -24,6 +25,38 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     const [filtroEscola, setFiltroEscola] = useState('');
     const [dataInicio, setDataInicio] = useState('');
     const [dataFim, setDataFim] = useState('');
+
+    const subtituloContexto = useMemo(() => {
+        const partesFiltro = [];
+
+        if (filtroEixo) {
+            partesFiltro.push(`no eixo "${compactarEixo(filtroEixo)}"`);
+        }
+
+        if (filtroEscola) {
+            partesFiltro.push(`na escola "${filtroEscola}"`);
+        }
+
+        if (filtroRegistrador) {
+            partesFiltro.push(`registrados por "${filtroRegistrador}"`);
+        }
+
+        if (dataInicio && dataFim) {
+            partesFiltro.push(`no período de ${formatarDataIso(dataInicio)} até ${formatarDataIso(dataFim)}`);
+        } else if (dataInicio) {
+            partesFiltro.push(`a partir de ${formatarDataIso(dataInicio)}`);
+        } else if (dataFim) {
+            partesFiltro.push(`até ${formatarDataIso(dataFim)}`);
+        }
+
+        const baseTexto = 'Exibindo todos os registros';
+
+        if (partesFiltro.length === 0) {
+            return `${baseTexto}.`;
+        }
+
+        return `${baseTexto} ${partesFiltro.join(', ')}.`;
+    }, [filtroEixo, filtroEscola, filtroRegistrador, dataInicio, dataFim]);
 
     useEffect(() => {
         let montado = true;
@@ -89,11 +122,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         <>
             <p className="app__title">Gerenciar Registros</p>
             <p className="admin__usuario__subtitulo">
-                {isAdmin
-                    ? 'Exibindo os registros de todos os usuários'
-                    : isComum
-                        ? 'Exibindo os registros feitos por você'
-                        : 'Exibindo os registros da sua unidade'}
+                {subtituloContexto}
             </p>
 
             {isAdmin && (
