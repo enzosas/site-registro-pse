@@ -325,6 +325,15 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                             />
                         </div>
                     </div>
+
+                    <button
+                        type="button"
+                        className="app__buttonSecondary"
+                        onClick={limparFiltros}
+                        disabled={!temFiltroAtivo}
+                    >
+                        <p>Limpar Filtros</p>
+                    </button>
                 </div>
             )}
 
@@ -391,14 +400,6 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                         </button>
                     );
                 })}
-            </div>
-
-            <div className="app__footer">
-                {!carregando && temFiltroAtivo && (
-                    <button type="button" className="app__buttonSecondary" onClick={limparFiltros}>
-                        <p>Limpar filtros</p>
-                    </button>
-                )}
             </div>
         </>
     );
