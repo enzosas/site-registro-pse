@@ -470,7 +470,8 @@ export async function carregarRegistrosAtividadeDB() {
                 exportado_em,
                 usuarios!registros_atividade_exportado_por_usuario_id_fkey ( nome )
             `)
-            .order('data_atividade', { ascending: false });
+            .order('data_atividade', { ascending: false })
+            .order('id', { ascending: false });
 
         if (error) {
             console.error('Erro ao buscar registros de atividade:', error);
