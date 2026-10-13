@@ -340,7 +340,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             <div className="app__search-bar">
                 <input
                     type="text"
-                    placeholder="Pesquisar por escola, turma ou registrador"
+                    placeholder="Pesquisar por escola, turma ou responsável"
                     value={termoBusca}
                     onChange={(e) => setTermoBusca(e.target.value)}
                 />
