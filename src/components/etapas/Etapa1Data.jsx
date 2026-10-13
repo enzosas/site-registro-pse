@@ -15,6 +15,7 @@ export function Etapa1Data() {
         setTurno,
         avancarEtapa,
         setTelaAtiva,
+        reiniciarRegistro,
     } = useRegistro();
 
     const handleApenasNumeros = (setter, tamanhoMax) => (e) => {
@@ -24,6 +25,11 @@ export function Etapa1Data() {
 
     const dataEhValida = isDataValida(dia, mes, ano);
     const isFormValido = dataEhValida && Boolean(turno);
+
+    const handleVoltar = () => {
+        reiniciarRegistro();
+        setTelaAtiva(TELAS.INICIAL)
+    }
 
     return (
         <form
@@ -37,7 +43,7 @@ export function Etapa1Data() {
             <button
                 type="button"
                 className="app__botao-voltar"
-                onClick={() => setTelaAtiva(TELAS.INICIAL)}
+                onClick={handleVoltar}
             >
                 <IconeVoltar />
             </button>

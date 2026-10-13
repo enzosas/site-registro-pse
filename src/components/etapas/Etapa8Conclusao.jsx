@@ -13,6 +13,17 @@ export function Etapa8Conclusao() {
         voltarEtapa,
     } = useRegistro();
 
+    const handleRetornarInicio = () => {
+        if (!registroSalvo) {
+            const confirmou = window.confirm(
+                'Tem certeza de que deseja voltar para o início? Os dados da atividade não estão salvos e serão perdidos.'
+            );
+            if (!confirmou) return;
+        }
+        reiniciarRegistro();
+        setTelaAtiva(TELAS.INICIAL);
+    };
+
     return (
         <>
             <button
@@ -34,7 +45,7 @@ export function Etapa8Conclusao() {
             <button
                 type="button"
                 className='app__buttonSecondary app__buttonSecondary__left-anchor'
-                onClick={reiniciarRegistro}
+                onClick={handleRetornarInicio}
             >
                 Voltar para o início
             </button>
