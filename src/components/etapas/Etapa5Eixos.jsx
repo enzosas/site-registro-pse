@@ -17,6 +17,7 @@ export function Etapa5Eixos() {
     } = useRegistro();
 
     const isValido = idsEixosSelecionados.length > 0;
+    const temMultiplosEixos = idsEixosSelecionados.length > 1;
 
     return (
         <>
@@ -68,7 +69,7 @@ export function Etapa5Eixos() {
                         }}
                         disabled={!isValido}
                     >
-                        <p>Avançar</p>
+                        <p>{temMultiplosEixos ? "Avançar com múltiplos eixos" : "Avançar"}</p>
                     </button>
                 </div>
             </div>
