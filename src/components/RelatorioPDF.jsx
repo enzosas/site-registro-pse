@@ -24,7 +24,7 @@ export const CORES_RELATORIO = {
 };
 
 export const FONTE_TAMANHO = {
-    mini: 8,
+    mini: 10,
     tabela: 12,
     rotulo: 12,
     padrao: 12,
@@ -516,7 +516,7 @@ export const RelatorioPDF = ({ dados }) => {
                 {/* rodape com informacoes e bolinhas */}
                 <View style={styles.footer} fixed>
                     <Text style={styles.footerInfo}>
-                        Gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                        Gerado em: {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}  -  Registro PSE Online
                     </Text>
                     <View style={styles.footerDots}>
                         <View style={[styles.dot, { backgroundColor: CORES_RELATORIO.verdePrincipal }]} />
