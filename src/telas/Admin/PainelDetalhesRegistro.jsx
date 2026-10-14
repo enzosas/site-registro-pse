@@ -3,11 +3,24 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { RelatorioPDF } from '../../components/RelatorioPDF';
 import { IconeCheck } from '../../components/Icones';
 import { useAuth } from '../../context/AuthContext';
+import { TIPO_USUARIO } from '../../utils/constantes';
 import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
 
+export const PERMISSOES_GERAR_PDF = [
+    TIPO_USUARIO.ADMIN,
+    TIPO_USUARIO.ESCOLA,
+    TIPO_USUARIO.UBS,
+    TIPO_USUARIO.COMUM,
+];
+
+export const PERMISSOES_LANCAR_MV = [
+    TIPO_USUARIO.ADMIN,
+    TIPO_USUARIO.UBS,
+];
+
 export function PainelDetalhesRegistro({ registro: registroInicial }) {
-    const { usuarioId, nomeUsuario } = useAuth();
+    const { usuarioId, nomeUsuario, tipoUsuario } = useAuth();
     const [registro, setRegistro] = useState(registroInicial);
     const [marcando, setMarcando] = useState(false);
     const [erro, setErro] = useState('');
@@ -15,6 +28,10 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
     if (!registro) {
         return null;
     }
+
+    const tipoNormalizado = tipoUsuario?.toLowerCase();
+    const podeGerarPdf = PERMISSOES_GERAR_PDF.includes(tipoNormalizado);
+    const podeMarcarLancado = PERMISSOES_LANCAR_MV.includes(tipoNormalizado);
 
     const jaExportado = Boolean(registro.exportado_outro_sistema);
     const alunos = Array.isArray(registro.alunos_dados) ? registro.alunos_dados : [];
@@ -36,17 +53,15 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
         .replace(/\s+/g, '-');
 
     const handleMarcarComoLancado = async () => {
-        if (jaExportado || marcando) return;
+        if (!podeMarcarLancado || jaExportado || marcando) return;
 
         const confirmou = window.confirm(
             `Deseja marcar este registro como lançado no sistema MV? O responsável pelo lançamento será "${nomeUsuario || 'usuário logado'}".`
         );
-
         if (!confirmou) return;
 
         setErro('');
         setMarcando(true);
-
         const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId);
         setMarcando(false);
 
@@ -75,34 +90,28 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
     return (
         <>
             <p className="app__title">Resumo da Atividade</p>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Data de realização da ação</p>
                 <p>
                     {Formatadores.formatarDataIso(registro.data_atividade)} - Turno da {registro.turno || '-'}
                 </p>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Registrado por</p>
                 <p>{registro.registrador_nome || '-'}</p>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Responsáveis pela ação</p>
                 <p>{Formatadores.formatarProfissionais(registro.profissionais)}</p>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Escola</p>
                 <p>{registro.escola_nome ? Formatadores.formatarNome(registro.escola_nome) : '-'}</p>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Turma</p>
                 <p>{Formatadores.formatarTurmas(registro.turmas)}</p>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Eixos Selecionados</p>
                 <>
@@ -113,7 +122,6 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                 </>
                 {registro.observacoes && <p>Observações: {registro.observacoes}</p>}
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Alunos que participaram da ação</p>
                 <div className="app__resumo">
@@ -139,7 +147,6 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                     ))}
                 </div>
             </div>
-
             <div className="app__resumo">
                 <p className="app__resumo__subtitle">Lançamento no Sistema MV</p>
                 {jaExportado ? (
@@ -151,7 +158,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                                 <> por <strong>{registro.exportador_nome}</strong></>
                             )}
                         </p>
-                         <div className="admin__registro-card__check-badge">
+                        <div className="admin__registro-card__check-badge">
                             <IconeCheck bold />
                         </div>
                     </div>
@@ -159,7 +166,6 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                     <p>Ainda não lançado no MV</p>
                 )}
             </div>
-
             <div className="app__footer app__footer--extra_margin">
                 {erro && (
                     <div className="app__alerta-erro">
@@ -167,31 +173,35 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                     </div>
                 )}
 
-                <PDFDownloadLink
-                    document={<RelatorioPDF dados={dadosRelatorio} />}
-                    fileName={nomeArquivo}
-                    className="app__buttonMain"
-                    style={{ textDecoration: 'none' }}
-                >
-                    {({ loading }) => (
-                        <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
-                    )}
-                </PDFDownloadLink>
+                {podeGerarPdf && (
+                    <PDFDownloadLink
+                        document={<RelatorioPDF dados={dadosRelatorio} />}
+                        fileName={nomeArquivo}
+                        className="app__buttonMain"
+                        style={{ textDecoration: 'none' }}
+                    >
+                        {({ loading }) => (
+                            <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
+                        )}
+                    </PDFDownloadLink>
+                )}
 
-                <button
-                    type="button"
-                    className="app__buttonMain"
-                    onClick={handleMarcarComoLancado}
-                    disabled={jaExportado || marcando}
-                >
-                    <p>
-                        {jaExportado
-                            ? 'Lançado no Sistema MV'
-                            : marcando
-                                ? 'Atualizando...'
-                                : 'Marcar como lançado no sistema MV'}
-                    </p>
-                </button>
+                {podeMarcarLancado && (
+                    <button
+                        type="button"
+                        className="app__buttonMain"
+                        onClick={handleMarcarComoLancado}
+                        disabled={jaExportado || marcando}
+                    >
+                        <p>
+                            {jaExportado
+                                ? 'Lançado no Sistema MV'
+                                : marcando
+                                    ? 'Atualizando...'
+                                    : 'Marcar como lançado no sistema MV'}
+                        </p>
+                    </button>
+                )}
             </div>
         </>
     );
