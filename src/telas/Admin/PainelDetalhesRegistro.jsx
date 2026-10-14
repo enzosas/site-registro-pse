@@ -147,8 +147,8 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                         <p>
                             Status: <strong>Lançado</strong>
                             {registro.exportado_em && ` em ${formatarDataHoraLancamento(registro.exportado_em)}`}
-                            {(registro.exportador_nome || (registro.exportado_por_usuario_id === usuarioId && nomeUsuario)) && (
-                                <> por <strong>{registro.exportador_nome || nomeUsuario}</strong></>
+                            {registro.exportador_nome && (
+                                <> por <strong>{registro.exportador_nome}</strong></>
                             )}
                         </p>
                          <div className="admin__registro-card__check-badge">

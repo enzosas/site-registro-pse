@@ -11,10 +11,20 @@ import {
 } from '../../utils/formatadores';
 
 export function PainelRegistros({ onSelecionarRegistro }) {
-    const { tipoUsuario } = useAuth();
+    const { tipoUsuario, usuarioId, escolaIdUsuario, ubsIdUsuario } = useAuth();
     const { escolas: listaEscolas, listaUbs } = useDados();
+
     const isAdmin = tipoUsuario === TIPO_USUARIO.ADMIN;
+    const isEscola = tipoUsuario === TIPO_USUARIO.ESCOLA;
+    const isUbs = tipoUsuario === TIPO_USUARIO.UBS;
     const isComum = tipoUsuario === TIPO_USUARIO.COMUM;
+
+    const escolasPermitidasUbs = useMemo(() => {
+        if (!isUbs || !ubsIdUsuario) return listaEscolas;
+        return listaEscolas.filter(
+            (e) => String(e.ubs_responsavel) === String(ubsIdUsuario)
+        );
+    }, [isUbs, ubsIdUsuario, listaEscolas]);
 
     const [registros, setRegistros] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -35,7 +45,12 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         let montado = true;
         async function carregar() {
             setCarregando(true);
-            const resultado = await carregarRegistrosAtividadeDB();
+            const resultado = await carregarRegistrosAtividadeDB({
+                tipoUsuario,
+                escolaId: escolaIdUsuario,
+                ubsId: ubsIdUsuario,
+                usuarioId,
+            });
             if (!montado) return;
             setRegistros(resultado.data || []);
             setErro(resultado.sucesso ? '' : resultado.erro);
@@ -45,7 +60,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         return () => {
             montado = false;
         };
-    }, []);
+    }, [tipoUsuario, escolaIdUsuario, ubsIdUsuario, usuarioId]);
 
     const registradores = useMemo(() => {
         const nomes = registros.map((r) => r.registrador_nome).filter(Boolean);
@@ -148,7 +163,16 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             partesFiltro.push(`até ${formatarDataIso(dataFim)}`);
         }
 
-        const baseTexto = 'Exibindo todos os registros';
+        let baseTexto = 'Exibindo todos os registros';
+        if (isEscola) {
+            const escolaLogada = listaEscolas.find((e) => String(e.id) === String(escolaIdUsuario));
+            baseTexto = `Exibindo registros da sua escola (${escolaLogada?.nome || 'vinculada'})`;
+        } else if (isUbs) {
+            const ubsLogada = listaUbs.find((u) => String(u.id) === String(ubsIdUsuario));
+            baseTexto = `Exibindo registros das escolas da UBS ${ubsLogada?.nome || 'vinculada'}`;
+        } else if (isComum) {
+            baseTexto = 'Exibindo apenas os seus registros de atividade';
+        }
 
         if (partesFiltro.length === 0) {
             return `${baseTexto}.`;
@@ -166,6 +190,11 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         dataFim,
         listaEscolas,
         listaUbs,
+        isEscola,
+        isUbs,
+        isComum,
+        escolaIdUsuario,
+        ubsIdUsuario,
     ]);
 
     const temFiltroAtivo =
@@ -194,21 +223,17 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     return (
         <>
             <p className="app__title">Gerenciar Registros</p>
-            <p className="admin__usuario__subtitulo">
-                {subtituloContexto}
-            </p>
+            <p className="admin__usuario__subtitulo">{subtituloContexto}</p>
 
-            {isAdmin && (
-                <button
-                    type="button"
-                    className="app__buttonSecondary"
-                    onClick={() => setMostrarFiltros((prev) => !prev)}
-                >
-                    <p>{mostrarFiltros ? 'Ocultar Filtros' : 'Mostrar Filtros'}</p>
-                </button>
-            )}
+            <button
+                type="button"
+                className="app__buttonSecondary"
+                onClick={() => setMostrarFiltros((prev) => !prev)}
+            >
+                <p>{mostrarFiltros ? 'Ocultar Filtros' : 'Mostrar Filtros'}</p>
+            </button>
 
-            {isAdmin && mostrarFiltros && (
+            {mostrarFiltros && (
                 <div className="admin__filtros-container">
                     <div className="admin__filtros-linha">
                         <div className="app__combobox-group">
@@ -228,53 +253,61 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                         </div>
                     </div>
 
-                    <div className="admin__filtros-linha">
-                        <div className="app__combobox-group">
-                            <label>Escola</label>
-                            <select
-                                className="app__select"
-                                value={filtroEscola}
-                                onChange={(e) => setFiltroEscola(e.target.value)}
-                            >
-                                <option value="">Sem filtro</option>
-                                {listaEscolas.map((escola) => (
-                                    <option key={escola.id} value={escola.id}>
-                                        {escola.nome}
-                                    </option>
-                                ))}
-                            </select>
+                    {(isAdmin || isUbs) && (
+                        <div className="admin__filtros-linha">
+                            <div className="app__combobox-group">
+                                <label>Escola</label>
+                                <select
+                                    className="app__select"
+                                    value={filtroEscola}
+                                    onChange={(e) => setFiltroEscola(e.target.value)}
+                                >
+                                    <option value="">Sem filtro</option>
+                                    {(isUbs ? escolasPermitidasUbs : listaEscolas).map((escola) => (
+                                        <option key={escola.id} value={escola.id}>
+                                            {escola.nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {isAdmin && (
+                                <div className="app__combobox-group">
+                                    <label>UBS</label>
+                                    <select
+                                        className="app__select"
+                                        value={filtroUbs}
+                                        onChange={(e) => setFiltroUbs(e.target.value)}
+                                    >
+                                        <option value="">Sem filtro</option>
+                                        {listaUbs.map((ubs) => (
+                                            <option key={ubs.id} value={ubs.id}>
+                                                {ubs.nome}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                         </div>
-                        <div className="app__combobox-group">
-                            <label>UBS</label>
-                            <select
-                                className="app__select"
-                                value={filtroUbs}
-                                onChange={(e) => setFiltroUbs(e.target.value)}
-                            >
-                                <option value="">Sem filtro</option>
-                                {listaUbs.map((ubs) => (
-                                    <option key={ubs.id} value={ubs.id}>
-                                        {ubs.nome}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                    )}
 
                     <div className="admin__filtros-linha">
-                        <div className="app__combobox-group">
-                            <label>Registrado por</label>
-                            <select
-                                className="app__select"
-                                value={filtroRegistrador}
-                                onChange={(e) => setFiltroRegistrador(e.target.value)}
-                            >
-                                <option value="">Sem filtro</option>
-                                {registradores.map((nome) => (
-                                    <option key={nome} value={nome}>{nome}</option>
-                                ))}
-                            </select>
-                        </div>
+                        {!isComum && (
+                            <div className="app__combobox-group">
+                                <label>Registrado por</label>
+                                <select
+                                    className="app__select"
+                                    value={filtroRegistrador}
+                                    onChange={(e) => setFiltroRegistrador(e.target.value)}
+                                >
+                                    <option value="">Sem filtro</option>
+                                    {registradores.map((nome) => (
+                                        <option key={nome} value={nome}>
+                                            {nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                         <div className="app__combobox-group">
                             <label>Lançado por</label>
                             <select
@@ -284,12 +317,15 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                             >
                                 <option value="">Sem filtro</option>
                                 {lancadores.map((nome) => (
-                                    <option key={nome} value={nome}>{nome}</option>
+                                    <option key={nome} value={nome}>
+                                        {nome}
+                                    </option>
                                 ))}
                             </select>
                         </div>
                     </div>
 
+                    {/* Linha 4: Situacao no MV */}
                     <div className="admin__filtros-linha">
                         <div className="app__combobox-group">
                             <label>Situação no MV</label>
@@ -305,6 +341,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                         </div>
                     </div>
 
+                    {/* Linha 5: De e Ate */}
                     <div className="admin__filtros-linha">
                         <div className="app__combobox-group">
                             <label>De</label>
@@ -326,14 +363,17 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        className="app__buttonSecondary"
-                        onClick={limparFiltros}
-                        disabled={!temFiltroAtivo}
-                    >
-                        <p>Limpar Filtros</p>
-                    </button>
+                    {/* Linha 6: Botao Limpar Filtros */}
+                    <div className="admin__filtros-linha">
+                        <button
+                            type="button"
+                            className="app__buttonSecondary"
+                            onClick={limparFiltros}
+                            disabled={!temFiltroAtivo}
+                        >
+                            <p>Limpar Filtros</p>
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -360,46 +400,47 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             )}
 
             <div className="admin__registros__grid">
-                {!carregando && registrosFiltrados.map((r) => {
-                    const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
-                    const isLancado = Boolean(r.exportado_outro_sistema);
-
-                    return (
-                        <button
-                            key={r.id}
-                            type="button"
-                            className={`admin__registro-card ${isLancado ? 'admin__registro-card--lancado' : ''}`}
-                            onClick={() => onSelecionarRegistro && onSelecionarRegistro(r)}
-                        >
-                            <div className="admin__registro-card__header">
-                                <div className="admin__registro-card__header-top">
-                                    <p className="admin__registro-card__escola">{r.escola_nome}</p>
-                                    {isLancado && (
-                                        <div className="admin__registro-card__check-badge" title="Lançado no Sistema MV">
-                                            <IconeCheck bold />
-                                        </div>
-                                    )}
+                {!carregando &&
+                    registrosFiltrados.map((r) => {
+                        const totalAlunos = Array.isArray(r.alunos_dados) ? r.alunos_dados.length : 0;
+                        const isLancado = Boolean(r.exportado_outro_sistema);
+                        return (
+                            <button
+                                key={r.id}
+                                type="button"
+                                className={`admin__registro-card ${isLancado ? 'admin__registro-card--lancado' : ''}`}
+                                onClick={() => onSelecionarRegistro && onSelecionarRegistro(r)}
+                            >
+                                <div className="admin__registro-card__header">
+                                    <div className="admin__registro-card__header-top">
+                                        <p className="admin__registro-card__escola">{r.escola_nome}</p>
+                                        {isLancado && (
+                                            <div
+                                                className="admin__registro-card__check-badge"
+                                                title="Lançado no Sistema MV"
+                                            >
+                                                <IconeCheck bold />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="admin__registro-card__turma">{formatarTurmas(r.turmas)}</p>
                                 </div>
-                                <p className="admin__registro-card__turma">{formatarTurmas(r.turmas)}</p>
-                            </div>
-
-                            <div className="admin__registro-card__tags">
-                                <span className="admin__registro-card__badge">
-                                    {formatarDataIso(r.data_atividade)} - {r.turno}
-                                </span>
-                                <span className="admin__registro-card__badge admin__registro-card__badge--destaque">
-                                    {totalAlunos} {totalAlunos === 1 ? 'aluno' : 'alunos'}
-                                </span>
-                            </div>
-
-                            <div className="admin__registro-card__footer">
-                                <p className="admin__registro-card__autor">
-                                    Registrado por: <span>{r.registrador_nome || '-'}</span>
-                                </p>
-                            </div>
-                        </button>
-                    );
-                })}
+                                <div className="admin__registro-card__tags">
+                                    <span className="admin__registro-card__badge">
+                                        {formatarDataIso(r.data_atividade)} - {r.turno}
+                                    </span>
+                                    <span className="admin__registro-card__badge admin__registro-card__badge--destaque">
+                                        {totalAlunos} {totalAlunos === 1 ? 'aluno' : 'alunos'}
+                                    </span>
+                                </div>
+                                <div className="admin__registro-card__footer">
+                                    <p className="admin__registro-card__autor">
+                                        Registrado por: <span>{r.registrador_nome || '-'}</span>
+                                    </p>
+                                </div>
+                            </button>
+                        );
+                    })}
             </div>
         </>
     );

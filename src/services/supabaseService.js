@@ -73,6 +73,7 @@ export async function carregarEscolasDB() {
             .select(`
                 id,
                 nome,
+                ubs_responsavel,
                 escolaturmaalunos (
                     dados,
                     atualizado_em
@@ -89,10 +90,8 @@ export async function carregarEscolasDB() {
             const registroVinculo = Array.isArray(escola.escolaturmaalunos)
                 ? escola.escolaturmaalunos[0]
                 : escola.escolaturmaalunos;
-
             const turmasBrutas = registroVinculo?.dados?.turmas || [];
             const atualizadoEm = registroVinculo?.atualizado_em || null;
-
             const turmasFormatadas = turmasBrutas.map((turma) => ({
                 ...turma,
                 nome: formatarNome(turma.nome),
@@ -105,6 +104,7 @@ export async function carregarEscolasDB() {
             return {
                 id: escola.id,
                 nome: formatarNome(escola.nome),
+                ubs_responsavel: escola.ubs_responsavel,
                 turmas: turmasFormatadas,
                 atualizadoEm: atualizadoEm,
             };
@@ -446,9 +446,14 @@ export async function salvarRegistroAtividadeDB(payload) {
     }
 }
 
-export async function carregarRegistrosAtividadeDB() {
+export async function carregarRegistrosAtividadeDB({
+    tipoUsuario = null,
+    escolaId = null,
+    ubsId = null,
+    usuarioId = null,
+} = {}) {
     try {
-        const { data, error } = await supabase
+        let query = supabase
             .from('registros_atividade')
             .select(`
                 id,
@@ -472,6 +477,29 @@ export async function carregarRegistrosAtividadeDB() {
             `)
             .order('data_atividade', { ascending: false })
             .order('id', { ascending: false });
+
+        if (tipoUsuario === TIPO_USUARIO.ESCOLA && escolaId) {
+            query = query.eq('escola_id', escolaId);
+        }
+        else if (tipoUsuario === TIPO_USUARIO.UBS && ubsId) {
+            const { data: escolasVinculadas } = await supabase
+                .from('escolas')
+                .select('id')
+                .eq('ubs_responsavel', ubsId);
+
+            const idsEscolas = (escolasVinculadas || []).map((e) => e.id);
+
+            if (idsEscolas.length > 0) {
+                query = query.or(`escola_id.in.(${idsEscolas.join(',')}),ubs_id.eq.${ubsId}`);
+            } else {
+                query = query.eq('ubs_id', ubsId);
+            }
+        }
+        else if (tipoUsuario === TIPO_USUARIO.COMUM && usuarioId) {
+            query = query.eq('usuario_id', usuarioId);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error('Erro ao buscar registros de atividade:', error);
