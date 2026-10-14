@@ -1,171 +1,189 @@
-// compara o estado atual do banco com os dados recem extraidos do arquivo zip
-export function calcularDiffTurmas(escolasAtuais = [], escolasNovas = []) {
-    const diff = {
-        totalEscolasNovas: 0,
-        totalEscolasNoZip: escolasNovas.length,
-        totalAlunosNovos: 0,
-        totalAlunosRemovidos: 0,
-        totalAlunosModificados: 0,
-        escolasNovas: [],
-        escolasAusentesNoZip: [],
-        detalhesPorEscola: [],
-    };
+// normaliza datas para o formato aaaa-mm-dd antes da comparacao
+function normalizarDataParaComparar(valor) {
+    if (!valor) return '';
+    const str = String(valor).trim();
 
-    // cria mapa com as escolas atuais indexadas pelo nome normalizado
-    const mapaAtuais = new Map();
-    escolasAtuais.forEach((e) => {
-        if (e && e.nome) {
-            mapaAtuais.set(e.nome.trim().toLowerCase(), e);
-        }
+    // se estiver no formato dd/mm/aaaa converte para aaaa-mm-dd
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
+        const [dia, mes, ano] = str.split('/');
+        return `${ano}-${mes}-${dia}`;
+    }
+
+    // se ja for aaaa-mm-dd ou iso extrai os 10 primeiros caracteres
+    return str.slice(0, 10);
+}
+
+// normaliza texto para chaves de comparacao
+function normalizarChave(texto) {
+    return String(texto || '').trim().toLowerCase();
+}
+
+// calcula diferencas entre os dados do banco atual e as planilhas do zip
+export function calcularDiffTurmas(escolasBanco, escolasZip) {
+    const mapaBanco = new Map();
+    (escolasBanco || []).forEach((e) => {
+        mapaBanco.set(normalizarChave(e.nome), e);
     });
 
-    // cria mapa com as escolas novas vindas do zip
-    const mapaNovas = new Map();
-    escolasNovas.forEach((e) => {
-        if (e && e.nome) {
-            mapaNovas.set(e.nome.trim().toLowerCase(), e);
-        }
+    const mapaZip = new Map();
+    (escolasZip || []).forEach((e) => {
+        mapaZip.set(normalizarChave(e.nome), e);
     });
 
-    // 1. avalia cada escola presente no arquivo zip
-    escolasNovas.forEach((escolaNova) => {
-        const chave = escolaNova.nome.trim().toLowerCase();
-        const escolaAtual = mapaAtuais.get(chave);
+    let totalAlunosNovos = 0;
+    let totalAlunosRemovidos = 0;
+    let totalAlunosModificados = 0;
 
-        // escola ausente no banco atual (escola nova)
-        if (!escolaAtual) {
-            diff.totalEscolasNovas += 1;
-            diff.escolasNovas.push(escolaNova.nome);
+    const escolasNovas = [];
+    const detalhesPorEscola = [];
 
-            let qtdAlunosEscolaNova = 0;
-            (escolaNova.turmas || []).forEach((t) => {
-                qtdAlunosEscolaNova += (t.alunos || []).length;
+    // avalia cada escola presente nas planilhas do zip
+    for (const escolaZip of escolasZip) {
+        const chaveEscola = normalizarChave(escolaZip.nome);
+        const escolaBanco = mapaBanco.get(chaveEscola);
+
+        // caso a: escola totalmente nova
+        if (!escolaBanco) {
+            escolasNovas.push(escolaZip.nome);
+
+            let qtdAlunos = 0;
+            (escolaZip.turmas || []).forEach((t) => {
+                qtdAlunos += (t.alunos || []).length;
             });
-            diff.totalAlunosNovos += qtdAlunosEscolaNova;
 
-            diff.detalhesPorEscola.push({
-                nome: escolaNova.nome,
+            totalAlunosNovos += qtdAlunos;
+
+            detalhesPorEscola.push({
+                nome: escolaZip.nome,
                 status: 'nova',
-                turmasNovas: (escolaNova.turmas || []).map((t) => t.nome),
+                turmasNovas: (escolaZip.turmas || []).map((t) => t.nome),
                 turmasRemovidas: [],
                 turmasAlteradas: [],
-                totalAlunosDelta: qtdAlunosEscolaNova,
             });
-            return;
+            continue;
         }
 
-        // escola ja existe no banco: compara turma por turma
-        const turmasAtuaisMap = new Map();
-        (escolaAtual.turmas || []).forEach((t) => {
-            if (t && t.nome) turmasAtuaisMap.set(t.nome.trim().toLowerCase(), t);
-        });
+        // caso b: escola existente no banco -> compara turmas e alunos
+        const turmasBanco = escolaBanco.turmas || [];
+        const turmasZip = escolaZip.turmas || [];
 
-        const turmasNovasMap = new Map();
-        (escolaNova.turmas || []).forEach((t) => {
-            if (t && t.nome) turmasNovasMap.set(t.nome.trim().toLowerCase(), t);
-        });
+        const mapaTurmasBanco = new Map();
+        turmasBanco.forEach((t) => mapaTurmasBanco.set(normalizarChave(t.nome), t));
 
-        const turmasNovas = [];
-        const turmasRemovidas = [];
-        const turmasAlteradas = [];
-        let deltaAlunosEscola = 0;
+        const mapaTurmasZip = new Map();
+        turmasZip.forEach((t) => mapaTurmasZip.set(normalizarChave(t.nome), t));
 
-        // verifica turmas novas ou modificadas
-        escolaNova.turmas.forEach((tNova) => {
-            const chaveTurma = tNova.nome.trim().toLowerCase();
-            const tAtual = turmasAtuaisMap.get(chaveTurma);
+        const turmasNovasNomes = [];
+        const turmasRemovidasNomes = [];
+        const turmasAlteradasDetalhe = [];
 
-            if (!tAtual) {
-                // turma totalmente nova nesta escola
-                turmasNovas.push(tNova.nome);
-                const qtd = (tNova.alunos || []).length;
-                diff.totalAlunosNovos += qtd;
-                deltaAlunosEscola += qtd;
-            } else {
-                // turma ja existente: compara alunos
-                const alunosAtuais = tAtual.alunos || [];
-                const alunosNovos = tNova.alunos || [];
+        // 1. identifica turmas novas dentro da escola
+        for (const tZip of turmasZip) {
+            const ch = normalizarChave(tZip.nome);
+            if (!mapaTurmasBanco.has(ch)) {
+                turmasNovasNomes.push(tZip.nome);
+                totalAlunosNovos += (tZip.alunos || []).length;
+            }
+        }
 
-                const mapaAlunosAtuais = new Map(
-                    alunosAtuais.map((a) => [a.nome.trim().toLowerCase(), a])
-                );
-                const mapaAlunosNovos = new Map(
-                    alunosNovos.map((a) => [a.nome.trim().toLowerCase(), a])
-                );
+        // 2. identifica turmas que sumiram da escola
+        for (const tBanco of turmasBanco) {
+            const ch = normalizarChave(tBanco.nome);
+            if (!mapaTurmasZip.has(ch)) {
+                turmasRemovidasNomes.push(tBanco.nome);
+                totalAlunosRemovidos += (tBanco.alunos || []).length;
+            }
+        }
 
-                let novosNaTurma = 0;
-                let removidosNaTurma = 0;
-                let alteradosNaTurma = 0;
+        // 3. compara os alunos das turmas que existem em ambos os lados
+        for (const tZip of turmasZip) {
+            const ch = normalizarChave(tZip.nome);
+            const tBanco = mapaTurmasBanco.get(ch);
 
-                alunosNovos.forEach((aNovo) => {
-                    const chaveAluno = aNovo.nome.trim().toLowerCase();
-                    const aAtual = mapaAlunosAtuais.get(chaveAluno);
-                    if (!aAtual) {
-                        novosNaTurma += 1;
-                    } else if (aAtual.dataNascimento !== aNovo.dataNascimento) {
-                        alteradosNaTurma += 1;
+            if (!tBanco) continue;
+
+            const mapaAlunosBanco = new Map();
+            (tBanco.alunos || []).forEach((a) => {
+                mapaAlunosBanco.set(normalizarChave(a.nome), a);
+            });
+
+            const mapaAlunosZip = new Map();
+            (tZip.alunos || []).forEach((a) => {
+                mapaAlunosZip.set(normalizarChave(a.nome), a);
+            });
+
+            let novosNaTurma = 0;
+            let removidosNaTurma = 0;
+            let modificadosNaTurma = 0;
+
+            // alunos novos ou com data alterada
+            for (const [nomeAluno, aZip] of mapaAlunosZip.entries()) {
+                const aBanco = mapaAlunosBanco.get(nomeAluno);
+                if (!aBanco) {
+                    novosNaTurma++;
+                    totalAlunosNovos++;
+                } else {
+                    const dataBancoNorm = normalizarDataParaComparar(aBanco.dataNascimento);
+                    const dataZipNorm = normalizarDataParaComparar(aZip.dataNascimento);
+
+                    if (dataBancoNorm && dataZipNorm && dataBancoNorm !== dataZipNorm) {
+                        modificadosNaTurma++;
+                        totalAlunosModificados++;
                     }
-                });
-
-                alunosAtuais.forEach((aAtual) => {
-                    const chaveAluno = aAtual.nome.trim().toLowerCase();
-                    if (!mapaAlunosNovos.has(chaveAluno)) {
-                        removidosNaTurma += 1;
-                    }
-                });
-
-                diff.totalAlunosNovos += novosNaTurma;
-                diff.totalAlunosRemovidos += removidosNaTurma;
-                diff.totalAlunosModificados += alteradosNaTurma;
-                deltaAlunosEscola += novosNaTurma - removidosNaTurma;
-
-                if (novosNaTurma > 0 || removidosNaTurma > 0 || alteradosNaTurma > 0) {
-                    turmasAlteradas.push({
-                        nome: tNova.nome,
-                        novos: novosNaTurma,
-                        removidos: removidosNaTurma,
-                        alterados: alteradosNaTurma,
-                        totalAtual: alunosNovos.length,
-                    });
                 }
             }
-        });
 
-        // verifica turmas que existiam no banco mas sumiram no zip
-        escolaAtual.turmas.forEach((tAtual) => {
-            const chaveTurma = tAtual.nome.trim().toLowerCase();
-            if (!turmasNovasMap.has(chaveTurma)) {
-                turmasRemovidas.push(tAtual.nome);
-                const qtd = (tAtual.alunos || []).length;
-                diff.totalAlunosRemovidos += qtd;
-                deltaAlunosEscola -= qtd;
+            // alunos removidos da turma
+            for (const nomeAluno of mapaAlunosBanco.keys()) {
+                if (!mapaAlunosZip.has(nomeAluno)) {
+                    removidosNaTurma++;
+                    totalAlunosRemovidos++;
+                }
             }
-        });
 
-        // se houve qualquer diferenca nessa escola adiciona ao resumo
+            // inclui apenas turmas que realmente sofreram alguma modificacao
+            if (novosNaTurma > 0 || removidosNaTurma > 0 || modificadosNaTurma > 0) {
+                turmasAlteradasDetalhe.push({
+                    nome: tZip.nome,
+                    novos: novosNaTurma,
+                    removidos: removidosNaTurma,
+                    modificados: modificadosNaTurma,
+                });
+            }
+        }
+
+        // registra a escola apenas se houver pelo menos uma alteracao real
         if (
-            turmasNovas.length > 0 ||
-            turmasRemovidas.length > 0 ||
-            turmasAlteradas.length > 0
+            turmasNovasNomes.length > 0 ||
+            turmasRemovidasNomes.length > 0 ||
+            turmasAlteradasDetalhe.length > 0
         ) {
-            diff.detalhesPorEscola.push({
-                nome: escolaNova.nome,
-                status: 'modificada',
-                turmasNovas,
-                turmasRemovidas,
-                turmasAlteradas,
-                totalAlunosDelta: deltaAlunosEscola,
+            detalhesPorEscola.push({
+                nome: escolaZip.nome,
+                status: 'existente',
+                turmasNovas: turmasNovasNomes,
+                turmasRemovidas: turmasRemovidasNomes,
+                turmasAlteradas: turmasAlteradasDetalhe,
             });
         }
-    });
+    }
 
-    // 2. identifica escolas que existem no banco mas nao vieram no zip
-    escolasAtuais.forEach((escolaAtual) => {
-        const chave = escolaAtual.nome.trim().toLowerCase();
-        if (!mapaNovas.has(chave)) {
-            diff.escolasAusentesNoZip.push(escolaAtual.nome);
+    // identifica escolas do banco que nao vieram no arquivo zip
+    const escolasAusentesNoZip = [];
+    for (const [chaveBanco, escolaBanco] of mapaBanco.entries()) {
+        if (!mapaZip.has(chaveBanco)) {
+            escolasAusentesNoZip.push(escolaBanco.nome);
         }
-    });
+    }
 
-    return diff;
+    return {
+        totalEscolasNoZip: escolasZip.length,
+        totalEscolasNovas: escolasNovas.length,
+        totalAlunosNovos,
+        totalAlunosRemovidos,
+        totalAlunosModificados,
+        escolasNovas,
+        escolasAusentesNoZip,
+        detalhesPorEscola,
+    };
 }
