@@ -1,17 +1,28 @@
-### Estrutura de Pastas Esperada
+### Como as Pastas Devem Estar Organizadas
 
-A pasta **PET PSE** (ou o arquivo compactado) pode seguir um dos dois formatos abaixo:
+Ao baixar a pasta de relatórios do Google Drive, ela virá no formato compactado (**.ZIP**). Antes de enviar, certifique-se de que os arquivos no Drive seguem um dos dois modelos comuns de organização:
 
-* **1. Organização direta por escola (Recomendado):**
-  * Uma pasta para cada escola contendo os arquivos `.xlsx` soltos diretamente dentro dela.
-* **2. Organização com subpastas (Turnos ou Etapas):**
-  * Dentro da pasta da escola, pastas de etapas (ex: *Anos Iniciais*, *Educação Infantil*) contendo os relatórios das turmas.
+* **Organização Direta (Modelo Padrão):**
+  * A pasta traz o nome da escola e as planilhas das turmas estão guardadas diretamente dentro dela.
+  * *Exemplo:*  
+    Pasta `EMEF Adelmo Simas Genro` contendo o arquivo `Relatorio 1º Ano EducarWEB.xlsx`.
 
-### Regras e Comportamento dos Arquivos
+* **Organização com Subpastas (Por Turno ou Etapa):**
+  * Em escolas maiores, a pasta da escola pode conter divisões internas (como `Manhã`, `Tarde`, `Educação Infantil`, `Anos Iniciais` ou `Turmas`), e as planilhas ficam dentro dessas subdivisões.
+  * *Exemplo:*  
+    Pasta `EMEF Bernardino Fernandes` > subpasta `Anos Iniciais` > arquivo `Relatorio 2º Ano EducarWEB.xlsx`.
 
-* **Formato:** Apenas planilhas `.xlsx` geradas pelo sistema **EducarWEB**. Arquivos de outros formatos são ignorados automaticamente.
-* **Atenção às subpastas:** Se a pasta de uma escola contiver subpastas, o leitor processará **exclusivamente** os arquivos dessas subpastas. Planilhas soltas na raiz dessa escola serão desconsideradas.
-* **Nome das Turmas:**
-  * **Planilhas com 1 turma:** O nome da turma é extraído e limpo a partir do nome do arquivo (removendo *Relatório*, *EducarWEB*, cópias e extensões).
-  * **Planilhas com múltiplas turmas:** Se estiverem na raiz da escola, os nomes originais de cada turma (`Série: ...`) são preservados.
-* **Cadastro de Escolas:** O nome da escola no cabeçalho da planilha será verificado e sincronizado com a tabela de escolas no banco.
+### O Que Conferir nos Arquivos
+
+* **Formato das Planilhas (.xlsx):**  
+  O sistema reconhece apenas relatórios modernos gerados pelo **EducarWEB** (arquivos terminados em `.xlsx`). Documentos em PDF, fotos ou arquivos temporários não serão lidos.
+
+* **Arquivos em Subpastas:**  
+  * Caso a pasta de uma escola possua subpastas por turno ou etapa, o leitor processará **somente** os relatórios que estiverem dentro dessas divisões (arquivos que ficarem soltos fora das subpastas serão desconsiderados).
+  * **Importante:** Em subpastas, cada arquivo deve conter os dados de **apenas 1 turma**. Se um mesmo arquivo dentro de uma subpasta trouxer várias turmas agrupadas, essa planilha específica será ignorada pelo leitor (as demais planilhas continuarão sendo lidas normalmente).
+
+* **Nomes das Turmas e Escolas:**  
+  Não é necessário renomear nada manualmente. O sistema identifica a escola pelo cabeçalho do relatório. Para as turmas, se o arquivo conter mais de uma turma, o nome de cada uma das turmas será o que aparece dentro do arquivo, como `5° ANO`. Se o arquivo está dentro de uma subpasta, o nome que a turma irá receber será o nome do arquivo, no qual o sistema faz a limpeza de termos como *"Relatório"*, *"EducarWEB"* ou marcações de cópia
+
+* **Impacto nas Turmas Já Cadastradas:**  
+  Apenas as escolas que apresentarem mudanças nas planilhas terão seus dados atualizados. Se uma turma antiga deixou de existir nos novos relatórios baixados do Drive, ela será substituída pela estrutura atualizada. Todas as avaliações e registros já realizados no passado continuam preservados no sistema com total segurança.

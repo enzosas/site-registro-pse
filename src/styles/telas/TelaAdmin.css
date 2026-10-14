@@ -298,18 +298,17 @@
     font-size: 1rem;
     line-height: 1.5;
     color: var(--cor-text);
+    gap: 1rem;
 }
 
 .app__ajuda__conteudo h3 {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--cor-primary);
-    margin-top: 0.25rem;
-    margin-bottom: 0.25rem;
 }
 
 .app__ajuda__conteudo h3:not(:first-child) {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .app__ajuda__conteudo p {
