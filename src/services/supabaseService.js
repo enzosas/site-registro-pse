@@ -46,26 +46,6 @@ export async function autenticarUsuario(email, password) {
     }
 }
 
-export async function oldCarregarEscolasDB() {
-    try {
-        const { data, error } = await supabase
-            .from('dados')
-            .select('json')
-            .eq('id', 1)
-            .single();
-
-        if (error) {
-            console.error('Erro ao buscar dados do Supabase:', error);
-            return [];
-        }
-
-        return data?.json?.escolas || [];
-    } catch (err) {
-        console.error('Erro inesperado ao carregar escolas:', err);
-        return [];
-    }
-}
-
 export async function carregarEscolasDB() {
     try {
         const { data, error } = await supabase
