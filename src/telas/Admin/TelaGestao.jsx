@@ -11,6 +11,7 @@ import { PainelDetalhesUsuario } from './PainelDetalhesUsuario';
 import { PainelCriarUbs } from './PainelCriarUbs';
 import { PainelRemoverUbs } from './PainelRemoverUbs';
 import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
+import { PainelAtualizarTurmas } from './PainelAtualizarTurmas';
 
 export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PAINEL_INICIAL }) {
     const [subtelaAtiva, setSubtelaAtiva] = useState(subtelaInicial);
@@ -120,6 +121,13 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
                 return (
                     <PainelEditarEscolaUbs
                         onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
+                    />
+                );
+            case TELAS_GESTAO.PAINEL_ATUALIZAR_TURMAS:
+                return (
+                    <PainelAtualizarTurmas
+                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_INICIAL)}
+                        onVoltar={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_INICIAL)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_INICIAL:
