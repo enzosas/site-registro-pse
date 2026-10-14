@@ -347,7 +347,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                             <label>De</label>
                             <input
                                 type="date"
-                                className="app__select"
+                                className="app__select app__select--date"
                                 value={dataInicio}
                                 onChange={(e) => setDataInicio(e.target.value)}
                             />
@@ -356,7 +356,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                             <label>Até</label>
                             <input
                                 type="date"
-                                className="app__select"
+                                className="app__select app__select--date"
                                 value={dataFim}
                                 onChange={(e) => setDataFim(e.target.value)}
                             />

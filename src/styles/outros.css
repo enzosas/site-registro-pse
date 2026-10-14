@@ -240,3 +240,11 @@
 	outline: 0.2rem solid var(--cor-botao);
 	outline-offset: 0em;
 }
+
+.app__select--date {
+	cursor: text;
+}
+
+.app__select--date:hover:not(:disabled) {
+	filter: none
+}
