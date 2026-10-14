@@ -171,7 +171,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             const ubsLogada = listaUbs.find((u) => String(u.id) === String(ubsIdUsuario));
             baseTexto = `Exibindo registros das escolas da UBS ${ubsLogada?.nome || 'vinculada'}`;
         } else if (isComum) {
-            baseTexto = 'Exibindo apenas os seus registros de atividade';
+            baseTexto = 'Exibindo os seus registros de atividade';
         }
 
         if (partesFiltro.length === 0) {

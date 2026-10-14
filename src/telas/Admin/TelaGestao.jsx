@@ -12,12 +12,17 @@ import { PainelCriarUbs } from './PainelCriarUbs';
 import { PainelRemoverUbs } from './PainelRemoverUbs';
 import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
 
-export function TelaGestao({ onVoltar, cardRef }) {
-    const [subtelaAtiva, setSubtelaAtiva] = useState(TELAS_GESTAO.PAINEL_INICIAL);
+export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PAINEL_INICIAL }) {
+    const [subtelaAtiva, setSubtelaAtiva] = useState(subtelaInicial);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
 
     const handleVoltar = () => {
+        if (subtelaInicial === TELAS_GESTAO.PAINEL_REGISTROS && subtelaAtiva === TELAS_GESTAO.PAINEL_REGISTROS) {
+            onVoltar();
+            return;
+        }
+
         if (
             subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_USUARIO ||
             subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_USUARIO
