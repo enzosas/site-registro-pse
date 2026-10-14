@@ -13,8 +13,6 @@ Ao finalizar, o aplicativo gera automaticamente um relatório, que pode ser copi
 
 Assim, você economiza tempo, reduz o uso de papel e mantém os registros das atividades organizados e padronizados.
 
----
-
 ### Guia prático de preenchimento
 
 #### Escola e turma

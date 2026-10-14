@@ -1,0 +1,75 @@
+.markdown {
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--cor-text);
+}
+
+.markdown :is(h1, h2, h3, h4, h5, h6, p, ul, ol) {
+    margin: 0;
+}
+
+.markdown :is(p, ul, ol) {
+    margin-top: 0.75rem;
+}
+
+.markdown h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--cor-primary);
+    margin-top: 1.5rem;
+}
+
+.markdown h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--cor-primary);
+    margin-top: 1.25rem;
+}
+
+.markdown > :first-child {
+    margin-top: 0;
+}
+
+.markdown :is(h1, h2, h3, h4) + :is(h2, h3, h4, h5) {
+    margin-top: 1rem;
+}
+
+.markdown ul {
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.markdown li {
+    font-size: 1rem;
+}
+
+.markdown li > ul {
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+}
+
+.markdown strong {
+    font-weight: 600;
+}
+
+.markdown em {
+    font-style: italic;
+}
+
+.markdown code {
+    font-family: inherit;
+    font-size: 0.85rem;
+    background-color: var(--cor-botao3);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.3em;
+}
+
+.markdown hr {
+    border: none;
+    border-top: 1px solid var(--cor-border);
+    margin: 1.25rem 0;
+}

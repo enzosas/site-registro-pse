@@ -209,7 +209,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
 
             {/* instrucoes em markdown quando nenhum arquivo estiver sendo inspecionado */}
             {!diffResultado && !processandoZip && (
-                <div className="app__ajuda__conteudo">
+                <div className="markdown">
                     <ReactMarkdown>{ajudaAtualizarTurmasRaw}</ReactMarkdown>
                 </div>
             )}

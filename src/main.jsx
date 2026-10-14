@@ -10,6 +10,8 @@ import './styles/global.css';
 import './styles/layout.css';
 import './styles/buttons.css';
 import './styles/outros.css';
+import './styles/outros.css';
+import './styles/markdown.css';
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
