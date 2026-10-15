@@ -16,7 +16,7 @@
     object-fit: contain;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 750px) {
 
     .app__header-container {
         display: none;
