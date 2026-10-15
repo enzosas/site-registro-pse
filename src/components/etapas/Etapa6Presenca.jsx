@@ -1,6 +1,6 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
-import { formatarData, formatarDataHora } from '../../utils/formatadores';
+import { formatarDataIso, formatarDataHora } from '../../utils/formatadores';
 import { TELAS } from '../../utils/constantes';
 
 export function Etapa6Presenca() {
@@ -61,7 +61,7 @@ export function Etapa6Presenca() {
                                         <div className='app__list__aluno-nascimento'>
                                             {aluno.nome}
                                             <p className='app__list__aluno-nascimento__nascimento'>
-                                                {formatarData(aluno.dataNascimento)}
+                                                {formatarDataIso(aluno.dataNascimento)}
                                             </p>
                                         </div>
                                     </label>
