@@ -59,7 +59,7 @@ export function PainelGestaoInicial({ onNavegar }) {
                     className="app__buttonSecondary admin__inicial__nav-button"
                     onClick={() => onNavegar(TELAS_GESTAO.PAINEL_ATUALIZAR_TURMAS)}
                 >
-                    Atualizar Turmas (.ZIP)
+                    Atualizar Turmas
                 </button>
             )}
         </>
