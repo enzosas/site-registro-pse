@@ -92,6 +92,29 @@ export function useRegistroPSE() {
         }
     }, [nomeUsuario]);
 
+    // faz a seta do celular voltar
+    useEffect(() => {
+        // Só adiciona estado no histórico se estiver para além da primeira etapa ou fora da tela inicial
+        if (etapaAtualId !== ETAPAS.DATA || telaAtivaInterna !== TELAS.INICIAL) {
+            window.history.pushState({ etapa: etapaAtualId, tela: telaAtivaInterna }, '');
+        }
+
+        const handleBotaoVoltarNativo = () => {
+            // Quando o utilizador clica no botão voltar do Android/sistema:
+            if (etapaAtualId !== ETAPAS.DATA) {
+                voltarEtapa();
+            } else if (telaAtivaInterna !== TELAS.INICIAL) {
+                setTelaAtiva(TELAS.INICIAL);
+            }
+        };
+
+        window.addEventListener('popstate', handleBotaoVoltarNativo);
+
+        return () => {
+            window.removeEventListener('popstate', handleBotaoVoltarNativo);
+        };
+    }, [etapaAtualId, telaAtivaInterna]);
+
     // Logout global e reinicialização do registo
     const handleLogout = async () => {
         await logout();
