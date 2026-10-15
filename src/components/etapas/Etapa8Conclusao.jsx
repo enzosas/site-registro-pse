@@ -1,6 +1,7 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
 import { TELAS } from '../../utils/constantes';
+import { MensagemErro } from '../MensagemErro';
 
 export function Etapa8Conclusao() {
     const {
@@ -51,9 +52,7 @@ export function Etapa8Conclusao() {
             </button>
             <div className='app__footer'>
                 {erroSalvarBanco && (
-                    <div style={{ color: 'var(--cor-negative)', textAlign: 'center' }}>
-                        {erroSalvarBanco}
-                    </div>
+                    <MensagemErro mensagem={erroSalvarBanco} />
                 )}
                 {registroSalvo && (
                     <p>Registro salvo! Você pode voltar para o início com o botão acima</p>

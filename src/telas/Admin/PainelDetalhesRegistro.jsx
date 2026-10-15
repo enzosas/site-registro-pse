@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
+import { MensagemErro } from '../../components/MensagemErro';
 
 export const PERMISSOES_GERAR_PDF = [
     TIPO_USUARIO.ADMIN,
@@ -168,9 +169,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
             </div>
             <div className="app__footer app__footer--extra_margin">
                 {erro && (
-                    <div className="app__alerta-erro">
-                        <p>{erro}</p>
-                    </div>
+                    <MensagemErro mensagem={erro} />
                 )}
 
                 {podeGerarPdf && (

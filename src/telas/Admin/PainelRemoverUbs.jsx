@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { deletarUbsDB } from '../../services/supabaseService';
 import { useDados } from '../../context/DadosContext';
+import { MensagemErro } from '../../components/MensagemErro';
 
 export function PainelRemoverUbs({ onSucesso }) {
     const { listaUbs, recarregarUbs, carregandoDados: carregando } = useDados();
@@ -70,9 +71,7 @@ export function PainelRemoverUbs({ onSucesso }) {
             </div>
             <div className="app__footer">
                 {mensagemErro && (
-                    <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>
-                        {mensagemErro}
-                    </div>
+                    <MensagemErro mensagem={mensagemErro} />
                 )}
                 <button
                     type="submit"

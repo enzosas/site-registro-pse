@@ -5,6 +5,7 @@ import { useDados } from '../../context/DadosContext';
 import { processarZipTurmas } from '../../utils/parserPlanilhas';
 import { calcularDiffTurmas } from '../../utils/comparadorDiffTurmas';
 import { supabase } from '../../services/supabaseClient';
+import { MensagemErro } from '../../components/MensagemErro';
 
 export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
     const { escolas: escolasAtuais, recarregarTodosDados } = useDados();
@@ -287,9 +288,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
 
             {/* alerta de erro em vermelho posicionado acima do rodape */}
             {erro && (
-                <div className="app__alerta-erro" style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-                    <p style={{ color: 'var(--cor-negative, #e53e3e)', fontWeight: 500 }}>{erro}</p>
-                </div>
+                <MensagemErro mensagem={erro} />
             )}
 
             {/* rodape fixo com os botoes de acao */}

@@ -13,12 +13,12 @@ export async function autenticarUsuario(email, password) {
 
         if (error) {
             if (error.status === 400 || error.message?.includes('Invalid login credentials')) {
-                return { sucesso: false, erro: 'credenciais inválidas' };
+                return { sucesso: false, erro: 'Credenciais Inválidas!' };
             }
             if (error.status >= 500) {
                 return { sucesso: false, erro: 'servidor fora do ar. tente novamente mais tarde' };
             }
-            return { sucesso: false, erro: 'erro de conexão. verifique sua internet' };
+            return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
         }
 
         const { data: usuarioPerfil, error: erroPerfil } = await supabase

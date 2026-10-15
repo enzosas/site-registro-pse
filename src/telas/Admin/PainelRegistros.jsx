@@ -4,6 +4,7 @@ import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
+import { MensagemErro } from '../../components/MensagemErro';
 import {
     formatarTurmas,
     formatarDataIso,
@@ -388,9 +389,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             </div>
 
             {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
-            {!carregando && erro && (
-                <p className="admin__alerta-erro">Não foi possível carregar os registros: {erro}</p>
-            )}
+            {!carregando && erro && <MensagemErro mensagem={`Não foi possível carregar os registros: ${erro}`} />}
             {!carregando && !erro && registrosFiltrados.length === 0 && (
                 <p className="admin__escola_ubs__vazio">
                     {temFiltroAtivo

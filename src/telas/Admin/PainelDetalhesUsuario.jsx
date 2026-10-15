@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { deletarUsuarioDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
 import { useAuth } from '../../context/AuthContext';
+import { MensagemErro } from '../../components/MensagemErro';
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
 
@@ -58,9 +59,7 @@ export function PainelDetalhesUsuario({
         <>
             <p className="app__title">Detalhes do Usuário</p>
             {mensagemErro && (
-                <div className="app__alerta-erro">
-                    <p>{mensagemErro}</p>
-                </div>
+                <MensagemErro mensagem={mensagemErro} />
             )}
             <div className='admin__detalhes_usuario__frame'>
                 <div>

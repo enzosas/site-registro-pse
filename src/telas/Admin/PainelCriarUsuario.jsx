@@ -3,6 +3,7 @@ import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { criarNovoUsuarioAdmin } from '../../services/supabaseService';
+import { MensagemErro } from '../../components/MensagemErro';
 
 export function PainelCriarUsuario({ onSucesso }) {
     const { tipoUsuario: tipoUsuarioLogado, escolaIdUsuario: escolaIdLogado, ubsIdUsuario: ubsIdLogado } = useAuth();
@@ -227,9 +228,7 @@ export function PainelCriarUsuario({ onSucesso }) {
 
             <div className="app__footer">
                 {mensagemErro && (
-                    <div style={{ color: 'var(--cor-erro, #ff4d4f)' }}>
-                        {mensagemErro}
-                    </div>
+                    <MensagemErro mensagem={mensagemErro}/>
                 )}
                 <button
                     type="button"
