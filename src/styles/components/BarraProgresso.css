@@ -12,8 +12,8 @@
 }
 
 .app__progress-step {
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -29,7 +29,7 @@
 
 .app__progress-step.current {
     background-color: var(--cor-frame);
-    border: 4px solid var(--cor-step);
+    border: 0.25rem solid var(--cor-step);
     box-sizing: border-box;
 }
 

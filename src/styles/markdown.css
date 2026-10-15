@@ -67,9 +67,3 @@
     padding: 0.1rem 0.3rem;
     border-radius: 0.3em;
 }
-
-.markdown hr {
-    border: none;
-    border-top: 1px solid var(--cor-border);
-    margin: 1.25rem 0;
-}
