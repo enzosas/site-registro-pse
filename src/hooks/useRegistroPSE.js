@@ -5,13 +5,21 @@ import * as Formatadores from '../utils/formatadores';
 import { TELAS, ETAPAS, TURNOS } from '../utils/constantes';
 import { useAuth } from '../context/AuthContext';
 import { useDados } from '../context/DadosContext';
+import { navegarComFeedback } from '../utils/delayTouch';
 
 export function useRegistroPSE() {
     const { usuarioId, nomeUsuario, logout } = useAuth();
     const { escolas, listaUbs } = useDados();
 
     // Navegação global de ecrãs
-    const [telaAtiva, setTelaAtiva] = useState(TELAS.INICIAL);
+    const [telaAtivaInterna, setTelaAtivaInterna] = useState(TELAS.INICIAL);
+    const setTelaAtiva = (novaTela, forceInstant = false) => {
+        if (forceInstant) {
+            setTelaAtivaInterna(novaTela);
+        } else {
+            navegarComFeedback(() => setTelaAtivaInterna(novaTela));
+        }
+    };
 
     // Etapa atual do formulário
     const [etapaAtualId, setEtapaAtualId] = useState(ETAPAS.DATA);
@@ -75,7 +83,7 @@ export function useRegistroPSE() {
         if (cardRef.current) {
             cardRef.current.scrollTop = 0;
         }
-    }, [etapaAtualId, alunoAtualIndex, telaAtiva]);
+    }, [etapaAtualId, alunoAtualIndex, telaAtivaInterna]);
 
     // Atualiza o profissional padrão quando o utilizador muda
     useEffect(() => {
@@ -128,28 +136,30 @@ export function useRegistroPSE() {
     }, [etapasAtivas, totalEtapas]);
 
     const passoVisual = useMemo(() => {
-        if (telaAtiva === TELAS.ETAPAS) {
+        if (telaAtivaInterna === TELAS.ETAPAS) {
             return mapaEtapaNumero[etapaAtualId] || 1;
         }
-        return mapaEtapaNumero[telaAtiva] || 1;
-    }, [telaAtiva, etapaAtualId, mapaEtapaNumero]);
+        return mapaEtapaNumero[telaAtivaInterna] || 1;
+    }, [telaAtivaInterna, etapaAtualId, mapaEtapaNumero]);
 
     const indiceEtapaAtual = etapasAtivas.indexOf(etapaAtualId);
-
     const avancarEtapa = () => {
-        if (indiceEtapaAtual < etapasAtivas.length - 1) {
-            setEtapaAtualId(etapasAtivas[indiceEtapaAtual + 1]);
-        }
+        navegarComFeedback(() => {
+            if (indiceEtapaAtual < etapasAtivas.length - 1) {
+                setEtapaAtualId(etapasAtivas[indiceEtapaAtual + 1]);
+            }
+        });
     };
-
     const voltarEtapa = () => {
-        if (etapaAtualId === ETAPAS.COLETA) {
-            setAlunoAtualIndex(0);
-            setMostrarAlunosPendentes(false);
-        }
-        if (indiceEtapaAtual > 0) {
-            setEtapaAtualId(etapasAtivas[indiceEtapaAtual - 1]);
-        }
+        navegarComFeedback(() => {
+            if (etapaAtualId === ETAPAS.COLETA) {
+                setAlunoAtualIndex(0);
+                setMostrarAlunosPendentes(false);
+            }
+            if (indiceEtapaAtual > 0) {
+                setEtapaAtualId(etapasAtivas[indiceEtapaAtual - 1]);
+            }
+        });
     };
 
     // Filtros e ordenação
@@ -438,7 +448,7 @@ export function useRegistroPSE() {
     };
 
     return {
-        telaAtiva,
+        telaAtiva: telaAtivaInterna,
         setTelaAtiva,
         handleLogout,
 

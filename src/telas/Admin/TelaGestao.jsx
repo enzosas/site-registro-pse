@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TELAS_GESTAO } from '../../utils/constantes';
 import { IconeVoltar } from '../../components/Icones';
+import { navegarComFeedback } from '../../utils/delayTouch';
 import { PainelGestaoInicial } from './PainelGestaoInicial';
 import { PainelRegistros } from './PainelRegistros';
 import { PainelDetalhesRegistro } from './PainelDetalhesRegistro';
@@ -14,36 +15,43 @@ import { PainelEditarEscolaUbs } from './PainelEditarEscolaUbs';
 import { PainelAtualizarTurmas } from './PainelAtualizarTurmas';
 
 export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PAINEL_INICIAL }) {
-    const [subtelaAtiva, setSubtelaAtiva] = useState(subtelaInicial);
+    const [subtelaAtiva, setSubtelaAtivaInterna] = useState(subtelaInicial);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
 
-    const handleVoltar = () => {
-        if (subtelaInicial === TELAS_GESTAO.PAINEL_REGISTROS && subtelaAtiva === TELAS_GESTAO.PAINEL_REGISTROS) {
-            onVoltar();
-            return;
-        }
+    const mudarSubtela = (novaSubtela) => {
+        navegarComFeedback(() => {
+            setSubtelaAtivaInterna(novaSubtela);
+        });
+    };
 
-        if (
-            subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_USUARIO ||
-            subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_USUARIO
-        ) {
-            setUsuarioSelecionado(null);
-            setSubtelaAtiva(TELAS_GESTAO.PAINEL_USUARIOS);
-        } else if (subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_REGISTRO) {
-            setRegistroSelecionado(null);
-            setSubtelaAtiva(TELAS_GESTAO.PAINEL_REGISTROS);
-        } else if (
-            subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_UBS ||
-            subtelaAtiva === TELAS_GESTAO.PAINEL_REMOVER_UBS ||
-            subtelaAtiva === TELAS_GESTAO.PAINEL_EDITAR_ESCOLAUBS
-        ) {
-            setSubtelaAtiva(TELAS_GESTAO.PAINEL_ESCOLAUBS);
-        } else if (subtelaAtiva !== TELAS_GESTAO.PAINEL_INICIAL) {
-            setSubtelaAtiva(TELAS_GESTAO.PAINEL_INICIAL);
-        } else {
-            onVoltar();
-        }
+    const handleVoltar = () => {
+        navegarComFeedback(() => {
+            if (subtelaInicial === TELAS_GESTAO.PAINEL_REGISTROS && subtelaAtiva === TELAS_GESTAO.PAINEL_REGISTROS) {
+                onVoltar();
+                return;
+            }
+            if (
+                subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_USUARIO ||
+                subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_USUARIO
+            ) {
+                setUsuarioSelecionado(null);
+                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_USUARIOS);
+            } else if (subtelaAtiva === TELAS_GESTAO.PAINEL_DETALHES_REGISTRO) {
+                setRegistroSelecionado(null);
+                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_REGISTROS);
+            } else if (
+                subtelaAtiva === TELAS_GESTAO.PAINEL_CRIAR_UBS ||
+                subtelaAtiva === TELAS_GESTAO.PAINEL_REMOVER_UBS ||
+                subtelaAtiva === TELAS_GESTAO.PAINEL_EDITAR_ESCOLAUBS
+            ) {
+                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_ESCOLAUBS);
+            } else if (subtelaAtiva !== TELAS_GESTAO.PAINEL_INICIAL) {
+                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_INICIAL);
+            } else {
+                onVoltar();
+            }
+        });
     };
 
     const renderizarSubtela = () => {
@@ -51,10 +59,12 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
             case TELAS_GESTAO.PAINEL_USUARIOS:
                 return (
                     <PainelUsuarios
-                        onCriarUsuario={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_CRIAR_USUARIO)}
+                        onCriarUsuario={() => mudarSubtela(TELAS_GESTAO.PAINEL_CRIAR_USUARIO)}
                         onSelecionarUsuario={(usuario) => {
-                            setUsuarioSelecionado(usuario);
-                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_DETALHES_USUARIO);
+                            navegarComFeedback(() => {
+                                setUsuarioSelecionado(usuario);
+                                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_DETALHES_USUARIO);
+                            });
                         }}
                     />
                 );
@@ -63,27 +73,29 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
                     <PainelDetalhesUsuario
                         usuario={usuarioSelecionado}
                         onVoltar={() => {
+                            mudarSubtela(TELAS_GESTAO.PAINEL_USUARIOS);
                             setUsuarioSelecionado(null);
-                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_USUARIOS);
                         }}
                         onSucessoExclusao={() => {
+                            mudarSubtela(TELAS_GESTAO.PAINEL_USUARIOS);
                             setUsuarioSelecionado(null);
-                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_USUARIOS);
                         }}
                     />
                 );
             case TELAS_GESTAO.PAINEL_CRIAR_USUARIO:
                 return (
                     <PainelCriarUsuario
-                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_USUARIOS)}
+                        onSucesso={() => mudarSubtela(TELAS_GESTAO.PAINEL_USUARIOS)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_REGISTROS:
                 return (
                     <PainelRegistros
                         onSelecionarRegistro={(registro) => {
-                            setRegistroSelecionado(registro);
-                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_DETALHES_REGISTRO);
+                            navegarComFeedback(() => {
+                                setRegistroSelecionado(registro);
+                                setSubtelaAtivaInterna(TELAS_GESTAO.PAINEL_DETALHES_REGISTRO);
+                            });
                         }}
                     />
                 );
@@ -92,49 +104,49 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
                     <PainelDetalhesRegistro
                         registro={registroSelecionado}
                         onVoltar={() => {
+                            mudarSubtela(TELAS_GESTAO.PAINEL_REGISTROS);
                             setRegistroSelecionado(null);
-                            setSubtelaAtiva(TELAS_GESTAO.PAINEL_REGISTROS);
                         }}
                     />
                 );
             case TELAS_GESTAO.PAINEL_ESCOLAUBS:
                 return (
                     <PainelEscolaUbs
-                        onAdicionarUbs={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_CRIAR_UBS)}
-                        onRemoverUbs={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_REMOVER_UBS)}
-                        onEditar={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_EDITAR_ESCOLAUBS)}
+                        onAdicionarUbs={() => mudarSubtela(TELAS_GESTAO.PAINEL_CRIAR_UBS)}
+                        onRemoverUbs={() => mudarSubtela(TELAS_GESTAO.PAINEL_REMOVER_UBS)}
+                        onEditar={() => mudarSubtela(TELAS_GESTAO.PAINEL_EDITAR_ESCOLAUBS)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_CRIAR_UBS:
                 return (
                     <PainelCriarUbs
-                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
+                        onSucesso={() => mudarSubtela(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_REMOVER_UBS:
                 return (
                     <PainelRemoverUbs
-                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
+                        onSucesso={() => mudarSubtela(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_EDITAR_ESCOLAUBS:
                 return (
                     <PainelEditarEscolaUbs
-                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
+                        onSucesso={() => mudarSubtela(TELAS_GESTAO.PAINEL_ESCOLAUBS)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_ATUALIZAR_TURMAS:
                 return (
                     <PainelAtualizarTurmas
-                        onSucesso={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_INICIAL)}
-                        onVoltar={() => setSubtelaAtiva(TELAS_GESTAO.PAINEL_INICIAL)}
+                        onSucesso={() => mudarSubtela(TELAS_GESTAO.PAINEL_INICIAL)}
+                        onVoltar={() => mudarSubtela(TELAS_GESTAO.PAINEL_INICIAL)}
                     />
                 );
             case TELAS_GESTAO.PAINEL_INICIAL:
             default:
                 return (
                     <PainelGestaoInicial
-                        onNavegar={(subtela) => setSubtelaAtiva(subtela)}
+                        onNavegar={(subtela) => mudarSubtela(subtela)}
                     />
                 );
         }
