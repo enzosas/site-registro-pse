@@ -482,7 +482,7 @@ export const RelatorioPDF = ({ dados }) => {
                         >
                             <Text style={[styles.tableCell, styles.colNome]}>{aluno.nome}</Text>
                             <Text style={[styles.tableCell, styles.colNascimento]}>
-                                {Formatadores.formatarData(aluno.dataNascimento)}
+                                {Formatadores.formatarDataIso(aluno.dataNascimento)}
                             </Text>
                             {temPeso && (
                                 <Text style={[styles.tableCell, styles.colMedidas]}>

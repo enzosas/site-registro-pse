@@ -130,7 +130,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                     {alunos.map((aluno, index) => (
                         <div key={aluno.id ?? index} className="app__resumo">
                             <span>{aluno.nome} - </span>
-                            <span>{Formatadores.formatarData(aluno.dataNascimento)}</span>
+                            <span>{Formatadores.formatarDataIso(aluno.dataNascimento)}</span>
                             {(aluno.peso || aluno.altura) && (
                                 <>
                                     {' - '}

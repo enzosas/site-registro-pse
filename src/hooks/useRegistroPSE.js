@@ -388,7 +388,7 @@ export function useRegistroPSE() {
         ];
 
         dados.alunosPresentes.forEach((aluno) => {
-            let linhaAluno = `- ${aluno.nome} (${Formatadores.formatarData(aluno.dataNascimento)})`;
+            let linhaAluno = `- ${aluno.nome} (${Formatadores.formatarDataIso(aluno.dataNascimento)})`;
             const detalhes = [];
             if (aluno.peso) detalhes.push(`${aluno.peso}kg`);
             if (aluno.altura) detalhes.push(`${aluno.altura}cm`);

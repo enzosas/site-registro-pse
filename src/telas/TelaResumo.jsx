@@ -65,7 +65,7 @@ export function TelaResumo() {
                         {dados.alunosPresentes.map((aluno) => (
                             <div key={aluno.id} className='app__resumo'>
                                 <span>{aluno.nome} - </span>
-                                <span>{Formatadores.formatarData(aluno.dataNascimento)}</span>
+                                <span>{Formatadores.formatarDataIso(aluno.dataNascimento)}</span>
                                 {(aluno.peso || aluno.altura) && (
                                     <>
                                         {' - '}
