@@ -64,8 +64,6 @@
 @media (max-width: 750px) {
     .app__background {
         padding: 1rem;
-        padding-top: 2rem;
         min-height: 100svh;
-        height: auto;
     }
 }
