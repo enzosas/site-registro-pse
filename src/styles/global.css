@@ -53,3 +53,9 @@ h6 {
     outline: 0.2rem solid var(--cor-botao);
     outline-offset: 0.3rem;
 }
+
+@media (max-width: 750px) {
+    html {
+        font-size: 90%;
+    }
+}
