@@ -23,6 +23,11 @@
     stroke-width: 0.15rem;
 }
 
+.app__progress-step svg {
+    width: 1rem;
+    height: 1rem;
+}
+
 .app__progress-step.completed {
     background-color: var(--cor-step);
 }
@@ -38,7 +43,7 @@
 }
 
 .app__progress-line {
-    height: 0.2rem;
+    height: 0.25rem;
     width: 2rem;
     flex-shrink: 1;
     min-width: 0;

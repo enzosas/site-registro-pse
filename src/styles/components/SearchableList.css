@@ -29,6 +29,11 @@
     font-size: 1rem;
 }
 
+.app__search-bar svg {
+    width: 1rem;
+    height: 1rem;
+}
+
 .app__search-list {
     border: var(--input-border);
     border-radius: 1.5rem;

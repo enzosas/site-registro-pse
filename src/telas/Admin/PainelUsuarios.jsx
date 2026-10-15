@@ -166,14 +166,10 @@ export function PainelUsuarios({
             </div>
             <div className="app__search-list">
                 {carregando && (
-                    <div>
-                        <p>Carregando usuários...</p>
-                    </div>
+                    <p className="admin__escola_ubs__vazio">Carregando usuários...</p>
                 )}
                 {!carregando && usuariosFiltrados.length === 0 && (
-                    <div>
-                        <p>Nenhum usuário encontrado.</p>
-                    </div>
+                    <p className="admin__escola_ubs__vazio">Nenhum usuário encontrado.</p>
                 )}
                 {!carregando && usuariosFiltrados.map((user) => (
                     <button

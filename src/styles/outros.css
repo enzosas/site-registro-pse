@@ -103,8 +103,9 @@
 	width: 100%;
 }
 
+.app__combobox-group label,
 .app__input-group label {
-	font-size: 1rem;
+    font-size: 1rem;
 }
 
 .app__input-group input {

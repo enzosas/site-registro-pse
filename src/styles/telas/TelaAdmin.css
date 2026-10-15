@@ -1,16 +1,19 @@
 .app__buttonSecondary.admin__inicial__nav-button {
-    font-size: 1.5em;
-    padding: 1em;
+    font-size: 1.25rem;
+    padding: 1.5rem 1rem;
+    width: 100%;
 }
 
 .admin__inicial__saudacoes {
-    margin-bottom: 1em;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
 }
 
 .admin__grupo-filtros {
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    gap: 1rem;
+    width: 100%;
 }
 
 .admin__usuario__tabela__line {
@@ -29,6 +32,7 @@
     border-right: none;
     text-align: left;
     color: inherit;
+    font-size: 1rem;
 }
 
 .admin__usuario__tabela__line:hover {
@@ -43,15 +47,15 @@
 }
 
 .admin__usuario__tabela__line:focus-visible {
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     z-index: 2;
-    outline-offset: 0rem;
+    outline-offset: 0;
 }
 
 .admin__detalhes_usuario__frame {
     display: flex;
     flex-direction: column;
-    gap: 2em;
+    gap: 2rem;
 }
 
 .admin__detalhes_usuario__value {
@@ -60,11 +64,14 @@
 }
 
 .admin__detalhes_usuario__label {
-    margin-bottom: 0.5em;
+    margin-bottom: 0.5rem;
+    color: var(--cor-botao2);
 }
 
 .admin__usuario__subtitulo {
-    margin-bottom: 0.5em;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
     line-height: 1.5rem;
 }
 
@@ -108,14 +115,10 @@
     line-height: 1.5;
 }
 
-.admin__escola_ubs__sem-escolas {
-    font-size: 1rem;
-    color: var(--cor-botao2);
-    font-style: italic;
-}
-
+.admin__escola_ubs__sem-escolas,
 .admin__escola_ubs__vazio {
     color: var(--cor-botao2);
+    font-size: 1rem;
 }
 
 .admin__escola_ubs__card--sem-vinculo {
@@ -145,7 +148,7 @@
 .admin__escola_ubs__botoes_grupo {
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    gap: 1rem;
     flex: 1;
     width: 100%;
 }
@@ -300,5 +303,13 @@
 
     .admin__registros__grid {
         grid-template-columns: 1fr;
+    }
+
+    .admin__filtros-linha {
+        flex-direction: column;
+    }
+
+    .admin__escola_ubs__botoes_grupo {
+        flex-direction: column;
     }
 }
