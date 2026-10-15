@@ -109,8 +109,20 @@ export function formatarEixosTematicosSelecionados(idsEixosSelecionados = [], no
 
 export function formatarDataIso(dataIso) {
     if (!dataIso) return '-';
-    const [ano, mes, dia] = String(dataIso).slice(0, 10).split('-');
-    return `${dia}/${mes}/${ano}`;
+    const str = String(dataIso).trim().slice(0, 10);
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
+        return str;
+    }
+
+    if (str.includes('-')) {
+        const [ano, mes, dia] = str.split('-');
+        if (ano && mes && dia) {
+            return `${dia}/${mes}/${ano}`;
+        }
+    }
+
+    return str;
 }
 
 export function formatarListaParaTexto(valor) {
