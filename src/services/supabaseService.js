@@ -526,3 +526,80 @@ export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
         return { sucesso: false, erro: 'Erro inesperado ao atualizar o registro.' };
     }
 }
+
+export async function solicitarRecuperacaoSenhaDB(email) {
+    try {
+        const emailLimpo = (email || '').trim();
+        if (!emailLimpo) {
+            return { sucesso: false, erro: 'Informe o seu e-mail.' };
+        }
+
+        // O link do e-mail traz o usuário de volta para este site (precisa estar liberado no Supabase)
+        const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`;
+
+        const { error } = await supabase.auth.resetPasswordForEmail(emailLimpo, { redirectTo });
+
+        if (error) {
+            console.error('Erro ao solicitar recuperação de senha:', error);
+            if (error.status === 429 || /rate limit|only request this after/i.test(error.message || '')) {
+                return {
+                    sucesso: false,
+                    erro: 'Muitas solicitações. Aguarde alguns minutos e tente novamente.',
+                };
+            }
+            if (error.status >= 500) {
+                return { sucesso: false, erro: 'Servidor fora do ar. Tente novamente mais tarde.' };
+            }
+            return {
+                sucesso: false,
+                erro: 'Não foi possível enviar o e-mail agora. Verifique sua internet e tente novamente.',
+            };
+        }
+
+        // O Supabase responde sucesso mesmo se o e-mail não existir (de propósito, por segurança)
+        return { sucesso: true };
+    } catch (err) {
+        console.error('Erro inesperado ao solicitar recuperação de senha:', err);
+        return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
+    }
+}
+
+export async function redefinirSenhaDB(novaSenha) {
+    try {
+        if (!novaSenha || novaSenha.length < 6) {
+            return { sucesso: false, erro: 'A senha deve ter pelo menos 6 caracteres.' };
+        }
+
+        const { error } = await supabase.auth.updateUser({ password: novaSenha });
+
+        if (error) {
+            console.error('Erro ao redefinir senha:', error);
+            const codigo = error.code || '';
+            const msg = error.message || '';
+
+            // Sessão do link inexistente ou vencida: precisa pedir outro link
+            if (
+                error.name === 'AuthSessionMissingError' ||
+                ['session_not_found', 'session_expired', 'bad_jwt', 'no_authorization'].includes(codigo) ||
+                /auth session missing|invalid jwt|jwt expired/i.test(msg)
+            ) {
+                return { sucesso: false, sessaoExpirada: true, erro: 'O link expirou ou já foi usado.' };
+            }
+            if (codigo === 'same_password' || /different from the old password|same password/i.test(msg)) {
+                return { sucesso: false, erro: 'A nova senha deve ser diferente da senha atual.' };
+            }
+            if (codigo === 'weak_password' || /weak|at least|should contain/i.test(msg)) {
+                return { sucesso: false, erro: 'Senha não aceita. Use uma senha mais forte (letras e números).' };
+            }
+            if (error.status === 429) {
+                return { sucesso: false, erro: 'Muitas tentativas. Aguarde um pouco e tente novamente.' };
+            }
+            return { sucesso: false, erro: 'Não foi possível redefinir a senha. Tente novamente.' };
+        }
+
+        return { sucesso: true };
+    } catch (err) {
+        console.error('Erro inesperado ao redefinir senha:', err);
+        return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
+    }
+}

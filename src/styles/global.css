@@ -20,6 +20,7 @@ body,
 }
 
 body {
+    color: var(--cor-texto);
     line-height: 1;
     -webkit-font-smoothing: antialiased;
 }
@@ -38,6 +39,7 @@ button,
 textarea,
 select {
     font: inherit;
+    color: inherit;
 }
 
 p,

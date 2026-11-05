@@ -1,5 +1,6 @@
 import '../styles/telas/TelaInicial.css';
 import { TIPO_USUARIO } from '../utils/constantes.js';
+import { useTema } from '../context/TemaContext';
 
 export function TelaInicial({
     onComecar,
@@ -10,6 +11,7 @@ export function TelaInicial({
     onAdministracao,
     onMeusRegistros,
 }) {
+    const { tema, alternarTema } = useTema();
     const tipo = tipoUsuario?.toLowerCase();
 
     const podeAcessarAdmin =
@@ -48,6 +50,12 @@ export function TelaInicial({
 
                     <button className='app__buttonSecondary app__tela-inicial__ajuda' onClick={onAjuda}>
                         Ajuda
+                    </button>
+                    <button
+                        className='app__buttonSecondary app__tela-inicial__ajuda'
+                        onClick={alternarTema}
+                    >
+                        {tema === 'escuro' ? 'Modo claro' : 'Modo escuro'}
                     </button>
                     {isLoggedIn && (
                         <button

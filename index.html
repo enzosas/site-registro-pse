@@ -3,6 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="theme-color" content="#f2f2f2" />
+    <style>html[data-tema='escuro'] { background-color: #141414; color-scheme: dark; }</style>
+    <script>
+      // Aplica o tema antes de a página aparecer, para não piscar branco no modo escuro
+      (function () {
+        try {
+          var salvo = localStorage.getItem('tema-preferido');
+          var escuro = salvo
+            ? salvo === 'escuro'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-tema', escuro ? 'escuro' : 'claro');
+          if (escuro) {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#141414');
+          }
+        } catch (e) { /* sem acesso ao armazenamento: segue o tema padrão */ }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />

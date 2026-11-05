@@ -6,7 +6,7 @@ import { TELAS, TIPO_USUARIO } from '../utils/constantes';
 import { MensagemErro } from '../components/MensagemErro'
 
 export function TelaLogin({ onVoltar, onEsqueciSenha }) {
-    const { login, mensagemErro } = useAuth();
+    const { login, mensagemErro, mensagemInfo } = useAuth();
     const { setTelaAtiva, cardRef } = useRegistro();
 
     const [loginInput, setLoginInput] = useState('');
@@ -57,6 +57,7 @@ export function TelaLogin({ onVoltar, onEsqueciSenha }) {
                             required
                         />
                     </div>
+                    {mensagemInfo && <div className='app__mensagem-sucesso'>{mensagemInfo}</div>}
                     <MensagemErro mensagem={mensagemErro} />
                 </div>
                 <div className='app__footer'>
