@@ -249,3 +249,10 @@
 .app__select--date:hover:not(:disabled) {
 	filter: none
 }
+
+/* Coleta de dados: aviso de valor improvável (não bloqueia o avanço) */
+.app__aviso-campo {
+	font-size: 0.9rem;
+	color: var(--cor-negative);
+	margin-top: 0.25rem;
+}

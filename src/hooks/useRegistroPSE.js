@@ -6,6 +6,7 @@ import { TELAS, ETAPAS, TURNOS } from '../utils/constantes';
 import { useAuth } from '../context/AuthContext';
 import { useDados } from '../context/DadosContext';
 import { navegarComFeedback } from '../utils/delayTouch';
+import { numeroDecimal, normalizarDecimal } from '../utils/medidas';
 
 export function useRegistroPSE() {
     const { usuarioId, nomeUsuario, logout, aoDeslogar } = useAuth();
@@ -269,25 +270,31 @@ export function useRegistroPSE() {
         }));
     };
 
+    // Indica se os dados de um aluno estão completos para os eixos selecionados
+    const dadosAlunoCompletos = (dados = {}) => {
+        if (temAntropometria) {
+            if (numeroDecimal(dados.altura) === null) return false;
+            if (numeroDecimal(dados.peso) === null) return false;
+        }
+        if (temVacinacao && !dados.vacinado) return false;
+        if (temSaudeOcular && !dados.saudeOcular) return false;
+        return true;
+    };
+
     const obterAlunosPendentes = () => {
-        return alunosPresentes.filter((aluno) => {
-            const dados = dadosAlunos[aluno.id] || {};
-            if (temAntropometria) {
-                if (!dados.altura || !String(dados.altura).trim()) return true;
-                if (!dados.peso || !String(dados.peso).trim()) return true;
-            }
-            if (temVacinacao && !dados.vacinado) return true;
-            if (temSaudeOcular && !dados.saudeOcular) return true;
-            return false;
-        });
+        return alunosPresentes.filter((aluno) => !dadosAlunoCompletos(dadosAlunos[aluno.id]));
+    };
+
+    // Coloca o cursor na altura no mesmo instante do toque/Enter: no iPhone, o teclado
+    // só abre se o foco acontecer dentro da interação do usuário (não depois de um atraso)
+    const focarAltura = () => {
+        alturaInputRef.current?.focus({ preventScroll: true });
     };
 
     const proximoAluno = () => {
         if (alunoAtualIndex < alunosPresentes.length - 1) {
+            focarAltura();
             setAlunoAtualIndex((prev) => prev + 1);
-            setTimeout(() => {
-                if (alturaInputRef.current) alturaInputRef.current.focus();
-            }, 10);
         } else {
             const pendentes = obterAlunosPendentes();
             if (pendentes.length > 0) {
@@ -300,10 +307,8 @@ export function useRegistroPSE() {
 
     const alunoAnterior = () => {
         if (alunoAtualIndex > 0) {
+            focarAltura();
             setAlunoAtualIndex((prev) => prev - 1);
-            setTimeout(() => {
-                if (alturaInputRef.current) alturaInputRef.current.focus();
-            }, 10);
         } else {
             voltarEtapa();
         }
@@ -374,8 +379,8 @@ export function useRegistroPSE() {
                     id: aluno.id,
                     nome: aluno.nome,
                     dataNascimento: aluno.dataNascimento,
-                    altura: dadosAlunos[aluno.id]?.altura || null,
-                    peso: dadosAlunos[aluno.id]?.peso || null,
+                    altura: normalizarDecimal(dadosAlunos[aluno.id]?.altura),
+                    peso: normalizarDecimal(dadosAlunos[aluno.id]?.peso),
                     vacinado: dadosAlunos[aluno.id]?.vacinado || null,
                     saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
                 })),
@@ -677,6 +682,7 @@ export function useRegistroPSE() {
         mostrarAlunosPendentes,
         setMostrarAlunosPendentes,
         obterAlunosPendentes,
+        focarAltura,
         proximoAluno,
         alunoAnterior,
 

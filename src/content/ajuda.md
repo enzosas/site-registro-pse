@@ -48,6 +48,11 @@ Alguns eixos pedem informações de cada aluno presente, apresentados um por vez
 - **Verificação da situação vacinal:** completo, incompleto ou caderneta não apresentada
 - **Saúde ocular:** normal ou alterada
 
+Para agilizar o preenchimento:
+
+- Altura e peso aceitam vírgula ou ponto (ex.: 32,5). Use o **Enter** do teclado para passar da altura para o peso e do peso para o próximo aluno.
+- Se um valor parecer improvável (ex.: altura em metros em vez de centímetros), aparece um aviso em vermelho. Confira antes de seguir.
+
 Use **Próximo** e a seta de voltar para navegar entre os alunos. Ao final, se algum aluno estiver com dados faltando, o aplicativo mostra a lista: toque no nome para completar.
 
 #### Salvando o registro
