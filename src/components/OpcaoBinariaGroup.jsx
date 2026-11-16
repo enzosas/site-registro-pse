@@ -3,47 +3,40 @@ import '../styles/components/OpcaoBinariaGroup.css';
 export function OpcaoBinariaGroup({ label, opcoes, valorAtual, onChange }) {
     const { POSITIVO, NEGATIVO, ...outrasOpcoes } = opcoes || {};
 
-    const handleToggle = (valor) => {
-        onChange(valorAtual === valor ? null : valor);
+    // Tocar na opção já marcada não desmarca (evita apagar a resposta com um toque duplo);
+    // para trocar a resposta, basta escolher outra opção
+    const handleSelecionar = (valor) => {
+        if (valorAtual === valor) return;
+        onChange(valor);
+    };
+
+    const BASE = 'app__tela-vacinacao-grupo-botoes__botao';
+
+    // aria-pressed informa ao leitor de tela (TalkBack, VoiceOver) qual opção está marcada
+    const renderizarBotao = (chave, opcao, classeSelecionado) => {
+        const selecionado = valorAtual === opcao.valor;
+        return (
+            <button
+                key={chave}
+                type="button"
+                aria-pressed={selecionado}
+                className={`${BASE} ${selecionado ? classeSelecionado : ''}`}
+                onClick={() => handleSelecionar(opcao.valor)}
+            >
+                {opcao.label}
+            </button>
+        );
     };
 
     return (
         <div className='app__input-group'>
             {label && <label>{label}</label>}
-            <div className='app__tela-vacinacao-grupo-botoes'>
-                {POSITIVO && (
-                    <button
-                        type="button"
-                        className={`app__tela-vacinacao-grupo-botoes__botao ${valorAtual === POSITIVO.valor ? 'app__tela-vacinacao-grupo-botoes__botao__sim' : ''
-                            }`}
-                        onClick={() => handleToggle(POSITIVO.valor)}
-                    >
-                        {POSITIVO.label}
-                    </button>
+            <div className='app__tela-vacinacao-grupo-botoes' role="group" aria-label={label}>
+                {POSITIVO && renderizarBotao('POSITIVO', POSITIVO, `${BASE}__sim`)}
+                {NEGATIVO && renderizarBotao('NEGATIVO', NEGATIVO, `${BASE}__nao`)}
+                {Object.entries(outrasOpcoes).map(([chave, opcao]) =>
+                    renderizarBotao(chave, opcao, `${BASE}__neutro`)
                 )}
-
-                {NEGATIVO && (
-                    <button
-                        type="button"
-                        className={`app__tela-vacinacao-grupo-botoes__botao ${valorAtual === NEGATIVO.valor ? 'app__tela-vacinacao-grupo-botoes__botao__nao' : ''
-                            }`}
-                        onClick={() => handleToggle(NEGATIVO.valor)}
-                    >
-                        {NEGATIVO.label}
-                    </button>
-                )}
-
-                {Object.entries(outrasOpcoes).map(([chave, op]) => (
-                    <button
-                        key={chave}
-                        type="button"
-                        className={`app__tela-vacinacao-grupo-botoes__botao ${valorAtual === op.valor ? 'app__tela-vacinacao-grupo-botoes__botao__neutro' : ''
-                            }`}
-                        onClick={() => handleToggle(op.valor)}
-                    >
-                        {op.label}
-                    </button>
-                ))}
             </div>
         </div>
     );
