@@ -20,7 +20,18 @@ export function PainelGestaoInicial({ onNavegar }) {
 
     return (
         <>
-            <p className="app__title">Painel Administrativo</p>
+            <div className="admin__inicial__titulo-linha">
+                <p className="app__title">Painel Administrativo</p>
+                <button
+                    type="button"
+                    className="admin__botao-ajuda"
+                    onClick={() => onNavegar(TELAS_GESTAO.PAINEL_AJUDA)}
+                    aria-label="Ajuda da administração"
+                    title="Ajuda da administração"
+                >
+                    ?
+                </button>
+            </div>
             <p className='admin__inicial__saudacoes'>Olá, {nomeUsuario}!</p>
 
             {verTelaRegistros && (

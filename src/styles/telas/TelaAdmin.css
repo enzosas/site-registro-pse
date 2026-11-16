@@ -317,3 +317,39 @@
         flex-direction: column;
     }
 }
+/* Título do painel com o botão de ajuda ao lado */
+.admin__inicial__titulo-linha {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin__inicial__titulo-linha .app__title {
+    margin-bottom: 0;
+}
+
+.admin__botao-ajuda {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: var(--input-border);
+    background-color: var(--cor-frame);
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.1s ease, filter 0.2s ease;
+}
+
+/* área de toque maior que o círculo, para facilitar no celular */
+.admin__botao-ajuda::after {
+    content: '';
+    position: absolute;
+    inset: -0.5rem;
+}
+
+.admin__botao-ajuda:active {
+    transform: scale(0.95);
+}

@@ -67,5 +67,7 @@ Ao abrir um registro, é possível:
 
 Use **Mostrar Filtros** para buscar registros por eixo, situação no MV, período e, conforme o seu perfil, por escola, UBS ou por quem registrou.
 
+Usuários de escola, UBS e administradores encontram instruções detalhadas sobre a Administração tocando no botão **?** ao lado do título do Painel Administrativo.
+
 ### Suporte
 Em caso de dificuldades de acesso, erros no aplicativo ou dúvidas sobre o preenchimento, entre em contato com a coordenação do Programa Saúde na Escola (PSE) pelo e-mail: **enzo.silveira@acad.ufsm.br**
