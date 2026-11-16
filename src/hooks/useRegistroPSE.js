@@ -129,11 +129,12 @@ export function useRegistroPSE() {
         etapasAtivas.forEach((id, index) => {
             mapa[id] = index + 1;
         });
-        mapa[TELAS.CADASTRO_MANUAL] = mapa[ETAPAS.ESCOLA] || 3;
+        mapa[TELAS.CADASTRO_MANUAL] =
+            etapaAtualId === ETAPAS.TURMA ? mapa[ETAPAS.TURMA] || 4 : mapa[ETAPAS.ESCOLA] || 3;
         mapa[TELAS.ADD_ALUNO] = mapa[ETAPAS.PRESENCA] || 6;
         mapa[TELAS.RESUMO] = mapa[ETAPAS.CONCLUSAO] || totalEtapas;
         return mapa;
-    }, [etapasAtivas, totalEtapas]);
+    }, [etapasAtivas, totalEtapas, etapaAtualId]);
 
     const passoVisual = useMemo(() => {
         if (telaAtivaInterna === TELAS.ETAPAS) {
@@ -167,10 +168,22 @@ export function useRegistroPSE() {
         .filter((escola) => escola.nome.toLowerCase().includes(buscaEscola.toLowerCase()))
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
-    const turmasFiltradas =
-        escolaSelecionada?.turmas
-            ?.filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
-            .sort((a, b) => a.nome.localeCompare(b.nome)) || [];
+    const ID_TURMA_MANUAL = 'manual_turma';
+
+    // Turmas da escola + turma cadastrada manualmente (para continuar visível e desmarcável)
+    const turmasFiltradas = [
+        ...(escolaSelecionada?.turmas || []),
+        ...(Array.isArray(turmaSelecionada) ? turmaSelecionada : []).filter(
+            (t) => t.id === ID_TURMA_MANUAL
+        ),
+    ]
+        .filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+
+    // Cadastro manual aberto a partir da etapa de turmas, com uma escola da lista já escolhida:
+    // pede apenas o nome da turma e mantém a escola real
+    const cadastroManualSomenteTurma =
+        etapaAtualId === ETAPAS.TURMA && typeof escolaSelecionada?.id === 'number';
 
     // Ao trocar de escola, descarta turmas, presenças e dados coletados da escola anterior
     const selecionarEscola = (escola) => {
@@ -313,6 +326,16 @@ export function useRegistroPSE() {
     };
 
     const handleSalvarManual = () => {
+        if (cadastroManualSomenteTurma) {
+            setTurmaSelecionada((prev) => [
+                ...(Array.isArray(prev) ? prev : []).filter((t) => t.id !== ID_TURMA_MANUAL),
+                { id: ID_TURMA_MANUAL, nome: turmaManual.trim(), alunos: [] },
+            ]);
+            setEtapaAtualId(ETAPAS.EIXOS);
+            setTelaAtiva(TELAS.ETAPAS);
+            return;
+        }
+
         const ubsEncontrada = listaUbs.find(
             (u) => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
         );
@@ -322,7 +345,7 @@ export function useRegistroPSE() {
             turmas: [],
             ubsManualId: ubsEncontrada ? ubsEncontrada.id : null,
         });
-        setTurmaSelecionada([{ id: 'manual_turma', nome: turmaManual, alunos: [] }]);
+        setTurmaSelecionada([{ id: ID_TURMA_MANUAL, nome: turmaManual, alunos: [] }]);
         setIdsAlunosPresentes([]);
         setEtapaAtualId(ETAPAS.EIXOS);
         setTelaAtiva(TELAS.ETAPAS);
@@ -567,6 +590,7 @@ export function useRegistroPSE() {
         turmaManual,
         setTurmaManual,
         handleSalvarManual,
+        cadastroManualSomenteTurma,
         ubsManualTexto,
         setUbsManualTexto,
         listaUbs,

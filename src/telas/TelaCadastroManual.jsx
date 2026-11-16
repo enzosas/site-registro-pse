@@ -15,6 +15,8 @@ export function TelaCadastroManual() {
         setUbsManualTexto,
         listaUbs,
         handleSalvarManual,
+        cadastroManualSomenteTurma,
+        escolaSelecionada,
         setTelaAtiva,
         cardRef,
     } = useRegistro();
@@ -22,7 +24,9 @@ export function TelaCadastroManual() {
     const ubsEncontrada = listaUbs.find(
         (ubs) => ubs.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
     );
-    const isFormValido = escolaManual.trim() && turmaManual.trim() && Boolean(ubsEncontrada);
+    const isFormValido = cadastroManualSomenteTurma
+        ? Boolean(turmaManual.trim())
+        : Boolean(escolaManual.trim() && turmaManual.trim() && ubsEncontrada);
 
     return (
         <>
@@ -44,16 +48,23 @@ export function TelaCadastroManual() {
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Cadastro Manual</p>
-                <div className='app__input-group'>
-                    <label>Nome da Escola</label>
-                    <input
-                        type='text'
-                        placeholder="Digite o nome da escola"
-                        value={escolaManual}
-                        onChange={(e) => setEscolaManual(e.target.value)}
-                        required
-                    />
-                </div>
+                {cadastroManualSomenteTurma ? (
+                    <div className='app__input-group'>
+                        <label>Escola</label>
+                        <p>{escolaSelecionada?.nome}</p>
+                    </div>
+                ) : (
+                    <div className='app__input-group'>
+                        <label>Nome da Escola</label>
+                        <input
+                            type='text'
+                            placeholder="Digite o nome da escola"
+                            value={escolaManual}
+                            onChange={(e) => setEscolaManual(e.target.value)}
+                            required
+                        />
+                    </div>
+                )}
                 <div className='app__input-group'>
                     <label>Nome da Turma</label>
                     <input
@@ -64,23 +75,27 @@ export function TelaCadastroManual() {
                         required
                     />
                 </div>
-                <datalist id="lista-ubs-datalist">
-                    {listaUbs.map((ubs) => (
-                        <option key={ubs.id} value={ubs.nome} />
-                    ))}
-                </datalist>
-                <div className='app__input-group'>
-                    <label>UBS Responsável pela Ação</label>
-                    <input
-                        type="text"
-                        placeholder="Digite ou selecione a UBS de referência"
-                        list="lista-ubs-datalist"
-                        value={ubsManualTexto}
-                        onChange={(e) => setUbsManualTexto(e.target.value)}
-                        autoComplete="off"
-                        required
-                    />
-                </div>
+                {!cadastroManualSomenteTurma && (
+                    <>
+                        <datalist id="lista-ubs-datalist">
+                            {listaUbs.map((ubs) => (
+                                <option key={ubs.id} value={ubs.nome} />
+                            ))}
+                        </datalist>
+                        <div className='app__input-group'>
+                            <label>UBS Responsável pela Ação</label>
+                            <input
+                                type="text"
+                                placeholder="Digite ou selecione a UBS de referência"
+                                list="lista-ubs-datalist"
+                                value={ubsManualTexto}
+                                onChange={(e) => setUbsManualTexto(e.target.value)}
+                                autoComplete="off"
+                                required
+                            />
+                        </div>
+                    </>
+                )}
                 <div className='app__footer'>
                     <button
                         type="submit"
