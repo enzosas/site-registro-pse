@@ -486,6 +486,7 @@ export function useRegistroPSE() {
         setMostrarAlunosPendentes(false);
         setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
         setRegistroSalvo(false);
+        setErroSalvarBanco('');
 
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
