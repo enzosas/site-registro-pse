@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { formatarNome } from '../utils/formatadores';
+import { formatarNome, formatarNomeTurma } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../utils/constantes';
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
@@ -109,7 +109,7 @@ export async function carregarEscolasDB() {
             const atualizadoEm = registroVinculo?.atualizado_em || null;
             const turmasFormatadas = turmasBrutas.map((turma) => ({
                 ...turma,
-                nome: formatarNome(turma.nome),
+                nome: formatarNomeTurma(turma.nome),
                 alunos: (turma.alunos || []).map((aluno) => ({
                     ...aluno,
                     nome: formatarNome(aluno.nome),
