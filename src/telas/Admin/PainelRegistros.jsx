@@ -27,6 +27,13 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         );
     }, [isUbs, ubsIdUsuario, listaEscolas]);
 
+    // UBS responsável por cada escola (registros de escolas cadastradas são salvos sem ubs_id)
+    const ubsPorEscola = useMemo(() => {
+        const mapa = new Map();
+        listaEscolas.forEach((e) => mapa.set(String(e.id), e.ubs_responsavel));
+        return mapa;
+    }, [listaEscolas]);
+
     const [registros, setRegistros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState('');
@@ -88,7 +95,8 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             );
 
             const passaEscola = !filtroEscola || String(r.escola_id) === String(filtroEscola);
-            const passaUbs = !filtroUbs || String(r.ubs_id) === String(filtroUbs);
+            const ubsDoRegistro = r.ubs_id ?? ubsPorEscola.get(String(r.escola_id));
+            const passaUbs = !filtroUbs || String(ubsDoRegistro) === String(filtroUbs);
             const passaRegistrador = !filtroRegistrador || r.registrador_nome === filtroRegistrador;
             const passaLancadoPor = !filtroLancadoPor || r.exportador_nome === filtroLancadoPor;
 
@@ -114,6 +122,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         });
     }, [
         registros,
+        ubsPorEscola,
         termoBusca,
         filtroEixo,
         filtroEscola,
