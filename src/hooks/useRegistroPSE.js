@@ -172,6 +172,18 @@ export function useRegistroPSE() {
             ?.filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
             .sort((a, b) => a.nome.localeCompare(b.nome)) || [];
 
+    // Ao trocar de escola, descarta turmas, presenças e dados coletados da escola anterior
+    const selecionarEscola = (escola) => {
+        if (escola?.id !== escolaSelecionada?.id) {
+            setTurmaSelecionada([]);
+            setBuscaTurma('');
+            setIdsAlunosPresentes([]);
+            setDadosAlunos({});
+            setAlunoAtualIndex(0);
+        }
+        setEscolaSelecionada(escola);
+    };
+
     const toggleTurma = (turma) => {
         setTurmaSelecionada((prev) => {
             const lista = Array.isArray(prev) ? prev : [];
@@ -542,6 +554,7 @@ export function useRegistroPSE() {
         setBuscaEscola,
         escolaSelecionada,
         setEscolaSelecionada,
+        selecionarEscola,
         escolasFiltradas,
         buscaTurma,
         setBuscaTurma,

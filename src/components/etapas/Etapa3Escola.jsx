@@ -9,7 +9,7 @@ export function Etapa3Escola() {
         setBuscaEscola,
         escolasFiltradas,
         escolaSelecionada,
-        setEscolaSelecionada,
+        selecionarEscola,
         avancarEtapa,
         voltarEtapa,
         setTelaAtiva,
@@ -26,7 +26,7 @@ export function Etapa3Escola() {
                 onBuscaChange={setBuscaEscola}
                 itens={escolasFiltradas}
                 itemSelecionado={escolaSelecionada}
-                onSelecionarItem={setEscolaSelecionada}
+                onSelecionarItem={selecionarEscola}
             />
             <div className='app__footer'>
                 <button
