@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { vincularEscolasAUbsDB } from '../../services/supabaseService';
 import { useDados } from '../../context/DadosContext';
+import { MensagemErro } from '../../components/MensagemErro';
 
 const OPCAO_SEM_UBS = 'Sem UBS (Desvincular)';
 
@@ -16,6 +17,8 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
     const [mensagemErro, setMensagemErro] = useState('');
     const [escolasInput, setEscolasInput] = useState(['']);
     const [ubsTexto, setUbsTexto] = useState('');
+    // Avisos de nomes não encontrados só aparecem depois de clicar em "Salvar Vínculo"
+    const [mostrarValidacao, setMostrarValidacao] = useState(false);
 
     const handleAlterarEscola = (index, novoValor) => {
         setEscolasInput((prev) => {
@@ -24,6 +27,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             return copia;
         });
         setMensagemErro('');
+        setMostrarValidacao(false);
     };
 
     const handleAdicionarEscola = () => {
@@ -32,6 +36,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
 
     const handleRemoverEscola = (indexRemover) => {
         setEscolasInput((prev) => prev.filter((_, index) => index !== indexRemover));
+        setMostrarValidacao(false);
     };
 
     const ehDesvinculacao = ubsTexto.trim().toLowerCase() === OPCAO_SEM_UBS.toLowerCase();
@@ -39,20 +44,42 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
         (u) => u.nome.trim().toLowerCase() === ubsTexto.trim().toLowerCase()
     );
 
-    const escolasValidas = escolasInput
-        .map((texto) => {
-            const achada = listaEscolas.find(
-                (e) => e.nome.trim().toLowerCase() === texto.trim().toLowerCase()
-            );
-            return achada ? achada.id : null;
-        })
-        .filter((id) => id !== null);
+    // Confere cada nome digitado com a lista de escolas
+    const escolasConferidas = escolasInput.map((texto) => {
+        const nome = texto.trim();
+        const achada = nome
+            ? listaEscolas.find((e) => e.nome.trim().toLowerCase() === nome.toLowerCase())
+            : null;
+        return { nome, id: achada ? achada.id : null };
+    });
 
-    const isFormValido = (Boolean(ubsEncontrada) || ehDesvinculacao) && escolasValidas.length > 0;
+    const escolasValidas = escolasConferidas
+        .filter((escola) => escola.id !== null)
+        .map((escola) => escola.id);
+
+    // Nomes preenchidos que não existem na lista: bloqueiam o salvamento em vez de serem ignorados
+    const escolasNaoEncontradas = escolasConferidas
+        .filter((escola) => escola.nome && escola.id === null)
+        .map((escola) => escola.nome);
+
+    const ubsNaoEncontrada = Boolean(ubsTexto.trim()) && !ubsEncontrada && !ehDesvinculacao;
+
+    const isFormValido =
+        (Boolean(ubsEncontrada) || ehDesvinculacao) &&
+        escolasValidas.length > 0 &&
+        escolasNaoEncontradas.length === 0;
+
+    // O botão fica ativo assim que há algo preenchido; a conferência acontece ao clicar
+    const temAlgoPreenchido =
+        escolasConferidas.some((escola) => escola.nome) && Boolean(ubsTexto.trim());
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isFormValido || salvando || carregando) return;
+        if (salvando || carregando) return;
+        if (!isFormValido) {
+            setMostrarValidacao(true);
+            return;
+        }
         setMensagemErro('');
         setSalvando(true);
 
@@ -146,6 +173,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                     onChange={(e) => {
                         setUbsTexto(e.target.value);
                         setMensagemErro('');
+                        setMostrarValidacao(false);
                     }}
                     autoComplete="off"
                     disabled={carregando || salvando}
@@ -153,6 +181,18 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                 />
             </div>
             <div className="app__footer">
+                {mostrarValidacao && escolasNaoEncontradas.length > 0 && (
+                    <MensagemErro
+                        mensagem={`${
+                            escolasNaoEncontradas.length === 1
+                                ? 'Escola não encontrada'
+                                : 'Escolas não encontradas'
+                        }: ${escolasNaoEncontradas.join(', ')}. Selecione o nome a partir da lista.`}
+                    />
+                )}
+                {mostrarValidacao && ubsNaoEncontrada && (
+                    <MensagemErro mensagem="UBS não encontrada. Selecione uma UBS a partir da lista." />
+                )}
                 {mensagemErro && (
                     <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>
                         {mensagemErro}
@@ -161,7 +201,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                 <button
                     type="submit"
                     className="app__buttonMain"
-                    disabled={!isFormValido || salvando || carregando}
+                    disabled={!temAlgoPreenchido || salvando || carregando}
                 >
                     <p>{salvando ? 'Guardando alterações...' : 'Salvar Vínculo'}</p>
                 </button>
