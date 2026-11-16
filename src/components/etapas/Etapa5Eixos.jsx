@@ -11,7 +11,7 @@ export function Etapa5Eixos() {
         setNomeEixoLocal,
         observacoes,
         setObservacoes,
-        marcarTodosPresentes,
+        prepararPresenca,
         avancarEtapa,
         voltarEtapa,
     } = useRegistro();
@@ -64,7 +64,7 @@ export function Etapa5Eixos() {
                     <button
                         className={'app__buttonMain'}
                         onClick={() => {
-                            marcarTodosPresentes();
+                            prepararPresenca();
                             avancarEtapa();
                         }}
                         disabled={!isValido}

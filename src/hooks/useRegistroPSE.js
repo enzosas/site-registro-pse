@@ -191,6 +191,7 @@ export function useRegistroPSE() {
             setTurmaSelecionada([]);
             setBuscaTurma('');
             setIdsAlunosPresentes([]);
+            idsAlunosJaExibidosRef.current = new Set();
             setDadosAlunos({});
             setAlunoAtualIndex(0);
         }
@@ -226,10 +227,9 @@ export function useRegistroPSE() {
         );
     };
 
+    // Compara com os alunos das turmas atuais (ignora ids de turmas que foram desmarcadas)
     const todosEstaoPresentes =
-        turmasArray.length > 0 &&
-        alunosOrdenados.length > 0 &&
-        idsAlunosPresentes.length === alunosOrdenados.length;
+        alunosOrdenados.length > 0 && alunosPresentes.length === alunosOrdenados.length;
 
     const alternarPresencaTodos = () => {
         if (todosEstaoPresentes) {
@@ -239,10 +239,19 @@ export function useRegistroPSE() {
         }
     };
 
-    const marcarTodosPresentes = () => {
-        if (turmasArray.length > 0) {
-            setIdsAlunosPresentes(alunosOrdenados.map((aluno) => aluno.id));
-        }
+    // Alunos que já apareceram na tela de presença neste registro
+    const idsAlunosJaExibidosRef = useRef(new Set());
+
+    // Antes de abrir a presença: marca como presentes apenas os alunos que ainda não
+    // foram exibidos, preservando as marcações que o usuário já fez
+    const prepararPresenca = () => {
+        const jaExibidos = idsAlunosJaExibidosRef.current;
+        const novos = alunosOrdenados
+            .map((aluno) => aluno.id)
+            .filter((id) => !jaExibidos.has(id));
+        if (novos.length === 0) return;
+        novos.forEach((id) => jaExibidos.add(id));
+        setIdsAlunosPresentes((prev) => [...prev, ...novos.filter((id) => !prev.includes(id))]);
     };
 
     const toggleEixo = (idEixo) => {
@@ -347,6 +356,7 @@ export function useRegistroPSE() {
         });
         setTurmaSelecionada([{ id: ID_TURMA_MANUAL, nome: turmaManual, alunos: [] }]);
         setIdsAlunosPresentes([]);
+        idsAlunosJaExibidosRef.current = new Set();
         setEtapaAtualId(ETAPAS.EIXOS);
         setTelaAtiva(TELAS.ETAPAS);
     };
@@ -470,6 +480,7 @@ export function useRegistroPSE() {
         setNomeEixoLocal('');
         setObservacoes('');
         setIdsAlunosPresentes([]);
+        idsAlunosJaExibidosRef.current = new Set();
         setDadosAlunos({});
         setUbsManualTexto('');
         setMostrarAlunosPendentes(false);
@@ -608,7 +619,7 @@ export function useRegistroPSE() {
         toggleAluno,
         alternarPresencaTodos,
         todosEstaoPresentes,
-        marcarTodosPresentes,
+        prepararPresenca,
         novoAlunoNome,
         setNovoAlunoNome,
         novoAlunoDataNascimento,
