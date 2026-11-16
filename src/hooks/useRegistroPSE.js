@@ -92,29 +92,6 @@ export function useRegistroPSE() {
         }
     }, [nomeUsuario]);
 
-    // faz a seta do celular voltar
-    useEffect(() => {
-        // Só adiciona estado no histórico se estiver para além da primeira etapa ou fora da tela inicial
-        if (etapaAtualId !== ETAPAS.DATA || telaAtivaInterna !== TELAS.INICIAL) {
-            window.history.pushState({ etapa: etapaAtualId, tela: telaAtivaInterna }, '');
-        }
-
-        const handleBotaoVoltarNativo = () => {
-            // Quando o utilizador clica no botão voltar do Android/sistema:
-            if (etapaAtualId !== ETAPAS.DATA) {
-                voltarEtapa();
-            } else if (telaAtivaInterna !== TELAS.INICIAL) {
-                setTelaAtiva(TELAS.INICIAL);
-            }
-        };
-
-        window.addEventListener('popstate', handleBotaoVoltarNativo);
-
-        return () => {
-            window.removeEventListener('popstate', handleBotaoVoltarNativo);
-        };
-    }, [etapaAtualId, telaAtivaInterna]);
-
     // Logout global e reinicialização do registo
     const handleLogout = async () => {
         await logout();
@@ -469,6 +446,74 @@ export function useRegistroPSE() {
         setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
         setAno(String(dataAtual.getFullYear()));
     };
+
+    // Botão voltar nativo (celular/navegador).
+    // Enquanto o usuário está fora da tela inicial, mantemos exatamente UMA entrada extra
+    // no histórico. Ao apertar voltar, essa entrada é consumida, o app executa a mesma ação
+    // do botão voltar da tela atual e a entrada é recriada. Assim o histórico não cresce
+    // e, na tela inicial, o voltar sai do site normalmente.
+    const estaNaTelaInicial = telaAtivaInterna === TELAS.INICIAL;
+    const temEntradaHistoricoRef = useRef(false);
+    const ignorarProximoPopstateRef = useRef(false);
+    const voltarNativoRef = useRef(null);
+
+    useEffect(() => {
+        voltarNativoRef.current = () => {
+            switch (telaAtivaInterna) {
+                case TELAS.ETAPAS:
+                    if (
+                        etapaAtualId === ETAPAS.DATA ||
+                        (etapaAtualId === ETAPAS.CONCLUSAO && registroSalvo)
+                    ) {
+                        reiniciarRegistro();
+                        setTelaAtiva(TELAS.INICIAL);
+                    } else {
+                        // Mesmo comportamento do botão voltar da etapa de turmas
+                        if (etapaAtualId === ETAPAS.TURMA) {
+                            setTurmaSelecionada([]);
+                        }
+                        voltarEtapa();
+                    }
+                    break;
+                case TELAS.CADASTRO_MANUAL:
+                case TELAS.ADD_ALUNO:
+                case TELAS.RESUMO:
+                    setTelaAtiva(TELAS.ETAPAS);
+                    break;
+                case TELAS.ESQUECI_SENHA:
+                    setTelaAtiva(TELAS.LOGIN);
+                    break;
+                default:
+                    setTelaAtiva(TELAS.INICIAL);
+            }
+        };
+    });
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (ignorarProximoPopstateRef.current) {
+                ignorarProximoPopstateRef.current = false;
+                return;
+            }
+            temEntradaHistoricoRef.current = false;
+            voltarNativoRef.current?.();
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    useEffect(() => {
+        if (!estaNaTelaInicial && !temEntradaHistoricoRef.current) {
+            window.history.pushState({ registroPse: true }, '');
+            temEntradaHistoricoRef.current = true;
+        } else if (estaNaTelaInicial && temEntradaHistoricoRef.current) {
+            // Voltou para a tela inicial pelos botões do app: remove a entrada extra
+            temEntradaHistoricoRef.current = false;
+            ignorarProximoPopstateRef.current = true;
+            window.history.back();
+        }
+    }, [estaNaTelaInicial, telaAtivaInterna, etapaAtualId]);
 
     return {
         telaAtiva: telaAtivaInterna,
