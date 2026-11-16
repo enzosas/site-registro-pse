@@ -15,7 +15,7 @@ import { TelaResumo } from './telas/TelaResumo';
 import { TelaGestao } from './telas/Admin/TelaGestao';
 
 function App() {
-    const { isLoggedIn, tipoUsuario } = useAuth();
+    const { isLoggedIn, tipoUsuario, restaurandoSessao } = useAuth();
     const { telaAtiva, setTelaAtiva, handleLogout, cardRef, bgRef } = useRegistro();
     const [subtelaGestao, setSubtelaGestao] = useState(TELAS_GESTAO.PAINEL_INICIAL);
 
@@ -102,7 +102,8 @@ function App() {
 
 	return (
 		<div className='app__background' ref={bgRef}>
-			<div className='app__column'>{renderizarConteudo()}</div>
+			{/* Enquanto verifica se há sessão salva, não mostra a tela de "Começar" */}
+			<div className='app__column'>{restaurandoSessao ? null : renderizarConteudo()}</div>
 		</div>
 	);
 }

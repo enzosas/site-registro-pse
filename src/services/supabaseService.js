@@ -4,6 +4,52 @@ import { TIPO_USUARIO } from '../utils/constantes';
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
 
+async function buscarPerfilUsuario(userId) {
+    const { data: usuarioPerfil, error: erroPerfil } = await supabase
+        .from('usuarios')
+        .select('nome, tipo_usuario, escola_id, ubs_id')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (erroPerfil) {
+        console.error('Erro ao buscar perfil do usuário:', erroPerfil);
+    }
+
+    return {
+        nome: usuarioPerfil?.nome || '',
+        tipoUsuario: usuarioPerfil?.tipo_usuario || '',
+        escolaId: usuarioPerfil?.escola_id || null,
+        ubsId: usuarioPerfil?.ubs_id || null,
+    };
+}
+
+// Recupera a sessão que o Supabase guardou no navegador (ex.: após recarregar a página)
+export async function restaurarSessaoUsuario() {
+    try {
+        const { data, error } = await supabase.auth.getSession();
+        const usuario = data?.session?.user;
+        if (error || !usuario) {
+            return { sucesso: false };
+        }
+
+        const perfil = await buscarPerfilUsuario(usuario.id);
+        return { sucesso: true, id: usuario.id, ...perfil };
+    } catch (err) {
+        console.error('Erro inesperado ao restaurar sessão:', err);
+        return { sucesso: false };
+    }
+}
+
+// Avisa quando a sessão termina por fora do app (token expirado, logout em outra aba)
+export function observarFimDaSessao(callback) {
+    const { data } = supabase.auth.onAuthStateChange((evento) => {
+        if (evento === 'SIGNED_OUT') {
+            callback();
+        }
+    });
+    return () => data.subscription.unsubscribe();
+}
+
 export async function autenticarUsuario(email, password) {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -21,24 +67,13 @@ export async function autenticarUsuario(email, password) {
             return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
         }
 
-        const { data: usuarioPerfil, error: erroPerfil } = await supabase
-            .from('usuarios')
-            .select('nome, tipo_usuario, escola_id, ubs_id')
-            .eq('id', data.user.id)
-            .maybeSingle();
-
-        if (erroPerfil) {
-            console.error('Erro ao buscar perfil do usuário:', erroPerfil);
-        }
+        const perfil = await buscarPerfilUsuario(data.user.id);
 
         return {
             sucesso: true,
             data,
             id: data.user.id,
-            nome: usuarioPerfil?.nome || '',
-            tipoUsuario: usuarioPerfil?.tipo_usuario || '',
-            escolaId: usuarioPerfil?.escola_id || null,
-            ubsId: usuarioPerfil?.ubs_id || null,
+            ...perfil,
         };
     } catch (err) {
         console.error('Erro inesperado no login:', err);

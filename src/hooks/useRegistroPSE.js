@@ -8,7 +8,7 @@ import { useDados } from '../context/DadosContext';
 import { navegarComFeedback } from '../utils/delayTouch';
 
 export function useRegistroPSE() {
-    const { usuarioId, nomeUsuario, logout } = useAuth();
+    const { usuarioId, nomeUsuario, logout, aoDeslogar } = useAuth();
     const { escolas, listaUbs } = useDados();
 
     // Navegação global de ecrãs
@@ -92,11 +92,9 @@ export function useRegistroPSE() {
         }
     }, [nomeUsuario]);
 
-    // Logout global e reinicialização do registo
+    // Logout global (o registro é reiniciado pelo ouvinte de logout abaixo)
     const handleLogout = async () => {
         await logout();
-        reiniciarRegistro();
-        setTelaAtiva(TELAS.INICIAL);
     };
 
     // Avaliações ativas conforme os eixos selecionados
@@ -493,6 +491,17 @@ export function useRegistroPSE() {
         setMes(String(dataAtual.getMonth() + 1).padStart(2, '0'));
         setAno(String(dataAtual.getFullYear()));
     };
+
+    // Sempre que a sessão termina (botão Sair, inatividade ou sessão expirada no Supabase),
+    // descarta o registro em andamento e volta para a tela inicial
+    const aoDeslogarRef = useRef(null);
+    useEffect(() => {
+        aoDeslogarRef.current = () => {
+            reiniciarRegistro();
+            setTelaAtivaInterna(TELAS.INICIAL);
+        };
+    });
+    useEffect(() => aoDeslogar(() => aoDeslogarRef.current?.()), [aoDeslogar]);
 
     // Botão voltar nativo (celular/navegador).
     // Enquanto o usuário está fora da tela inicial, mantemos exatamente UMA entrada extra
