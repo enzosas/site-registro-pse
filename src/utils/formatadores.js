@@ -1,6 +1,7 @@
 import {
     OPCOES_VACINACAO,
     OPCOES_SAUDE_OCULAR,
+    OPCOES_SAUDE_AUDITIVA,
     TIPO_USUARIO,
     EIXOS_TEMATICOS,
     EIXOS_ID
@@ -133,6 +134,12 @@ export const formatarVacinacao = (valor) => {
         default:
             return '-';
     }
+};
+
+export const formatarSaudeAuditiva = (valor) => {
+    if (valor === OPCOES_SAUDE_AUDITIVA.POSITIVO.valor) return OPCOES_SAUDE_AUDITIVA.POSITIVO.label;
+    if (valor === OPCOES_SAUDE_AUDITIVA.NEGATIVO.valor) return OPCOES_SAUDE_AUDITIVA.NEGATIVO.label;
+    return '-';
 };
 
 export const formatarSaudeOcular = (valor) => {

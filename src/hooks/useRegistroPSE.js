@@ -102,8 +102,10 @@ export function useRegistroPSE() {
     const temAntropometria = idsEixosSelecionados.includes(Constantes.EIXOS_ID.ANTROPOMETRIA);
     const temVacinacao = idsEixosSelecionados.includes(Constantes.EIXOS_ID.VACINACAO);
     const temSaudeOcular = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_OCULAR);
+    const temSaudeAuditiva = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_AUDITIVA);
     const temEixoLocal = idsEixosSelecionados.includes(Constantes.EIXOS_ID.TEMATICA_LOCAL);
-    const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular;
+    const temAvaliacaoIndividual =
+        temAntropometria || temVacinacao || temSaudeOcular || temSaudeAuditiva;
 
     const etapasAtivas = useMemo(() => {
         const lista = [
@@ -278,6 +280,7 @@ export function useRegistroPSE() {
         }
         if (temVacinacao && !dados.vacinado) return false;
         if (temSaudeOcular && !dados.saudeOcular) return false;
+        if (temSaudeAuditiva && !dados.saudeAuditiva) return false;
         return true;
     };
 
@@ -383,6 +386,7 @@ export function useRegistroPSE() {
                     peso: normalizarDecimal(dadosAlunos[aluno.id]?.peso),
                     vacinado: dadosAlunos[aluno.id]?.vacinado || null,
                     saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
+                    saudeAuditiva: dadosAlunos[aluno.id]?.saudeAuditiva || null,
                 })),
         };
     };
@@ -452,6 +456,7 @@ export function useRegistroPSE() {
             if (aluno.altura) detalhes.push(`${aluno.altura}cm`);
             if (aluno.vacinado) detalhes.push(`Vacina: ${Formatadores.formatarVacinacao(aluno.vacinado)}`);
             if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Formatadores.formatarSaudeOcular(aluno.saudeOcular)}`);
+            if (aluno.saudeAuditiva) detalhes.push(`Saúde Auditiva: ${Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}`);
             if (detalhes.length > 0) {
                 linhaAluno += ` [${detalhes.join(' - ')}]`;
             }
@@ -679,6 +684,7 @@ export function useRegistroPSE() {
         temAntropometria,
         temVacinacao,
         temSaudeOcular,
+        temSaudeAuditiva,
         mostrarAlunosPendentes,
         setMostrarAlunosPendentes,
         obterAlunosPendentes,

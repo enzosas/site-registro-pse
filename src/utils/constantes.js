@@ -49,6 +49,17 @@ export const OPCOES_VACINACAO = {
 	},
 };
 
+export const OPCOES_SAUDE_AUDITIVA = {
+	POSITIVO: {
+		valor: 'normal',
+		label: 'Normal',
+	},
+	NEGATIVO: {
+		valor: 'alterada',
+		label: 'Alterada',
+	}
+}
+
 export const OPCOES_SAUDE_OCULAR = {
 	POSITIVO: {
 		valor: 'normal',

@@ -6,7 +6,7 @@ Durante a atividade, você pode:
 
 - Registrar a presença dos alunos
 - Selecionar os eixos temáticos abordados
-- Informar os dados coletados, como peso, altura, situação vacinal e saúde ocular
+- Informar os dados coletados, como peso, altura, situação vacinal, saúde ocular e saúde auditiva
 - Salvar o registro diretamente pelo celular
 
 Os registros salvos ficam disponíveis para consulta, geração de relatório em PDF e controle do lançamento no sistema MV.
@@ -47,6 +47,7 @@ Alguns eixos pedem informações de cada aluno presente, apresentados um por vez
 - **Alimentação saudável (antropometria):** altura (cm) e peso (kg)
 - **Verificação da situação vacinal:** completo, incompleto ou caderneta não apresentada
 - **Saúde ocular:** normal ou alterada
+- **Saúde auditiva:** normal ou alterada
 
 Para agilizar o preenchimento:
 

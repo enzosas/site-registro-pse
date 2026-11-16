@@ -16,6 +16,7 @@ export function Etapa7ColetaDados() {
         temAntropometria,
         temVacinacao,
         temSaudeOcular,
+        temSaudeAuditiva,
         alturaInputRef,
         mostrarAlunosPendentes,
         setMostrarAlunosPendentes,
@@ -38,7 +39,9 @@ export function Etapa7ColetaDados() {
     const pendentes = obterAlunosPendentes();
     const dadosAtuais = (alunoAtual && dadosAlunos[alunoAtual.id]) || {};
     const faltaOpcao =
-        (temVacinacao && !dadosAtuais.vacinado) || (temSaudeOcular && !dadosAtuais.saudeOcular);
+        (temVacinacao && !dadosAtuais.vacinado) ||
+        (temSaudeOcular && !dadosAtuais.saudeOcular) ||
+        (temSaudeAuditiva && !dadosAtuais.saudeAuditiva);
 
     const mensagemAltura = avisoAltura(dadosAtuais.altura);
     const mensagemPeso = avisoPeso(dadosAtuais.peso);
@@ -170,6 +173,14 @@ export function Etapa7ColetaDados() {
                         opcoes={Constantes.OPCOES_SAUDE_OCULAR}
                         valorAtual={dadosAtuais.saudeOcular}
                         onChange={(novoValor) => handleAtualizarDadosAluno('saudeOcular', novoValor)}
+                    />
+                )}
+                {temSaudeAuditiva && alunoAtual && (
+                    <OpcaoBinariaGroup
+                        label="Avaliação da saúde auditiva:"
+                        opcoes={Constantes.OPCOES_SAUDE_AUDITIVA}
+                        valorAtual={dadosAtuais.saudeAuditiva}
+                        onChange={(novoValor) => handleAtualizarDadosAluno('saudeAuditiva', novoValor)}
                     />
                 )}
             </div>

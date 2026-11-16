@@ -144,6 +144,9 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                             {aluno.saudeOcular && (
                                 <span> - Saúde Ocular: {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}</span>
                             )}
+                            {aluno.saudeAuditiva && (
+                                <span> - Saúde Auditiva: {Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}</span>
+                            )}
                         </div>
                     ))}
                 </div>

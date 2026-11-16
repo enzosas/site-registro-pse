@@ -79,6 +79,9 @@ export function TelaResumo() {
                                 {aluno.saudeOcular && (
                                     <span> - Saúde Ocular: {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}</span>
                                 )}
+                                {aluno.saudeAuditiva && (
+                                    <span> - Saúde Auditiva: {Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}</span>
+                                )}
                             </div>
                         ))}
                     </div>
