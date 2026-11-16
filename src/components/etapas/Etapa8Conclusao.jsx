@@ -33,6 +33,7 @@ export function Etapa8Conclusao() {
                 onClick={() => {
                     if (registroSalvo) {
                         reiniciarRegistro();
+                        setTelaAtiva(TELAS.INICIAL);
                     } else {
                         voltarEtapa();
                     }
