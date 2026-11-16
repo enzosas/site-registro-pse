@@ -1,6 +1,7 @@
 .app__tela-vacinacao-grupo-botoes {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap; /* em telas estreitas os botões descem para a linha de baixo */
     gap: 1em;
 }
 
@@ -11,7 +12,10 @@
     font-size: 1rem;
     outline: none;
     background-color: var(--cor-frame);
-    width: 100%;
+    /* cada botão tem no mínimo ~8rem e cresce para ocupar a linha; o que não couber quebra */
+    flex: 1 1 8rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
     transition: transform 0.1s ease, filter 0.2s ease, background-color 0.2s ease, border 0.2s ease;
     cursor: pointer;
     box-sizing: border-box;
