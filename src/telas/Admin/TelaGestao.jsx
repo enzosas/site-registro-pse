@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TELAS_GESTAO } from '../../utils/constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { navegarComFeedback } from '../../utils/delayTouch';
+import { useRegistro } from '../../context/RegistroPSEContext';
 import { PainelGestaoInicial } from './PainelGestaoInicial';
 import { PainelRegistros } from './PainelRegistros';
 import { PainelDetalhesRegistro } from './PainelDetalhesRegistro';
@@ -53,6 +54,17 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
             }
         });
     };
+
+    // O botão voltar do celular usa o mesmo comportamento do botão voltar do painel
+    const { registrarVoltarAdmin } = useRegistro();
+    const handleVoltarRef = useRef(handleVoltar);
+    useEffect(() => {
+        handleVoltarRef.current = handleVoltar;
+    });
+    useEffect(
+        () => registrarVoltarAdmin(() => handleVoltarRef.current()),
+        [registrarVoltarAdmin]
+    );
 
     const renderizarSubtela = () => {
         switch (subtelaAtiva) {

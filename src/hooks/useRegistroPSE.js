@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { salvarRegistroAtividadeDB } from '../services/supabaseService';
 import * as Constantes from '../utils/constantes';
 import * as Formatadores from '../utils/formatadores';
@@ -512,8 +512,19 @@ export function useRegistroPSE() {
     const temEntradaHistoricoRef = useRef(false);
     const ignorarProximoPopstateRef = useRef(false);
     const voltarNativoRef = useRef(null);
+    const estaNaTelaInicialRef = useRef(estaNaTelaInicial);
+
+    // Telas com navegação interna (ex.: Administração) registram aqui o seu botão voltar
+    const voltarAdminRef = useRef(null);
+    const registrarVoltarAdmin = useCallback((callback) => {
+        voltarAdminRef.current = callback;
+        return () => {
+            if (voltarAdminRef.current === callback) voltarAdminRef.current = null;
+        };
+    }, []);
 
     useEffect(() => {
+        estaNaTelaInicialRef.current = estaNaTelaInicial;
         voltarNativoRef.current = () => {
             switch (telaAtivaInterna) {
                 case TELAS.ETAPAS:
@@ -539,6 +550,14 @@ export function useRegistroPSE() {
                 case TELAS.ESQUECI_SENHA:
                     setTelaAtiva(TELAS.LOGIN);
                     break;
+                case TELAS.ADMIN:
+                    // Mesmo comportamento do botão voltar do painel (volta ao painel anterior)
+                    if (voltarAdminRef.current) {
+                        voltarAdminRef.current();
+                    } else {
+                        setTelaAtiva(TELAS.INICIAL);
+                    }
+                    break;
                 default:
                     setTelaAtiva(TELAS.INICIAL);
             }
@@ -552,7 +571,15 @@ export function useRegistroPSE() {
                 return;
             }
             temEntradaHistoricoRef.current = false;
+            if (estaNaTelaInicialRef.current) return;
+
             voltarNativoRef.current?.();
+
+            // Recria a entrada extra na hora: algumas ações (ex.: trocar de painel dentro da
+            // Administração) não mudam a tela principal. Se a ação levar à tela inicial,
+            // o efeito abaixo remove a entrada.
+            window.history.pushState({ registroPse: true }, '');
+            temEntradaHistoricoRef.current = true;
         };
 
         window.addEventListener('popstate', handlePopState);
@@ -569,12 +596,13 @@ export function useRegistroPSE() {
             ignorarProximoPopstateRef.current = true;
             window.history.back();
         }
-    }, [estaNaTelaInicial, telaAtivaInterna, etapaAtualId]);
+    }, [estaNaTelaInicial]);
 
     return {
         telaAtiva: telaAtivaInterna,
         setTelaAtiva,
         handleLogout,
+        registrarVoltarAdmin,
 
         etapaAtualId,
         passoVisual,
