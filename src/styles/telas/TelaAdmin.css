@@ -350,6 +350,10 @@
     inset: -0.5rem;
 }
 
+.admin__botao-ajuda:hover {
+    filter: brightness(0.95);
+}
+
 .admin__botao-ajuda:active {
     transform: scale(0.95);
 }
