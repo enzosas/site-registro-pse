@@ -49,34 +49,50 @@ export function Etapa1Data() {
             </button>
             <p className='app__title'>Digite a data da atividade:</p>
             <div className='app__date-group'>
-                <input
-                    type="text"
-                    placeholder="DD"
-                    maxLength="2"
-                    className='app__date-input'
-                    value={dia}
-                    onChange={handleApenasNumeros(setDia, 2)}
-                />
-                <input
-                    type="text"
-                    placeholder="MM"
-                    maxLength="2"
-                    className='app__date-input'
-                    value={mes}
-                    onChange={handleApenasNumeros(setMes, 2)}
-                />
-                <input
-                    type="text"
-                    placeholder="AAAA"
-                    maxLength="4"
-                    className='app__date-input'
-                    value={ano}
-                    onChange={handleApenasNumeros(setAno, 4)}
-                />
+                <label className='app__date-campo'>
+                    Dia
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        placeholder="DD"
+                        maxLength="2"
+                        className='app__date-input'
+                        value={dia}
+                        onChange={handleApenasNumeros(setDia, 2)}
+                    />
+                </label>
+                <label className='app__date-campo'>
+                    Mês
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        placeholder="MM"
+                        maxLength="2"
+                        className='app__date-input'
+                        value={mes}
+                        onChange={handleApenasNumeros(setMes, 2)}
+                    />
+                </label>
+                <label className='app__date-campo'>
+                    Ano
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        placeholder="AAAA"
+                        maxLength="4"
+                        className='app__date-input'
+                        value={ano}
+                        onChange={handleApenasNumeros(setAno, 4)}
+                    />
+                </label>
             </div>
             <div className='app__input-group'>
-                <label>Turno</label>
+                <label htmlFor="etapa1-turno">Turno</label>
                 <select
+                    id="etapa1-turno"
                     className="app__select"
                     value={turno}
                     onChange={(e) => setTurno(e.target.value)}
