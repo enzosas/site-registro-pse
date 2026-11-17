@@ -17,14 +17,13 @@
 
 .aviso-cartao__topo {
     display: flex;
-    align-items: flex-start; /* ícone alinhado à primeira linha quando o título quebra */
+    align-items: center; /* ícone centralizado em relação ao título (uma ou mais linhas) */
     gap: 0.625rem;
 }
 
 .aviso-cartao__icone {
     display: flex;
     flex-shrink: 0;
-    margin-top: 0.05rem;
     font-size: 1.25rem;
     color: var(--cor-botao);
 }
@@ -36,6 +35,7 @@
 .aviso-cartao__titulo {
     font-weight: 700;
     font-size: 1rem;
+    line-height: 1.3;
 }
 
 .aviso-cartao__texto {
