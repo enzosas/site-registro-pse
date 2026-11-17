@@ -6,7 +6,6 @@ import { useAuth } from '../../context/AuthContext';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
-import { MensagemErro } from '../../components/MensagemErro';
 import { AvisoErro } from '../../components/AvisoErro';
 import { erroLocal } from '../../utils/mensagensErro';
 
@@ -28,7 +27,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
     const [marcando, setMarcando] = useState(false);
     // muda a cada "Tentar de novo" para gerar o PDF outra vez
     const [tentativaPdf, setTentativaPdf] = useState(0);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null);
 
     if (!registro) {
         return null;
@@ -65,13 +64,13 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
         );
         if (!confirmou) return;
 
-        setErro('');
+        setErro(null);
         setMarcando(true);
         const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId, nomeUsuario);
         setMarcando(false);
 
         if (!resultado.sucesso) {
-            setErro(resultado.erro || 'Falha ao marcar o registro no banco.');
+            setErro(resultado.explicacao);
             return;
         }
 
@@ -175,9 +174,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                 )}
             </div>
             <div className="app__footer app__footer--extra_margin">
-                {erro && (
-                    <MensagemErro mensagem={erro} />
-                )}
+                <AvisoErro explicacao={erro} emFundoBranco />
 
                 {podeGerarPdf && (
                     <BlobProvider key={tentativaPdf} document={<RelatorioPDF dados={dadosRelatorio} />}>

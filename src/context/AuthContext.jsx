@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
     const [tipoUsuario, setTipoUsuario] = useState('');
     const [escolaIdUsuario, setEscolaIdUsuario] = useState(null);
     const [ubsIdUsuario, setUbsIdUsuario] = useState(null);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro de login (cartão)
 
     // Funções avisadas quando o usuário sai (para limpar o registro em andamento)
     const ouvintesDeLogoutRef = useRef(new Set());
@@ -89,17 +89,17 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (email, password) => {
-        setMensagemErro('');
+        setMensagemErro(null);
         const resultado = await autenticarUsuario(email, password);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro);
+            setMensagemErro(resultado.explicacao || null);
             return false;
         }
 
         registrarUltimaAtividade();
         aplicarUsuario(resultado);
-        setMensagemErro('');
+        setMensagemErro(null);
         return true;
     };
 
@@ -107,7 +107,7 @@ export function AuthProvider({ children }) {
         limparUltimaAtividade();
         await deslogarUsuario();
         limparUsuario();
-        setMensagemErro('');
+        setMensagemErro(null);
     };
 
     // Ao abrir/recarregar o site: restaura a sessão salva, se ainda estiver dentro do prazo

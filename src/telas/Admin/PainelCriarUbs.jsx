@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { criarUbsDB } from '../../services/supabaseService';
 import { useDados } from '../../context/DadosContext';
+import { AvisoErro } from '../../components/AvisoErro';
 
 export function PainelCriarUbs({ onSucesso }) {
     const { recarregarUbs } = useDados();
     const [nome, setNome] = useState('');
     const [salvando, setSalvando] = useState(false);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro (cartão)
 
     const isFormValido = nome.trim().length >= 3;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValido || salvando) return;
-        setMensagemErro('');
+        setMensagemErro(null);
         setSalvando(true);
 
         const resultado = await criarUbsDB(nome);
         setSalvando(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao cadastrar a UBS.');
+            setMensagemErro(resultado.explicacao);
             return;
         }
 
@@ -47,11 +48,7 @@ export function PainelCriarUbs({ onSucesso }) {
                 />
             </div>
             <div className="app__footer">
-                {mensagemErro && (
-                    <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>
-                        {mensagemErro}
-                    </div>
-                )}
+                <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 <button
                     type="submit"
                     className="app__buttonMain"

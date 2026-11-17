@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { vincularEscolasAUbsDB } from '../../services/supabaseService';
 import { useDados } from '../../context/DadosContext';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { erroDeValidacao } from '../../utils/mensagensErro';
 
 const OPCAO_SEM_UBS = 'Sem UBS (Desvincular)';
 
@@ -14,7 +15,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
     } = useDados();
 
     const [salvando, setSalvando] = useState(false);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro (cartão)
     const [escolasInput, setEscolasInput] = useState(['']);
     const [ubsTexto, setUbsTexto] = useState('');
     // Avisos de nomes não encontrados só aparecem depois de clicar em "Salvar Vínculo"
@@ -26,7 +27,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             copia[index] = novoValor;
             return copia;
         });
-        setMensagemErro('');
+        setMensagemErro(null);
         setMostrarValidacao(false);
     };
 
@@ -80,7 +81,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             setMostrarValidacao(true);
             return;
         }
-        setMensagemErro('');
+        setMensagemErro(null);
         setSalvando(true);
 
         const idsUnicos = [...new Set(escolasValidas)];
@@ -90,7 +91,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
         setSalvando(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao vincular escolas.');
+            setMensagemErro(resultado.explicacao);
             return;
         }
 
@@ -172,7 +173,7 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
                     value={ubsTexto}
                     onChange={(e) => {
                         setUbsTexto(e.target.value);
-                        setMensagemErro('');
+                        setMensagemErro(null);
                         setMostrarValidacao(false);
                     }}
                     autoComplete="off"
@@ -182,22 +183,26 @@ export function PainelEditarEscolaUbs({ onSucesso }) {
             </div>
             <div className="app__footer">
                 {mostrarValidacao && escolasNaoEncontradas.length > 0 && (
-                    <MensagemErro
-                        mensagem={`${
-                            escolasNaoEncontradas.length === 1
-                                ? 'Escola não encontrada'
-                                : 'Escolas não encontradas'
-                        }: ${escolasNaoEncontradas.join(', ')}. Selecione o nome a partir da lista.`}
+                    <AvisoErro
+                        emFundoBranco
+                        explicacao={erroDeValidacao({
+                            oQue: escolasNaoEncontradas.length === 1 ? 'Escola não encontrada.' : 'Escolas não encontradas.',
+                            porque: `Não há escola cadastrada com o nome: ${escolasNaoEncontradas.join(', ')}.`,
+                            oQueFazer: 'Comece a digitar e selecione o nome a partir da lista.',
+                        })}
                     />
                 )}
                 {mostrarValidacao && ubsNaoEncontrada && (
-                    <MensagemErro mensagem="UBS não encontrada. Selecione uma UBS a partir da lista." />
+                    <AvisoErro
+                        emFundoBranco
+                        explicacao={erroDeValidacao({
+                            oQue: 'UBS não encontrada.',
+                            porque: `Não há UBS cadastrada com o nome: ${ubsTexto.trim()}.`,
+                            oQueFazer: 'Comece a digitar e selecione a UBS a partir da lista, ou escolha "Sem UBS (Desvincular)".',
+                        })}
+                    />
                 )}
-                {mensagemErro && (
-                    <div style={{ color: 'var(--cor-negative, #ff4d4f)' }}>
-                        {mensagemErro}
-                    </div>
-                )}
+                <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 <button
                     type="submit"
                     className="app__buttonMain"

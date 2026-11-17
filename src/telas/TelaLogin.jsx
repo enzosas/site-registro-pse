@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { TELAS, TIPO_USUARIO } from '../utils/constantes';
-import { MensagemErro } from '../components/MensagemErro'
+import { AvisoErro } from '../components/AvisoErro';
 
 export function TelaLogin({ onVoltar, onEsqueciSenha }) {
     const { login, mensagemErro } = useAuth();
@@ -57,7 +57,7 @@ export function TelaLogin({ onVoltar, onEsqueciSenha }) {
                             required
                         />
                     </div>
-                    <MensagemErro mensagem={mensagemErro} />
+                    <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 </div>
                 <div className='app__footer'>
                     <button type="button" className='app__buttonSecondary' onClick={onEsqueciSenha}>

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { deletarUsuarioDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
 import { useAuth } from '../../context/AuthContext';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { erroDeValidacao } from '../../utils/mensagensErro';
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
 
@@ -14,7 +15,7 @@ export function PainelDetalhesUsuario({
     const { usuarioId: usuarioLogadoId } = useAuth();
 
     const [deletando, setDeletando] = useState(false);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro (cartão)
 
     if (!usuario) {
         return null;
@@ -25,12 +26,12 @@ export function PainelDetalhesUsuario({
 
     const handleDeletar = async () => {
         if (isProprioUsuario) {
-            setMensagemErro('Você não pode excluir a sua própria conta.');
+            setMensagemErro(erroDeValidacao({ oQue: 'Não foi possível excluir o usuário.', porque: 'Você não pode excluir a sua própria conta.' }));
             return;
         }
 
         if (isUsuarioProtegido) {
-            setMensagemErro('Este usuário é protegido pelo sistema e não pode ser excluído.');
+            setMensagemErro(erroDeValidacao({ oQue: 'Não foi possível excluir o usuário.', porque: 'Este usuário é protegido pelo sistema e não pode ser excluído.' }));
             return;
         }
 
@@ -39,13 +40,13 @@ export function PainelDetalhesUsuario({
         );
         if (!confirmou) return;
 
-        setMensagemErro('');
+        setMensagemErro(null);
         setDeletando(true);
         const resultado = await deletarUsuarioDB(usuario.id, usuario.email);
         setDeletando(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao excluir o usuário.');
+            setMensagemErro(resultado.explicacao);
             return;
         }
 
@@ -58,9 +59,7 @@ export function PainelDetalhesUsuario({
     return (
         <>
             <p className="app__title">Detalhes do Usuário</p>
-            {mensagemErro && (
-                <MensagemErro mensagem={mensagemErro} />
-            )}
+            <AvisoErro explicacao={mensagemErro} emFundoBranco />
             <div className='admin__detalhes_usuario__frame'>
                 <div>
                     <p className='admin__detalhes_usuario__label'>Nome</p>

@@ -66,6 +66,17 @@ const CATEGORIAS = {
         oQueFazer: `Recarregue a página. Se continuar, avise o suporte (${EMAIL_SUPORTE}) informando o código abaixo.`,
         temporario: false,
     },
+    naoEncontrado: {
+        porque: 'O item não foi encontrado (pode ter sido removido) ou sua conta não tem permissão para alterá-lo.',
+        oQueFazer: 'Volte, atualize a lista e tente novamente.',
+        temporario: false,
+    },
+    // regra do sistema que recusou a ação (mensagem já em português, vinda do banco)
+    regra: {
+        porque: '',
+        oQueFazer: 'Confira os dados e tente novamente.',
+        temporario: false,
+    },
     desconhecido: {
         porque: 'Ocorreu um erro inesperado.',
         oQueFazer: FAZER_SUPORTE,
@@ -84,6 +95,8 @@ const ROTULOS_CODIGO = {
     referencia: 'REFERENCIA',
     dado: 'DADO',
     versao: 'VERSAO',
+    naoEncontrado: 'NAO-ENCONTRADO',
+    regra: 'REGRA',
     desconhecido: 'ERRO',
 };
 
@@ -108,6 +121,8 @@ function classificar(erro, status) {
     if (codigoBanco === '23505') return { categoria: 'duplicado', original: codigoBanco };
     if (codigoBanco === '23503') return { categoria: 'referencia', original: codigoBanco };
     if (['42703', '42P01', 'PGRST204', 'PGRST202', 'PGRST205'].includes(codigoBanco)) return { categoria: 'versao', original: codigoBanco };
+    if (codigoBanco === 'PGRST116') return { categoria: 'naoEncontrado', original: codigoBanco };
+    if (codigoBanco === 'P0001') return { categoria: 'regra', original: codigoBanco };
     if (/^22|^23/.test(codigoBanco)) return { categoria: 'dado', original: codigoBanco };
     return { categoria: 'desconhecido', original: codigoBanco || status || '' };
 }
@@ -134,7 +149,8 @@ export function explicarErro(erro, { oQue = 'Não foi possível concluir a açã
     const explicacao = {
         categoria,
         oQue,
-        porque: ajuste.porque || base.porque,
+        // na categoria "regra", a causa é a própria mensagem do banco (já em português)
+        porque: ajuste.porque || base.porque || String(erro?.message || ''),
         oQueFazer: ajuste.oQueFazer || base.oQueFazer,
         codigo: montarCodigo(categoria, original),
         temporario: base.temporario,
@@ -142,6 +158,26 @@ export function explicarErro(erro, { oQue = 'Não foi possível concluir a açã
     };
     explicacao.texto = textoDaExplicacao(explicacao);
     return explicacao;
+}
+
+/**
+ * Explica uma mensagem de erro que uma função do banco devolveu como texto
+ * (ex.: { sucesso: false, erro: '...' }). Reconhece mensagens técnicas conhecidas;
+ * mensagens já em português (regras do sistema) são mostradas como estão.
+ */
+export function explicarMensagemDoBanco(texto, opcoes = {}) {
+    const mensagem = String(texto || '');
+    let code = 'P0001';
+    if (/duplicate key|already exists|already registered/i.test(mensagem)) code = '23505';
+    else if (/foreign key/i.test(mensagem)) code = '23503';
+    else if (/permission denied|row-level security/i.test(mensagem)) code = '42501';
+    else if (/^[ -~]*$/.test(mensagem) && /error|invalid|violates|failed|null value/i.test(mensagem)) code = 'XX000';
+    return explicarErro({ code, message: mensagem }, opcoes);
+}
+
+/** Validação de formulário (sem código: é um ajuste que a própria pessoa faz) */
+export function erroDeValidacao({ oQue, porque = '', oQueFazer = '' }) {
+    return erroLocal({ oQue, porque, oQueFazer, codigo: '' });
 }
 
 /** Explicação para falhas que acontecem no próprio aparelho (copiar, ler planilha, gerar PDF) */
