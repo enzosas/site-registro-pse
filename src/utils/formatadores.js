@@ -14,7 +14,7 @@ export const formatarData = (data) => {
 
 export const formatarNome = (nome) => {
     if (!nome) return '';
-    const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI'];
+    const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI', 'UBS'];
     const preposicoes = ['de', 'da', 'do', 'das', 'dos', 'e'];
     const regexRomano = /^(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$/i;
 
