@@ -16,7 +16,18 @@ import { TelaGestao } from './telas/Admin/TelaGestao';
 
 function App() {
     const { isLoggedIn, tipoUsuario, restaurandoSessao } = useAuth();
-    const { telaAtiva, setTelaAtiva, handleLogout, cardRef, bgRef } = useRegistro();
+    const {
+        telaAtiva,
+        setTelaAtiva,
+        handleLogout,
+        cardRef,
+        bgRef,
+        iniciarOuRetomarRegistro,
+        filaEnvio,
+        processarFila,
+        tentarEnviarNovamente,
+        descartarDaFila,
+    } = useRegistro();
     const [subtelaGestao, setSubtelaGestao] = useState(TELAS_GESTAO.PAINEL_INICIAL);
 
     const renderizarConteudo = () => {
@@ -35,9 +46,13 @@ function App() {
                             setSubtelaGestao(TELAS_GESTAO.PAINEL_REGISTROS);
                             setTelaAtiva(TELAS.ADMIN);
                         }}
+                        filaEnvio={filaEnvio}
+                        onEnviarFila={processarFila}
+                        onTentarNovamente={tentarEnviarNovamente}
+                        onDescartarDaFila={descartarDaFila}
                         onComecar={() => {
                             if (isLoggedIn) {
-                                setTelaAtiva(TELAS.ETAPAS);
+                                iniciarOuRetomarRegistro();
                             } else {
                                 setTelaAtiva(TELAS.LOGIN);
                             }

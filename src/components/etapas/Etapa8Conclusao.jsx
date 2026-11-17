@@ -7,6 +7,7 @@ export function Etapa8Conclusao() {
     const {
         salvandoBanco,
         registroSalvo,
+        registroNaFila,
         erroSalvarBanco,
         handleSalvarNoBanco,
         setTelaAtiva,
@@ -14,8 +15,10 @@ export function Etapa8Conclusao() {
         voltarEtapa,
     } = useRegistro();
 
+    const registroGuardado = registroSalvo || registroNaFila;
+
     const handleRetornarInicio = () => {
-        if (!registroSalvo) {
+        if (!registroGuardado) {
             const confirmou = window.confirm(
                 'Tem certeza de que deseja voltar para o início? Os dados da atividade não estão salvos e serão perdidos.'
             );
@@ -31,14 +34,14 @@ export function Etapa8Conclusao() {
                 type="button"
                 className="app__botao-voltar"
                 onClick={() => {
-                    if (registroSalvo) {
+                    if (registroGuardado) {
                         reiniciarRegistro();
                         setTelaAtiva(TELAS.INICIAL);
                     } else {
                         voltarEtapa();
                     }
                 }}
-                title={registroSalvo ? "Voltar ao início" : "Voltar à etapa anterior"}
+                title={registroGuardado ? "Voltar ao início" : "Voltar à etapa anterior"}
             >
                 <IconeVoltar />
             </button>
@@ -58,6 +61,12 @@ export function Etapa8Conclusao() {
                 {registroSalvo && (
                     <p>Registro salvo! Você pode voltar para o início com o botão acima</p>
                 )}
+                {registroNaFila && (
+                    <p className='app__fila-envio' role="status">
+                        Sem internet no momento. O registro foi guardado neste aparelho e será enviado
+                        automaticamente quando a conexão voltar. Você já pode voltar para o início.
+                    </p>
+                )}
                 <button
                     type="button"
                     className='app__buttonMain'
@@ -69,12 +78,14 @@ export function Etapa8Conclusao() {
                     type="button"
                     className="app__buttonMain"
                     onClick={handleSalvarNoBanco}
-                    disabled={salvandoBanco || registroSalvo}
+                    disabled={salvandoBanco || registroGuardado}
                 >
                     <p style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {registroSalvo
                             ? 'Registro Salvo'
-                            : salvandoBanco
+                            : registroNaFila
+                                ? 'Aguardando internet'
+                                : salvandoBanco
                                 ? 'Salvando no banco...'
                                 : 'Salvar Registro'}
                         {registroSalvo && <IconeCheck bold />}

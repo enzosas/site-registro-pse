@@ -59,6 +59,10 @@ Use **Próximo** e a seta de voltar para navegar entre os alunos. Ao final, se a
 #### Salvando o registro
 Na tela final, toque em **Salvar Registro**. **O registro só é guardado depois desse passo.** Se você voltar para o início sem salvar, os dados serão perdidos.
 
+**Sem internet?** Se não houver conexão na hora de salvar, o registro fica guardado no próprio aparelho e é enviado automaticamente quando a internet voltar. Enquanto isso, a tela inicial mostra quantos registros estão aguardando envio, com o botão **Enviar agora**.
+
+**O aplicativo fechou no meio do registro?** O andamento é guardado no aparelho enquanto você preenche. Se a página fechar, recarregar ou a sessão expirar, ao tocar em **Gerar Registro** o aplicativo pergunta se você quer continuar de onde parou. Se você voltar para o início de propósito, o registro em andamento é descartado.
+
 Antes de salvar, você pode tocar em **Ver resumo** para conferir as informações e usar **Copiar Resumo** para colar o texto em aplicativos como WhatsApp, e-mail ou outros sistemas.
 
 ### Consultando os registros

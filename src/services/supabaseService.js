@@ -426,12 +426,21 @@ export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
     }
 }
 
+// Falha de rede (sem internet, conexão caiu): o registro pode ser guardado e reenviado
+function ehErroDeConexao(error, status) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+    if (status === 0) return true;
+    const mensagem = String(error?.message || error || '');
+    return /failed to fetch|networkerror|load failed|network request failed|fetch failed/i.test(mensagem);
+}
+
 export async function salvarRegistroAtividadeDB(payload) {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('registros_atividade')
             .insert([
                 {
+                    id_cliente: payload.idCliente || null,
                     data_atividade: payload.dataAtividade,
                     turno: payload.turno,
                     escola_id: payload.escolaId,
@@ -450,12 +459,29 @@ export async function salvarRegistroAtividadeDB(payload) {
             .single();
 
         if (error) {
+            // Mesmo código único já salvo: o envio anterior chegou ao banco
+            // (a resposta é que se perdeu). Não é erro: o registro já está salvo.
+            if (error.code === '23505' && String(error.message || '').includes('id_cliente')) {
+                return { sucesso: true, jaSalvo: true };
+            }
+            if (ehErroDeConexao(error, status)) {
+                return { sucesso: false, erroDeConexao: true, erro: 'Sem conexão com a internet.' };
+            }
             console.error('Erro ao salvar registro de atividade:', error);
+            if (error.code === '42501') {
+                return {
+                    sucesso: false,
+                    erro: 'Sem permissão para salvar este registro. Saia, entre novamente com a sua conta e tente de novo.',
+                };
+            }
             return { sucesso: false, erro: error.message };
         }
 
         return { sucesso: true, data };
     } catch (err) {
+        if (ehErroDeConexao(err)) {
+            return { sucesso: false, erroDeConexao: true, erro: 'Sem conexão com a internet.' };
+        }
         console.error('Erro inesperado ao salvar registro:', err);
         return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
     }

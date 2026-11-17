@@ -7,9 +7,19 @@ import { useAuth } from '../context/AuthContext';
 import { useDados } from '../context/DadosContext';
 import { navegarComFeedback } from '../utils/delayTouch';
 import { numeroDecimal, normalizarDecimal } from '../utils/medidas';
+import {
+    gerarIdCliente,
+    salvarRascunho,
+    lerRascunho,
+    removerRascunho,
+    lerFila,
+    adicionarNaFila,
+    removerDaFila,
+    atualizarItemDaFila,
+} from '../utils/armazenamentoLocal';
 
 export function useRegistroPSE() {
-    const { usuarioId, nomeUsuario, logout, aoDeslogar } = useAuth();
+    const { usuarioId, nomeUsuario, logout, aoDeslogar, isLoggedIn } = useAuth();
     const { escolas, listaUbs } = useDados();
 
     // Navegação global de ecrãs
@@ -71,6 +81,12 @@ export function useRegistroPSE() {
     const [salvandoBanco, setSalvandoBanco] = useState(false);
     const [registroSalvo, setRegistroSalvo] = useState(false);
     const [erroSalvarBanco, setErroSalvarBanco] = useState('');
+
+    // Rascunho e envio sem internet
+    const [idCliente, setIdCliente] = useState(null); // código único do registro (evita duplicados)
+    const [registroEmAndamento, setRegistroEmAndamento] = useState(false); // guarda rascunho só quando true
+    const [registroNaFila, setRegistroNaFila] = useState(false); // salvo no aparelho, aguardando internet
+    const [filaEnvio, setFilaEnvio] = useState([]);
 
     // Refs de interface
     const cardRef = useRef(null);
@@ -392,7 +408,7 @@ export function useRegistroPSE() {
     };
 
     const handleSalvarNoBanco = async () => {
-        if (registroSalvo || salvandoBanco) return;
+        if (registroSalvo || registroNaFila || salvandoBanco) return;
 
         setSalvandoBanco(true);
         setErroSalvarBanco('');
@@ -405,7 +421,11 @@ export function useRegistroPSE() {
             ? null
             : (escolaSelecionada?.ubsManualId || (ubsManualTexto ? listaUbs.find(u => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase())?.id : null) || null);
 
+        const codigoRegistro = idCliente || gerarIdCliente();
+        if (!idCliente) setIdCliente(codigoRegistro);
+
         const payload = {
+            idCliente: codigoRegistro,
             dataAtividade: dataIso,
             turno: turno,
             escolaId: idEscolaValido,
@@ -423,12 +443,30 @@ export function useRegistroPSE() {
         const resultado = await salvarRegistroAtividadeDB(payload);
         setSalvandoBanco(false);
 
-        if (!resultado.sucesso) {
-            setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
+        if (resultado.sucesso) {
+            setRegistroSalvo(true);
+            setRegistroEmAndamento(false);
+            removerRascunho(usuarioId);
             return;
         }
 
-        setRegistroSalvo(true);
+        // Sem internet: guarda no aparelho e envia sozinho quando a conexão voltar
+        if (resultado.erroDeConexao) {
+            const guardou = adicionarNaFila(usuarioId, {
+                idCliente: codigoRegistro,
+                payload,
+                resumo: `${payload.escolaNome} · ${payload.turmas} · ${Formatadores.formatarDataIso(dataIso)}`,
+            });
+            if (guardou) {
+                setRegistroNaFila(true);
+                setRegistroEmAndamento(false);
+                removerRascunho(usuarioId);
+                setFilaEnvio(lerFila(usuarioId));
+                return;
+            }
+        }
+
+        setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
     };
 
     const handleCopiarResumo = async () => {
@@ -472,7 +510,13 @@ export function useRegistroPSE() {
         }
     };
 
-    const reiniciarRegistro = () => {
+    // Reinicia o formulário. Por padrão também apaga o rascunho (a pessoa voltou ao início
+    // de propósito); no logout/inatividade o rascunho é mantido para ser retomado depois.
+    const reiniciarRegistro = ({ manterRascunho = false } = {}) => {
+        if (!manterRascunho) removerRascunho(usuarioId);
+        setRegistroEmAndamento(false);
+        setRegistroNaFila(false);
+        setIdCliente(null);
         setEtapaAtualId(ETAPAS.DATA);
         setTurno(TURNOS.MANHA);
         setAlunoAtualIndex(0);
@@ -507,11 +551,180 @@ export function useRegistroPSE() {
     const aoDeslogarRef = useRef(null);
     useEffect(() => {
         aoDeslogarRef.current = () => {
-            reiniciarRegistro();
+            reiniciarRegistro({ manterRascunho: true });
+            setFilaEnvio([]);
             setTelaAtivaInterna(TELAS.INICIAL);
         };
     });
     useEffect(() => aoDeslogar(() => aoDeslogarRef.current?.()), [aoDeslogar]);
+
+    // ------------------------------------------------------------------ rascunho
+    // Guarda o andamento no aparelho a cada alteração (com um pequeno intervalo)
+    useEffect(() => {
+        if (!registroEmAndamento || !usuarioId || registroSalvo || registroNaFila) return;
+        if (etapaAtualId === ETAPAS.DATA && !escolaSelecionada) return; // nada relevante ainda
+        const temporizador = setTimeout(() => {
+            salvarRascunho(usuarioId, {
+                idCliente,
+                etapaAtualId,
+                dia,
+                mes,
+                ano,
+                turno,
+                profissionaisResponsaveis,
+                escolaSelecionada,
+                turmaSelecionada,
+                escolaManual,
+                turmaManual,
+                ubsManualTexto,
+                idsEixosSelecionados,
+                nomeEixoLocal,
+                observacoes,
+                idsAlunosPresentes,
+                idsAlunosJaExibidos: [...idsAlunosJaExibidosRef.current],
+                dadosAlunos,
+                alunoAtualIndex,
+                totalAlunosPresentes: alunosPresentes.length,
+            });
+        }, 400);
+        return () => clearTimeout(temporizador);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        registroEmAndamento, usuarioId, registroSalvo, registroNaFila, idCliente, etapaAtualId,
+        dia, mes, ano, turno, profissionaisResponsaveis, escolaSelecionada, turmaSelecionada,
+        escolaManual, turmaManual, ubsManualTexto, idsEixosSelecionados, nomeEixoLocal,
+        observacoes, idsAlunosPresentes, dadosAlunos, alunoAtualIndex,
+    ]);
+
+    const NOMES_ETAPAS = {
+        [ETAPAS.DATA]: 'data da atividade',
+        [ETAPAS.PROFISSIONAIS]: 'profissionais responsáveis',
+        [ETAPAS.ESCOLA]: 'escolha da escola',
+        [ETAPAS.TURMA]: 'escolha da turma',
+        [ETAPAS.EIXOS]: 'eixos temáticos',
+        [ETAPAS.PRESENCA]: 'lista de presença',
+        [ETAPAS.COLETA]: 'coleta de dados',
+        [ETAPAS.CONCLUSAO]: 'tela final (falta salvar)',
+    };
+
+    const descreverRascunho = ({ salvoEm, dados }) => {
+        const escola = dados.escolaSelecionada?.nome || dados.escolaManual || 'escola não escolhida';
+        const turmas = (dados.turmaSelecionada || []).map((t) => t.nome).join(', ');
+        const quando = new Date(salvoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        let etapa = NOMES_ETAPAS[dados.etapaAtualId] || '';
+        if (dados.etapaAtualId === ETAPAS.COLETA && dados.totalAlunosPresentes) {
+            etapa += ` (aluno ${(dados.alunoAtualIndex || 0) + 1} de ${dados.totalAlunosPresentes})`;
+        }
+        return `${escola}${turmas ? ' · ' + turmas : ''}\nÚltima alteração: ${quando}\nParou em: ${etapa}`;
+    };
+
+    const restaurarRascunho = (dados) => {
+        setEtapaAtualId(dados.etapaAtualId || ETAPAS.DATA);
+        setDia(dados.dia);
+        setMes(dados.mes);
+        setAno(dados.ano);
+        setTurno(dados.turno || TURNOS.MANHA);
+        setProfissionaisResponsaveis(dados.profissionaisResponsaveis || (nomeUsuario ? [nomeUsuario] : []));
+        setEscolaSelecionada(dados.escolaSelecionada || null);
+        setTurmaSelecionada(dados.turmaSelecionada || []);
+        setEscolaManual(dados.escolaManual || '');
+        setTurmaManual(dados.turmaManual || '');
+        setUbsManualTexto(dados.ubsManualTexto || '');
+        setIdsEixosSelecionados(dados.idsEixosSelecionados || []);
+        setNomeEixoLocal(dados.nomeEixoLocal || '');
+        setObservacoes(dados.observacoes || '');
+        setIdsAlunosPresentes(dados.idsAlunosPresentes || []);
+        const jaExibidos = idsAlunosJaExibidosRef.current;
+        jaExibidos.clear();
+        (dados.idsAlunosJaExibidos || []).forEach((id) => jaExibidos.add(id));
+        setDadosAlunos(dados.dadosAlunos || {});
+        setAlunoAtualIndex(dados.alunoAtualIndex || 0);
+        setMostrarAlunosPendentes(false);
+        setRegistroSalvo(false);
+        setRegistroNaFila(false);
+        setErroSalvarBanco('');
+        setIdCliente(dados.idCliente || gerarIdCliente());
+        setRegistroEmAndamento(true);
+    };
+
+    // Botão "Gerar Registro": oferece retomar o rascunho, se houver
+    const iniciarOuRetomarRegistro = () => {
+        const rascunho = lerRascunho(usuarioId);
+        if (rascunho) {
+            const continuar = window.confirm(
+                `Você tem um registro não concluído:\n\n${descreverRascunho(rascunho)}\n\nDeseja continuar de onde parou?`
+            );
+            if (continuar) {
+                restaurarRascunho(rascunho.dados);
+                setTelaAtiva(TELAS.ETAPAS);
+                return;
+            }
+            const descartar = window.confirm(
+                'Descartar o registro não concluído e começar um novo?\n\nOs dados dele serão perdidos.'
+            );
+            if (!descartar) return;
+        }
+        reiniciarRegistro();
+        setIdCliente(gerarIdCliente());
+        setRegistroEmAndamento(true);
+        setTelaAtiva(TELAS.ETAPAS);
+    };
+
+    // ------------------------------------------------------------ fila de envio
+    const processandoFilaRef = useRef(false);
+
+    const processarFila = useCallback(async () => {
+        if (!usuarioId || processandoFilaRef.current) return;
+        processandoFilaRef.current = true;
+        try {
+            for (const item of lerFila(usuarioId)) {
+                if (item.status === 'erro') continue;
+                const resultado = await salvarRegistroAtividadeDB(item.payload);
+                if (resultado.sucesso) {
+                    removerDaFila(usuarioId, item.idCliente);
+                } else if (resultado.erroDeConexao) {
+                    break; // ainda sem internet: tenta de novo depois
+                } else {
+                    atualizarItemDaFila(usuarioId, item.idCliente, { status: 'erro', erro: resultado.erro || 'Erro ao enviar.' });
+                }
+            }
+        } finally {
+            processandoFilaRef.current = false;
+            setFilaEnvio(lerFila(usuarioId));
+        }
+    }, [usuarioId]);
+
+    // Tenta enviar ao entrar, quando a internet volta e a cada 30 s enquanto houver pendências
+    useEffect(() => {
+        if (!isLoggedIn || !usuarioId) return;
+        const tentar = () => {
+            processarFila();
+        };
+        const temporizadorInicial = setTimeout(tentar, 0);
+        const intervalo = setInterval(() => {
+            if (lerFila(usuarioId).some((item) => item.status !== 'erro')) tentar();
+        }, 30 * 1000);
+        window.addEventListener('online', tentar);
+        return () => {
+            clearTimeout(temporizadorInicial);
+            clearInterval(intervalo);
+            window.removeEventListener('online', tentar);
+        };
+    }, [isLoggedIn, usuarioId, processarFila]);
+
+    const tentarEnviarNovamente = (idClienteItem) => {
+        atualizarItemDaFila(usuarioId, idClienteItem, { status: 'pendente', erro: '' });
+        processarFila();
+    };
+
+    const descartarDaFila = (idClienteItem) => {
+        const confirmou = window.confirm(
+            'Descartar este registro? Ele não foi enviado ao banco e será perdido.'
+        );
+        if (!confirmou) return;
+        removerDaFila(usuarioId, idClienteItem);
+        setFilaEnvio(lerFila(usuarioId));
+    };
 
     // Botão voltar nativo (celular/navegador).
     // Enquanto o usuário está fora da tela inicial, mantemos exatamente UMA entrada extra
@@ -540,7 +753,7 @@ export function useRegistroPSE() {
                 case TELAS.ETAPAS:
                     if (
                         etapaAtualId === ETAPAS.DATA ||
-                        (etapaAtualId === ETAPAS.CONCLUSAO && registroSalvo)
+                        (etapaAtualId === ETAPAS.CONCLUSAO && (registroSalvo || registroNaFila))
                     ) {
                         reiniciarRegistro();
                         setTelaAtiva(TELAS.INICIAL);
@@ -699,6 +912,12 @@ export function useRegistroPSE() {
 
         salvandoBanco,
         registroSalvo,
+        registroNaFila,
+        iniciarOuRetomarRegistro,
+        filaEnvio,
+        processarFila,
+        tentarEnviarNovamente,
+        descartarDaFila,
         erroSalvarBanco,
         handleSalvarNoBanco,
 
