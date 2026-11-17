@@ -63,7 +63,7 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
 
         setErro('');
         setMarcando(true);
-        const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId);
+        const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId, nomeUsuario);
         setMarcando(false);
 
         if (!resultado.sucesso) {

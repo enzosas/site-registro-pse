@@ -488,7 +488,7 @@ export async function carregarRegistrosAtividadeDB({
                 exportado_outro_sistema,
                 exportado_por_usuario_id,
                 exportado_em,
-                usuarios!registros_atividade_exportado_por_usuario_id_fkey ( nome )
+                exportado_por_nome
             `)
             .order('data_atividade', { ascending: false })
             .order('id', { ascending: false });
@@ -523,7 +523,8 @@ export async function carregarRegistrosAtividadeDB({
 
         const formatados = (data || []).map((reg) => ({
             ...reg,
-            exportador_nome: reg.usuarios?.nome || null,
+            // nome gravado no próprio registro ao marcar como lançado no MV
+            exportador_nome: reg.exportado_por_nome || null,
         }));
 
         return { sucesso: true, data: formatados };
@@ -533,7 +534,7 @@ export async function carregarRegistrosAtividadeDB({
     }
 }
 
-export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
+export async function marcarRegistroComoExportadoDB(registroId, usuarioId, nomeUsuario = '') {
     try {
         if (!registroId || !usuarioId) {
             return { sucesso: false, erro: 'Identificadores inválidos.' };
@@ -544,6 +545,7 @@ export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
             .update({
                 exportado_outro_sistema: true,
                 exportado_por_usuario_id: usuarioId,
+                exportado_por_nome: nomeUsuario || null,
                 exportado_em: new Date().toISOString(),
             })
             .eq('id', registroId)

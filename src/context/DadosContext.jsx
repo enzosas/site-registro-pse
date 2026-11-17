@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { carregarEscolasDB, carregarUbsDB } from '../services/supabaseService';
+import { useAuth } from './AuthContext';
 
 const DadosContext = createContext(null);
 
 export function DadosProvider({ children }) {
+    const { isLoggedIn, aoDeslogar } = useAuth();
     const [escolas, setEscolas] = useState([]);
     const [listaUbs, setListaUbs] = useState([]);
     const [carregandoDados, setCarregandoDados] = useState(false);
@@ -42,9 +44,25 @@ export function DadosProvider({ children }) {
         }
     }, []);
 
+    // Escolas, turmas e alunos só são carregados com o usuário logado
+    // (o banco não libera esses dados para quem não está logado)
     useEffect(() => {
-        recarregarTodosDados();
-    }, [recarregarTodosDados]);
+        if (!isLoggedIn) return;
+        const carregar = async () => {
+            await recarregarTodosDados();
+        };
+        carregar();
+    }, [isLoggedIn, recarregarTodosDados]);
+
+    // Ao sair (botão Sair, inatividade ou sessão expirada), descarta os dados da memória
+    useEffect(
+        () =>
+            aoDeslogar(() => {
+                setEscolas([]);
+                setListaUbs([]);
+            }),
+        [aoDeslogar]
+    );
 
     return (
         <DadosContext.Provider
