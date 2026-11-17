@@ -260,6 +260,10 @@ body {
         padding-block: 0.5rem;
     }
 
+    .app__tela-inicial .app__title__tela-inicial {
+        margin-bottom: 0.5rem;
+    }
+
     .app__tela-inicial .app__buttonMain {
         padding: 0.625rem 0.75rem;
         font-size: 1.2rem;
