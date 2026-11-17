@@ -491,7 +491,8 @@
     font-weight: 600;
     color: var(--cor-botao);
     cursor: pointer;
-    transition: filter 0.2s ease;
+    user-select: none;
+    transition: transform 0.1s ease, filter 0.2s ease;
 }
 
 .admin__registros__exportar svg {
@@ -503,9 +504,10 @@
     cursor: default;
 }
 
-@media (hover: hover) {
-    .admin__registros__exportar:hover:not(:disabled) {
-        filter: brightness(0.85);
-        text-decoration: underline;
-    }
+.admin__registros__exportar:hover:not(:disabled) {
+    filter: brightness(0.8);
+}
+
+.admin__registros__exportar:active:not(:disabled) {
+    transform: scale(0.95);
 }

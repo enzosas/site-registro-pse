@@ -40,7 +40,6 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
     const [tentativa, setTentativa] = useState(0);
-    const [exportando, setExportando] = useState(false);
     const [erroExportar, setErroExportar] = useState(null);
 
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
@@ -231,12 +230,9 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         return listaUbs.find((ubs) => String(ubs.id) === String(ubsId))?.nome || '';
     };
 
-    const handleExportar = async () => {
-        if (exportando || registrosFiltrados.length === 0) return;
-        setExportando(true);
+    const handleExportar = () => {
+        if (registrosFiltrados.length === 0) return;
         setErroExportar(null);
-        // deixa a tela mostrar "Gerando planilha..." antes de montar o arquivo
-        await new Promise((resolver) => setTimeout(resolver, 0));
         try {
             exportarRegistrosParaPlanilha(registrosFiltrados, { nomeUbs: nomeUbsDoRegistro });
         } catch (err) {
@@ -246,8 +242,6 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 porque: 'Ocorreu um erro ao montar o arquivo neste aparelho.',
                 codigo: 'PLANILHA-EXPORTAR',
             }));
-        } finally {
-            setExportando(false);
         }
     };
 
@@ -440,11 +434,11 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                             type="button"
                             className="admin__registros__exportar"
                             onClick={handleExportar}
-                            disabled={exportando || registrosFiltrados.length === 0}
+                            disabled={registrosFiltrados.length === 0}
                             title="Baixar os registros listados em uma planilha Excel (.xlsx)"
                         >
                             <IconeBaixar />
-                            {exportando ? 'Gerando planilha...' : 'Exportar planilha'}
+                            Exportar planilha
                         </button>
                     )}
                 </div>
