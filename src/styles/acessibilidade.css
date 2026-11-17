@@ -1,0 +1,288 @@
+/*
+ * Ajustes para zoom de acessibilidade e texto ampliado.
+ *
+ * As regras só entram em ação quando o espaço útil do card fica pequeno em
+ * relação ao tamanho do texto (medidas em rem, que crescem junto com a fonte).
+ * Em qualquer celular ou computador com zoom de 100% os limites abaixo não são
+ * atingidos, então a aparência normal do app não muda.
+ *
+ * Referências medidas (largura x altura úteis do card, em rem):
+ *   celular 360px a 100% ......... 21 x 26,5   (não ativa)
+ *   iPhone SE a 100% ............. 22 x 25,7   (não ativa)
+ *   zoom 150% .................... 15 x 23,8   (ativa)
+ *   texto 150% ................... 13 x 17     (ativa)
+ */
+
+/* O card passa a ser a referência de tamanho para as regras abaixo */
+.app__card {
+    container: cartao / size;
+}
+
+.app__progress-bar {
+    container-type: inline-size;
+}
+
+/* Título: no máximo 2,5rem; em cards estreitos acompanha a largura.
+   Em telas de 100% o limite de 2,5rem é sempre o menor dos dois. */
+.app__card .app__title {
+    font-size: min(2.5rem, 12.2cqi);
+}
+
+/* Bolinhas da barra de progresso encolhem para caber todas */
+.app__progress-bar .app__progress-step {
+    width: min(1.5rem, 9cqi);
+    height: min(1.5rem, 9cqi);
+}
+
+.app__progress-bar .app__progress-step svg {
+    width: min(1rem, 6cqi);
+    height: min(1rem, 6cqi);
+}
+
+.app__progress-bar .app__progress-step.current {
+    border-width: min(0.25rem, 1.5cqi);
+}
+
+/* ---------- Card estreito (zoom alto ou texto grande) ---------- */
+@container cartao (max-width: 18rem) {
+    /* Palavras longas quebram com hífen ("Administra-tivo"), não no meio */
+    p,
+    h1,
+    h2,
+    h3,
+    label,
+    li {
+        hyphens: auto;
+    }
+
+    /* Título do painel com o botão "?" ao lado: o título pode encolher */
+    .app__card .admin__inicial__titulo-linha .app__title {
+        min-width: 0;
+    }
+
+    /* Filtros de usuários: um embaixo do outro */
+    .app__card .admin__grupo-filtros {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    /* Presença: a data de nascimento desce para baixo do nome */
+    .app__card .app__list__aluno-nascimento {
+        flex-wrap: wrap;
+        row-gap: 0.25rem;
+    }
+
+    /* Coleta: o botão Próximo/Avançar cabe ao lado da seta */
+    .app__card .app__dados-aluno__footer .app__buttonMain {
+        min-width: 0;
+        font-size: 1.2rem;
+        padding-inline: 0.5rem;
+        overflow-wrap: anywhere;
+    }
+
+    /* Cartões do painel: sem a seta, para sobrar espaço para o texto */
+    .app__card .admin__inicial__area {
+        gap: 0.625rem;
+        padding: 0.75rem;
+    }
+
+    .app__card .admin__inicial__area-seta {
+        display: none;
+    }
+}
+
+/* ---------- Card estreito ou baixo (zoom alto, texto grande ou janela muito baixa) ----------
+   As listas deixam de ter rolagem própria e a tela inteira rola,
+   evitando a rolagem dupla e listas com menos de um item visível. */
+@container cartao (max-width: 18rem) or (max-height: 24.5rem) {
+    .app__card .app__search-container {
+        flex: none;
+        min-height: auto;
+    }
+
+    .app__card .app__search-list,
+    .app__card .admin__escola_ubs__container {
+        flex: none;
+        min-height: auto;
+        overflow-y: visible;
+    }
+}
+
+/* ======================================================================
+ * Modo compacto: com zoom alto ou texto grande, margens, cantos e
+ * espaçamentos deixam de crescer junto com o texto. O texto continua
+ * grande; o que encolhe é o "ar" em volta, para sobrar espaço útil.
+ * ====================================================================== */
+
+/* A página toda vira referência de largura (para as margens cinzas) */
+body {
+    container: pagina / inline-size;
+}
+
+/* Tela estreita em relação ao texto: celular de 360px a 100% = 25rem (não ativa);
+   zoom 150% = 19rem, texto 150% = 17rem (ativa) */
+@container pagina (max-width: 22rem) {
+    .app__background {
+        padding: 0.375rem;
+        padding-top: max(0.375rem, env(safe-area-inset-top));
+        padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
+    }
+
+    .app__column {
+        gap: 0.5rem;
+    }
+
+    .app__card {
+        padding: 0.75rem;
+        padding-top: 0.75rem;
+        border-radius: 1rem;
+        gap: 0.75rem;
+    }
+}
+
+@container cartao (max-width: 18rem) {
+    /* Títulos e textos com menos espaço em volta */
+    .app__card .app__title {
+        margin-bottom: 0;
+        line-height: 1.15em;
+    }
+
+    /* Campos: menos enchimento interno e dica (placeholder) menor,
+       para caber mais da dica antes de cortar */
+    .app__card input,
+    .app__card textarea,
+    .app__card select,
+    .app__card .app__select,
+    .app__card .app__date-input,
+    .app__card .app__input-group input {
+        padding: 0.5rem 0.625rem;
+        height: auto;
+        min-height: 2.5rem;
+    }
+
+    .app__card input::placeholder,
+    .app__card textarea::placeholder {
+        font-size: 0.85em;
+    }
+
+    .app__card .app__search-bar {
+        padding: 0.5rem 0.75rem;
+        height: auto;
+        min-height: 2.5rem;
+        gap: 0.375rem;
+    }
+
+    .app__card .app__search-bar input {
+        padding: 0;
+        min-height: 0;
+    }
+
+    .app__card .app__search-list {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+    }
+
+    .app__card .app__search-list__unidade,
+    .app__card .app__list label {
+        padding: 0.625rem 0;
+        gap: 0.625rem;
+    }
+
+    /* Botões: menos enchimento e texto do botão principal um pouco menor */
+    .app__card .app__buttonMain {
+        padding: 0.625rem 0.75rem;
+        font-size: 1.2rem;
+        border-radius: 1.25rem;
+    }
+
+    .app__card .app__buttonSecondary {
+        padding: 0.5rem 0.75rem;
+        border-radius: 1.25rem;
+    }
+
+    .app__card .app__tela-vacinacao-grupo-botoes {
+        gap: 0.5rem;
+    }
+
+    .app__card .app__tela-vacinacao-grupo-botoes__botao {
+        padding: 0.5rem 0.625rem;
+    }
+
+    .app__card .app__footer {
+        gap: 0.625rem;
+    }
+
+    /* Cartões e blocos internos com cantos e margens menores */
+    .app__card .admin__escola_ubs__card,
+    .app__card .admin__registro-card,
+    .app__card .admin__inicial__area {
+        border-radius: 0.75rem;
+    }
+
+    .app__card .admin__escola_ubs__card {
+        padding: 0.75rem;
+    }
+}
+
+/* Título da tela inicial e do login (fica fora do card): acompanha a largura
+   da página. Em celulares a 100% o limite de 2,5rem continua valendo. */
+.app__title.app__title__tela-inicial {
+    font-size: min(2.5rem, 11cqi);
+}
+
+/* Nome do aluno na coleta: mesmo comportamento do título */
+.app__card .app__nomeAluno {
+    font-size: min(2.5rem, 12.2cqi);
+}
+
+@container cartao (max-width: 18rem) {
+    /* Registros: contagem e "Exportar planilha" quebram linha sem espremer */
+    .app__card .admin__registros__resumo {
+        flex-wrap: wrap;
+        row-gap: 0.25rem;
+    }
+
+    .app__card .admin__registros__contagem,
+    .app__card .admin__registros__exportar {
+        white-space: nowrap;
+    }
+}
+
+@container pagina (max-width: 22rem) {
+    /* Tela inicial (não usa card): rola quando o conteúdo não cabe,
+       em vez de esconder os botões de baixo */
+    .app__column.app__tela-inicial {
+        overflow-y: auto;
+    }
+
+    .app__tela-inicial .app__tela-inicial-content {
+        gap: 1.25rem;
+        padding-block: 0.5rem;
+    }
+
+    .app__tela-inicial .app__buttonMain {
+        padding: 0.625rem 0.75rem;
+        font-size: 1.2rem;
+        border-radius: 1.25rem;
+    }
+
+    .app__tela-inicial button.app__tela-inicial__ajuda {
+        font-size: 1.1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 1.25rem;
+    }
+
+    .app__tela-inicial .app__tela-inicial__botoes-segundo-nivel {
+        gap: 0.625rem;
+        width: 100%;
+    }
+
+    .app__tela-inicial .app__tela-inicial__rodape-imagens {
+        gap: 1rem;
+    }
+
+    .app__tela-inicial .app__logo-pse {
+        width: 4rem;
+        margin-bottom: 0.25rem;
+    }
+}

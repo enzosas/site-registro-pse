@@ -11,6 +11,7 @@ import './styles/layout.css';
 import './styles/buttons.css';
 import './styles/outros.css';
 import './styles/markdown.css';
+import './styles/acessibilidade.css';
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
