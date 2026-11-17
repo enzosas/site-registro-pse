@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { IconePesquisa, IconeCheck } from '../../components/Icones';
+import { IconePesquisa, IconeCheck, IconeBaixar } from '../../components/Icones';
 import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
 import { AvisoErro } from '../../components/AvisoErro';
+import { erroLocal } from '../../utils/mensagensErro';
+import { exportarRegistrosParaPlanilha } from '../../utils/exportarPlanilha';
 import {
     formatarTurmas,
     formatarDataIso,
@@ -38,6 +40,8 @@ export function PainelRegistros({ onSelecionarRegistro }) {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
     const [tentativa, setTentativa] = useState(0);
+    const [exportando, setExportando] = useState(false);
+    const [erroExportar, setErroExportar] = useState(null);
 
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [termoBusca, setTermoBusca] = useState('');
@@ -219,6 +223,34 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         dataInicio ||
         dataFim;
 
+    // Exportação em planilha: só admin e UBS (a aba de alunos tem dados pessoais)
+    const podeExportar = isAdmin || isUbs;
+
+    const nomeUbsDoRegistro = (registro) => {
+        const ubsId = registro.ubs_id ?? ubsPorEscola.get(String(registro.escola_id));
+        return listaUbs.find((ubs) => String(ubs.id) === String(ubsId))?.nome || '';
+    };
+
+    const handleExportar = async () => {
+        if (exportando || registrosFiltrados.length === 0) return;
+        setExportando(true);
+        setErroExportar(null);
+        // deixa a tela mostrar "Gerando planilha..." antes de montar o arquivo
+        await new Promise((resolver) => setTimeout(resolver, 0));
+        try {
+            exportarRegistrosParaPlanilha(registrosFiltrados, { nomeUbs: nomeUbsDoRegistro });
+        } catch (err) {
+            console.error('Erro ao exportar planilha:', err);
+            setErroExportar(erroLocal({
+                oQue: 'Não foi possível gerar a planilha.',
+                porque: 'Ocorreu um erro ao montar o arquivo neste aparelho.',
+                codigo: 'PLANILHA-EXPORTAR',
+            }));
+        } finally {
+            setExportando(false);
+        }
+    };
+
     const limparFiltros = () => {
         setTermoBusca('');
         setFiltroEixo('');
@@ -397,6 +429,27 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 />
                 <IconePesquisa />
             </div>
+
+            {!carregando && !erro && (
+                <div className="admin__registros__resumo">
+                    <span className="admin__registros__contagem">
+                        {registrosFiltrados.length} {registrosFiltrados.length === 1 ? 'registro' : 'registros'}
+                    </span>
+                    {podeExportar && (
+                        <button
+                            type="button"
+                            className="admin__registros__exportar"
+                            onClick={handleExportar}
+                            disabled={exportando || registrosFiltrados.length === 0}
+                            title="Baixar os registros listados em uma planilha Excel (.xlsx)"
+                        >
+                            <IconeBaixar />
+                            {exportando ? 'Gerando planilha...' : 'Exportar planilha'}
+                        </button>
+                    )}
+                </div>
+            )}
+            <AvisoErro explicacao={erroExportar} onTentarNovamente={handleExportar} emFundoBranco />
 
             {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
             {!carregando && erro && (

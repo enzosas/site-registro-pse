@@ -463,3 +463,48 @@
 .admin__botao-ajuda:active {
     transform: scale(0.95);
 }
+
+/* Linha acima da lista de registros: contagem e exportação */
+.admin__registros__resumo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    margin: 0.25rem 0 0.5rem;
+    font-size: 0.95rem;
+}
+
+.admin__registros__contagem {
+    color: var(--cor-botao2);
+}
+
+.admin__registros__exportar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    color: var(--cor-botao);
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.admin__registros__exportar svg {
+    font-size: 1.15rem;
+}
+
+.admin__registros__exportar:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+@media (hover: hover) {
+    .admin__registros__exportar:hover:not(:disabled) {
+        filter: brightness(0.85);
+        text-decoration: underline;
+    }
+}
