@@ -455,7 +455,7 @@ export function useRegistroPSE() {
             const guardou = adicionarNaFila(usuarioId, {
                 idCliente: codigoRegistro,
                 payload,
-                resumo: `${payload.escolaNome} · ${payload.turmas} · ${Formatadores.formatarDataIso(dataIso)}`,
+                resumo: `${payload.escolaNome}, ${payload.turmas}, ${Formatadores.formatarDataIso(dataIso)}`,
             });
             if (guardou) {
                 setRegistroNaFila(true);
@@ -615,7 +615,7 @@ export function useRegistroPSE() {
         if (dados.etapaAtualId === ETAPAS.COLETA && dados.totalAlunosPresentes) {
             etapa += ` (aluno ${(dados.alunoAtualIndex || 0) + 1} de ${dados.totalAlunosPresentes})`;
         }
-        return `${escola}${turmas ? ' · ' + turmas : ''}\nÚltima alteração: ${quando}\nParou em: ${etapa}`;
+        return `${escola}${turmas ? ', ' + turmas : ''}\nÚltima alteração: ${quando}\nParou em: ${etapa}`;
     };
 
     const restaurarRascunho = (dados) => {

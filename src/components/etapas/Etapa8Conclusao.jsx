@@ -2,6 +2,7 @@ import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
 import { TELAS } from '../../utils/constantes';
 import { MensagemErro } from '../MensagemErro';
+import { AvisoCartao } from '../AvisoCartao';
 
 export function Etapa8Conclusao() {
     const {
@@ -62,10 +63,12 @@ export function Etapa8Conclusao() {
                     <p>Registro salvo! Você pode voltar para o início com o botão acima</p>
                 )}
                 {registroNaFila && (
-                    <p className='app__fila-envio' role="status">
-                        Sem internet no momento. O registro foi guardado neste aparelho e será enviado
-                        automaticamente quando a conexão voltar. Você já pode voltar para o início.
-                    </p>
+                    <AvisoCartao tipo="offline" titulo="Guardado no aparelho" emFundoBranco>
+                        <p>
+                            Sem internet agora. O registro será enviado automaticamente. Você já pode
+                            voltar ao início.
+                        </p>
+                    </AvisoCartao>
                 )}
                 <button
                     type="button"

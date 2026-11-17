@@ -1,5 +1,6 @@
 import '../styles/telas/TelaInicial.css';
 import { TIPO_USUARIO } from '../utils/constantes.js';
+import { AvisoCartao } from '../components/AvisoCartao';
 
 export function TelaInicial({
     onComecar,
@@ -33,33 +34,41 @@ export function TelaInicial({
                     Registro PSE<br />Online
                 </p>
                 {pendentes.length > 0 && (
-                    <div className='app__fila-envio' role="status">
+                    <AvisoCartao
+                        tipo="pendente"
+                        titulo="Aguardando envio"
+                        acoes={
+                            <button type="button" className="aviso-cartao__botao aviso-cartao__botao--principal" onClick={onEnviarFila}>
+                                Enviar agora
+                            </button>
+                        }
+                    >
                         <p>
                             {pendentes.length === 1
-                                ? '1 registro aguardando envio.'
-                                : `${pendentes.length} registros aguardando envio.`}{' '}
-                            Ele{pendentes.length > 1 ? 's serão enviados' : ' será enviado'} automaticamente quando houver internet.
+                                ? '1 registro será enviado automaticamente quando houver internet.'
+                                : `${pendentes.length} registros serão enviados automaticamente quando houver internet.`}
                         </p>
-                        <button type="button" className='app__buttonSecondary' onClick={onEnviarFila}>
-                            Enviar agora
-                        </button>
-                    </div>
+                    </AvisoCartao>
                 )}
-                {comErro.map((item) => (
-                    <div key={item.idCliente} className='app__fila-envio app__fila-envio--erro' role="alert">
-                        <p>
-                            Não foi possível enviar o registro <strong>{item.resumo}</strong>: {item.erro}
-                        </p>
-                        <div className='app__fila-envio__acoes'>
-                            <button type="button" className='app__buttonSecondary' onClick={() => onTentarNovamente(item.idCliente)}>
-                                Tentar de novo
-                            </button>
-                            <button type="button" className='app__buttonSecondary' onClick={() => onDescartarDaFila(item.idCliente)}>
-                                Descartar
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                {comErro.length > 0 && (
+                    <AvisoCartao tipo="erro" titulo="Envio não concluído">
+                        {comErro.length > 1 && <p>{comErro.length} registros não foram enviados.</p>}
+                        {comErro.map((item) => (
+                            <div key={item.idCliente} className="aviso-cartao__item">
+                                <p>{item.resumo}.</p>
+                                <p>{item.erro}</p>
+                                <div className="aviso-cartao__acoes">
+                                    <button type="button" className="aviso-cartao__botao aviso-cartao__botao--principal" onClick={() => onTentarNovamente(item.idCliente)}>
+                                        Tentar de novo
+                                    </button>
+                                    <button type="button" className="aviso-cartao__botao" onClick={() => onDescartarDaFila(item.idCliente)}>
+                                        Descartar
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </AvisoCartao>
+                )}
                 <button className='app__buttonMain' onClick={onComecar}>
                     {isLoggedIn ? 'Gerar Registro' : 'Começar'}
                 </button>
