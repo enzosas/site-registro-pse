@@ -17,13 +17,14 @@
 
 .aviso-cartao__topo {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* ícone alinhado à primeira linha quando o título quebra */
     gap: 0.625rem;
 }
 
 .aviso-cartao__icone {
     display: flex;
     flex-shrink: 0;
+    margin-top: 0.05rem;
     font-size: 1.25rem;
     color: var(--cor-botao);
 }
@@ -89,4 +90,13 @@
 
 .aviso-cartao__botao:active {
     transform: scale(0.97);
+}
+
+/* código do erro para o suporte (ex.: SERVIDOR-503) */
+.aviso-cartao__codigo {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--cor-botao2);
+    opacity: 0.8;
+    letter-spacing: 0.02em;
 }

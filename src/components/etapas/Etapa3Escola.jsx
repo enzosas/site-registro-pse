@@ -2,6 +2,8 @@ import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar } from '../Icones';
 import { SearchableList } from '../SearchableList';
 import { TELAS } from '../../utils/constantes';
+import { useDados } from '../../context/DadosContext';
+import { AvisoErro } from '../AvisoErro';
 
 export function Etapa3Escola() {
     const {
@@ -14,6 +16,7 @@ export function Etapa3Escola() {
         voltarEtapa,
         setTelaAtiva,
     } = useRegistro();
+    const { erroDados, recarregarTodosDados } = useDados();
 
     return (
         <>
@@ -21,6 +24,7 @@ export function Etapa3Escola() {
                 <IconeVoltar />
             </button>
             <p className='app__title'>Selecione sua escola:</p>
+            <AvisoErro explicacao={erroDados} onTentarNovamente={recarregarTodosDados} emFundoBranco />
             <SearchableList
                 busca={buscaEscola}
                 onBuscaChange={setBuscaEscola}

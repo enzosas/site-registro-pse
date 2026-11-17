@@ -3,6 +3,8 @@ import { TELAS_GESTAO } from '../../utils/constantes';
 import { IconeVoltar } from '../../components/Icones';
 import { navegarComFeedback } from '../../utils/delayTouch';
 import { useRegistro } from '../../context/RegistroPSEContext';
+import { useDados } from '../../context/DadosContext';
+import { AvisoErro } from '../../components/AvisoErro';
 import { PainelGestaoInicial } from './PainelGestaoInicial';
 import { PainelRegistros } from './PainelRegistros';
 import { PainelDetalhesRegistro } from './PainelDetalhesRegistro';
@@ -58,6 +60,7 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
 
     // O botão voltar do celular usa o mesmo comportamento do botão voltar do painel
     const { registrarVoltarAdmin } = useRegistro();
+    const { erroDados, recarregarTodosDados } = useDados();
     const handleVoltarRef = useRef(handleVoltar);
     useEffect(() => {
         handleVoltarRef.current = handleVoltar;
@@ -172,6 +175,7 @@ export function TelaGestao({ onVoltar, cardRef, subtelaInicial = TELAS_GESTAO.PA
             <button type="button" className="app__botao-voltar" onClick={handleVoltar}>
                 <IconeVoltar />
             </button>
+            <AvisoErro explicacao={erroDados} onTentarNovamente={recarregarTodosDados} emFundoBranco />
             {renderizarSubtela()}
         </div>
     );

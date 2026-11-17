@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useDados } from '../context/DadosContext';
 import { navegarComFeedback } from '../utils/delayTouch';
 import { numeroDecimal, normalizarDecimal } from '../utils/medidas';
+import { erroLocal } from '../utils/mensagensErro';
 import {
     gerarIdCliente,
     salvarRascunho,
@@ -80,12 +81,14 @@ export function useRegistroPSE() {
     // Persistência na base de dados
     const [salvandoBanco, setSalvandoBanco] = useState(false);
     const [registroSalvo, setRegistroSalvo] = useState(false);
-    const [erroSalvarBanco, setErroSalvarBanco] = useState('');
+    const [erroSalvarBanco, setErroSalvarBanco] = useState(null); // explicação do erro (ou null)
+    const [erroCopiar, setErroCopiar] = useState(null);
 
     // Rascunho e envio sem internet
     const [idCliente, setIdCliente] = useState(null); // código único do registro (evita duplicados)
     const [registroEmAndamento, setRegistroEmAndamento] = useState(false); // guarda rascunho só quando true
-    const [registroNaFila, setRegistroNaFila] = useState(false); // salvo no aparelho, aguardando internet
+    const [registroNaFila, setRegistroNaFila] = useState(false); // salvo no aparelho, aguardando envio
+    const [motivoFila, setMotivoFila] = useState(''); // categoria do erro temporário (rede, servidor...)
     const [filaEnvio, setFilaEnvio] = useState([]);
 
     // Refs de interface
@@ -411,7 +414,7 @@ export function useRegistroPSE() {
         if (registroSalvo || registroNaFila || salvandoBanco) return;
 
         setSalvandoBanco(true);
-        setErroSalvarBanco('');
+        setErroSalvarBanco(null);
 
         const relatorio = gerarObjetoRelatorio();
         const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
@@ -450,8 +453,9 @@ export function useRegistroPSE() {
             return;
         }
 
-        // Sem internet: guarda no aparelho e envia sozinho quando a conexão voltar
-        if (resultado.erroDeConexao) {
+        // Erro temporário (sem internet, servidor fora do ar, conexão lenta):
+        // guarda no aparelho e envia sozinho quando for possível
+        if (resultado.temporario) {
             const guardou = adicionarNaFila(usuarioId, {
                 idCliente: codigoRegistro,
                 payload,
@@ -459,6 +463,7 @@ export function useRegistroPSE() {
             });
             if (guardou) {
                 setRegistroNaFila(true);
+                setMotivoFila(resultado.explicacao?.categoria || 'rede');
                 setRegistroEmAndamento(false);
                 removerRascunho(usuarioId);
                 setFilaEnvio(lerFila(usuarioId));
@@ -466,7 +471,7 @@ export function useRegistroPSE() {
             }
         }
 
-        setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
+        setErroSalvarBanco(resultado.explicacao || null);
     };
 
     const handleCopiarResumo = async () => {
@@ -503,10 +508,19 @@ export function useRegistroPSE() {
 
         try {
             await navigator.clipboard.writeText(linhas.join('\n'));
+            setErroCopiar(null);
             setCopiado(true);
             setTimeout(() => setCopiado(false), 2000);
         } catch (erro) {
             console.error('Erro ao copiar', erro);
+            setErroCopiar(
+                erroLocal({
+                    oQue: 'Não foi possível copiar o resumo.',
+                    porque: 'O navegador bloqueou o acesso à área de transferência.',
+                    oQueFazer: 'Selecione o texto do resumo com o dedo (ou o mouse) e copie manualmente.',
+                    codigo: 'COPIAR',
+                })
+            );
         }
     };
 
@@ -538,7 +552,9 @@ export function useRegistroPSE() {
         setMostrarAlunosPendentes(false);
         setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
         setRegistroSalvo(false);
-        setErroSalvarBanco('');
+        setErroSalvarBanco(null);
+        setErroCopiar(null);
+        setMotivoFila('');
 
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
@@ -642,7 +658,7 @@ export function useRegistroPSE() {
         setMostrarAlunosPendentes(false);
         setRegistroSalvo(false);
         setRegistroNaFila(false);
-        setErroSalvarBanco('');
+        setErroSalvarBanco(null);
         setIdCliente(dados.idCliente || gerarIdCliente());
         setRegistroEmAndamento(true);
     };
@@ -682,10 +698,14 @@ export function useRegistroPSE() {
                 const resultado = await salvarRegistroAtividadeDB(item.payload);
                 if (resultado.sucesso) {
                     removerDaFila(usuarioId, item.idCliente);
-                } else if (resultado.erroDeConexao) {
-                    break; // ainda sem internet: tenta de novo depois
+                } else if (resultado.temporario) {
+                    break; // sem internet ou servidor fora do ar: tenta de novo depois
                 } else {
-                    atualizarItemDaFila(usuarioId, item.idCliente, { status: 'erro', erro: resultado.erro || 'Erro ao enviar.' });
+                    atualizarItemDaFila(usuarioId, item.idCliente, {
+                        status: 'erro',
+                        erro: resultado.erro || 'Erro ao enviar.',
+                        explicacao: resultado.explicacao || null,
+                    });
                 }
             }
         } finally {
@@ -713,7 +733,7 @@ export function useRegistroPSE() {
     }, [isLoggedIn, usuarioId, processarFila]);
 
     const tentarEnviarNovamente = (idClienteItem) => {
-        atualizarItemDaFila(usuarioId, idClienteItem, { status: 'pendente', erro: '' });
+        atualizarItemDaFila(usuarioId, idClienteItem, { status: 'pendente', erro: '', explicacao: null });
         processarFila();
     };
 
@@ -913,6 +933,8 @@ export function useRegistroPSE() {
         salvandoBanco,
         registroSalvo,
         registroNaFila,
+        motivoFila,
+        erroCopiar,
         iniciarOuRetomarRegistro,
         filaEnvio,
         processarFila,

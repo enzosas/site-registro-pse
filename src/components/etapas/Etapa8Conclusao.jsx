@@ -1,14 +1,15 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
 import { TELAS } from '../../utils/constantes';
-import { MensagemErro } from '../MensagemErro';
 import { AvisoCartao } from '../AvisoCartao';
+import { AvisoErro } from '../AvisoErro';
 
 export function Etapa8Conclusao() {
     const {
         salvandoBanco,
         registroSalvo,
         registroNaFila,
+        motivoFila,
         erroSalvarBanco,
         handleSalvarNoBanco,
         setTelaAtiva,
@@ -56,17 +57,17 @@ export function Etapa8Conclusao() {
                 Voltar para o início
             </button>
             <div className='app__footer'>
-                {erroSalvarBanco && (
-                    <MensagemErro mensagem={erroSalvarBanco} />
-                )}
+                <AvisoErro explicacao={erroSalvarBanco} emFundoBranco />
                 {registroSalvo && (
                     <p>Registro salvo! Você pode voltar para o início com o botão acima</p>
                 )}
                 {registroNaFila && (
                     <AvisoCartao tipo="offline" titulo="Guardado no aparelho" emFundoBranco>
                         <p>
-                            Sem internet agora. O registro será enviado automaticamente. Você já pode
-                            voltar ao início.
+                            {motivoFila === 'rede'
+                                ? 'Sem internet agora.'
+                                : 'O servidor está temporariamente indisponível.'}{' '}
+                            O registro será enviado automaticamente. Você já pode voltar ao início.
                         </p>
                     </AvisoCartao>
                 )}

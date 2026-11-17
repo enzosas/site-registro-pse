@@ -4,7 +4,7 @@ import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
 import {
     formatarTurmas,
     formatarDataIso,
@@ -36,7 +36,8 @@ export function PainelRegistros({ onSelecionarRegistro }) {
 
     const [registros, setRegistros] = useState([]);
     const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null);
+    const [tentativa, setTentativa] = useState(0);
 
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [termoBusca, setTermoBusca] = useState('');
@@ -61,14 +62,14 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             });
             if (!montado) return;
             setRegistros(resultado.data || []);
-            setErro(resultado.sucesso ? '' : resultado.erro);
+            setErro(resultado.sucesso ? null : resultado.explicacao);
             setCarregando(false);
         }
         carregar();
         return () => {
             montado = false;
         };
-    }, [tipoUsuario, escolaIdUsuario, ubsIdUsuario, usuarioId]);
+    }, [tipoUsuario, escolaIdUsuario, ubsIdUsuario, usuarioId, tentativa]);
 
     const registradores = useMemo(() => {
         const nomes = registros.map((r) => r.registrador_nome).filter(Boolean);
@@ -398,7 +399,9 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             </div>
 
             {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
-            {!carregando && erro && <MensagemErro mensagem={`Não foi possível carregar os registros: ${erro}`} />}
+            {!carregando && erro && (
+                <AvisoErro explicacao={erro} onTentarNovamente={() => setTentativa((t) => t + 1)} emFundoBranco />
+            )}
             {!carregando && !erro && registrosFiltrados.length === 0 && (
                 <p className="admin__escola_ubs__vazio">
                     {temFiltroAtivo

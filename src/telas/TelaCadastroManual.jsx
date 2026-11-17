@@ -2,6 +2,8 @@ import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { HeaderRegistro } from '../components/HeaderRegistro';
 import { TELAS } from '../utils/constantes';
+import { useDados } from '../context/DadosContext';
+import { AvisoErro } from '../components/AvisoErro';
 
 export function TelaCadastroManual() {
     const {
@@ -20,6 +22,7 @@ export function TelaCadastroManual() {
         setTelaAtiva,
         cardRef,
     } = useRegistro();
+    const { erroDados, recarregarTodosDados } = useDados();
 
     const ubsEncontrada = listaUbs.find(
         (ubs) => ubs.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
@@ -48,6 +51,9 @@ export function TelaCadastroManual() {
                     <IconeVoltar />
                 </button>
                 <p className='app__title'>Cadastro Manual</p>
+                {!cadastroManualSomenteTurma && (
+                    <AvisoErro explicacao={erroDados} onTentarNovamente={recarregarTodosDados} emFundoBranco />
+                )}
                 {cadastroManualSomenteTurma ? (
                     <div className='app__input-group'>
                         <label>Escola</label>

@@ -1,6 +1,14 @@
 import { supabase } from './supabaseClient';
 import { formatarNome, formatarNomeTurma } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../utils/constantes';
+import { explicarErro } from '../utils/mensagensErro';
+
+// Erro que carrega a explicação pronta para a tela (usado pelas funções que lançam exceção)
+function erroExplicado(explicacao) {
+    const erro = new Error(explicacao.texto);
+    erro.explicacao = explicacao;
+    return erro;
+}
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
 
@@ -83,7 +91,7 @@ export async function autenticarUsuario(email, password) {
 
 export async function carregarEscolasDB() {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('escolas')
             .select(`
                 id,
@@ -98,7 +106,7 @@ export async function carregarEscolasDB() {
 
         if (error) {
             console.error('Erro ao buscar dados do Supabase:', error);
-            return [];
+            throw erroExplicado(explicarErro(error, { oQue: 'Não foi possível carregar a lista de escolas.', status }));
         }
 
         return (data || []).map((escola) => {
@@ -125,21 +133,22 @@ export async function carregarEscolasDB() {
             };
         });
     } catch (err) {
+        if (err.explicacao) throw err;
         console.error('Erro inesperado ao carregar escolas:', err);
-        return [];
+        throw erroExplicado(explicarErro(err, { oQue: 'Não foi possível carregar a lista de escolas.' }));
     }
 }
 
 export async function carregarUbsDB() {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('ubs')
             .select('id, nome')
             .order('nome', { ascending: true });
 
         if (error) {
             console.error('Erro ao buscar UBSs:', error);
-            return [];
+            throw erroExplicado(explicarErro(error, { oQue: 'Não foi possível carregar a lista de UBS.', status }));
         }
 
         return (data || []).map((item) => ({
@@ -147,8 +156,9 @@ export async function carregarUbsDB() {
             nome: formatarNome(item.nome),
         }));
     } catch (err) {
+        if (err.explicacao) throw err;
         console.error('Erro inesperado ao carregar UBSs:', err);
-        return [];
+        throw erroExplicado(explicarErro(err, { oQue: 'Não foi possível carregar a lista de UBS.' }));
     }
 }
 
@@ -208,7 +218,7 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
             tipoUsuario === TIPO_USUARIO.UBS;
 
         if (!podeConsultar) {
-            return [];
+            return { sucesso: true, data: [] };
         }
 
         let query = supabase
@@ -231,14 +241,18 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
             query = query.eq('ubs_id', ubsId);
         }
 
-        const { data, error } = await query;
+        const { data, error, status } = await query;
 
         if (error) {
             console.error('Erro ao buscar usuários:', error);
-            return [];
+            return {
+                sucesso: false,
+                data: [],
+                explicacao: explicarErro(error, { oQue: 'Não foi possível carregar a lista de usuários.', status }),
+            };
         }
 
-        return (data || []).map((usuario) => {
+        const usuarios = (data || []).map((usuario) => {
             const escolaNome = Array.isArray(usuario.escolas)
                 ? usuario.escolas[0]?.nome
                 : usuario.escolas?.nome;
@@ -258,9 +272,14 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
                 ubsNome: ubsNome || null,
             };
         });
+        return { sucesso: true, data: usuarios };
     } catch (err) {
         console.error('Erro inesperado ao buscar usuários:', err);
-        return [];
+        return {
+            sucesso: false,
+            data: [],
+            explicacao: explicarErro(err, { oQue: 'Não foi possível carregar a lista de usuários.' }),
+        };
     }
 }
 
@@ -315,8 +334,18 @@ export async function carregarRelacaoUbsEscolasDB() {
                 .order('nome', { ascending: true })
         ]);
 
-        if (respUbs.error) console.error('Erro ao procurar UBSs:', respUbs.error);
-        if (respEscolas.error) console.error('Erro ao procurar escolas:', respEscolas.error);
+        const respostaComErro = respUbs.error ? respUbs : respEscolas.error ? respEscolas : null;
+        if (respostaComErro) {
+            console.error('Erro ao carregar relação UBS e escolas:', respostaComErro.error);
+            return {
+                ubs: [],
+                escolasSemUbs: [],
+                explicacao: explicarErro(respostaComErro.error, {
+                    oQue: 'Não foi possível carregar as UBS e escolas.',
+                    status: respostaComErro.status,
+                }),
+            };
+        }
 
         const listaUbs = respUbs.data || [];
         const listaEscolas = respEscolas.data || [];
@@ -345,7 +374,11 @@ export async function carregarRelacaoUbsEscolasDB() {
         };
     } catch (err) {
         console.error('Erro inesperado ao carregar relação UBS e Escolas:', err);
-        return { ubs: [], escolasSemUbs: [] };
+        return {
+            ubs: [],
+            escolasSemUbs: [],
+            explicacao: explicarErro(err, { oQue: 'Não foi possível carregar as UBS e escolas.' }),
+        };
     }
 }
 
@@ -426,13 +459,10 @@ export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
     }
 }
 
-// Falha de rede (sem internet, conexão caiu): o registro pode ser guardado e reenviado
-function ehErroDeConexao(error, status) {
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
-    if (status === 0) return true;
-    const mensagem = String(error?.message || error || '');
-    return /failed to fetch|networkerror|load failed|network request failed|fetch failed/i.test(mensagem);
-}
+const OQUE_SALVAR = 'Não foi possível salvar o registro.';
+const AJUSTES_SALVAR = {
+    permissao: { oQueFazer: 'Saia, entre novamente com a sua conta e tente de novo.' },
+};
 
 export async function salvarRegistroAtividadeDB(payload) {
     try {
@@ -464,26 +494,16 @@ export async function salvarRegistroAtividadeDB(payload) {
             if (error.code === '23505' && String(error.message || '').includes('id_cliente')) {
                 return { sucesso: true, jaSalvo: true };
             }
-            if (ehErroDeConexao(error, status)) {
-                return { sucesso: false, erroDeConexao: true, erro: 'Sem conexão com a internet.' };
-            }
             console.error('Erro ao salvar registro de atividade:', error);
-            if (error.code === '42501') {
-                return {
-                    sucesso: false,
-                    erro: 'Sem permissão para salvar este registro. Saia, entre novamente com a sua conta e tente de novo.',
-                };
-            }
-            return { sucesso: false, erro: error.message };
+            const explicacao = explicarErro(error, { oQue: OQUE_SALVAR, status, porCategoria: AJUSTES_SALVAR });
+            return { sucesso: false, temporario: explicacao.temporario, explicacao, erro: explicacao.texto };
         }
 
         return { sucesso: true, data };
     } catch (err) {
-        if (ehErroDeConexao(err)) {
-            return { sucesso: false, erroDeConexao: true, erro: 'Sem conexão com a internet.' };
-        }
         console.error('Erro inesperado ao salvar registro:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
+        const explicacao = explicarErro(err, { oQue: OQUE_SALVAR, porCategoria: AJUSTES_SALVAR });
+        return { sucesso: false, temporario: explicacao.temporario, explicacao, erro: explicacao.texto };
     }
 }
 
@@ -540,11 +560,12 @@ export async function carregarRegistrosAtividadeDB({
             query = query.eq('usuario_id', usuarioId);
         }
 
-        const { data, error } = await query;
+        const { data, error, status } = await query;
 
         if (error) {
             console.error('Erro ao buscar registros de atividade:', error);
-            return { sucesso: false, erro: error.message, data: [] };
+            const explicacao = explicarErro(error, { oQue: 'Não foi possível carregar os registros.', status });
+            return { sucesso: false, erro: explicacao.texto, explicacao, data: [] };
         }
 
         const formatados = (data || []).map((reg) => ({
@@ -556,7 +577,8 @@ export async function carregarRegistrosAtividadeDB({
         return { sucesso: true, data: formatados };
     } catch (err) {
         console.error('Erro inesperado ao carregar registros de atividade:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao carregar os registros.', data: [] };
+        const explicacao = explicarErro(err, { oQue: 'Não foi possível carregar os registros.' });
+        return { sucesso: false, erro: explicacao.texto, explicacao, data: [] };
     }
 }
 

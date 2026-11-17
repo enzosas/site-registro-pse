@@ -45,8 +45,8 @@ export function TelaInicial({
                     >
                         <p>
                             {pendentes.length === 1
-                                ? '1 registro será enviado automaticamente quando houver internet.'
-                                : `${pendentes.length} registros serão enviados automaticamente quando houver internet.`}
+                                ? '1 registro será enviado automaticamente assim que a conexão voltar.'
+                                : `${pendentes.length} registros serão enviados automaticamente assim que a conexão voltar.`}
                         </p>
                     </AvisoCartao>
                 )}
@@ -56,7 +56,15 @@ export function TelaInicial({
                         {comErro.map((item) => (
                             <div key={item.idCliente} className="aviso-cartao__item">
                                 <p>{item.resumo}.</p>
-                                <p>{item.erro}</p>
+                                {item.explicacao ? (
+                                    <>
+                                        <p>{item.explicacao.porque}</p>
+                                        <p>{item.explicacao.oQueFazer}</p>
+                                        <p className="aviso-cartao__codigo">Código: {item.explicacao.codigo}</p>
+                                    </>
+                                ) : (
+                                    <p>{item.erro}</p>
+                                )}
                                 <div className="aviso-cartao__acoes">
                                     <button type="button" className="aviso-cartao__botao aviso-cartao__botao--principal" onClick={() => onTentarNovamente(item.idCliente)}>
                                         Tentar de novo

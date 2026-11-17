@@ -6,6 +6,7 @@ import { processarZipTurmas } from '../../utils/parserPlanilhas';
 import { calcularDiffTurmas } from '../../utils/comparadorDiffTurmas';
 import { supabase } from '../../services/supabaseClient';
 import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoCartao } from '../../components/AvisoCartao';
 
 export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
     const { escolas: escolasAtuais, recarregarTodosDados } = useDados();
@@ -17,6 +18,8 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
     const [erro, setErro] = useState('');
     const [dadosProcessados, setDadosProcessados] = useState(null);
     const [diffResultado, setDiffResultado] = useState(null);
+    // Planilhas do zip que não puderam ser usadas (antes eram ignoradas sem aviso)
+    const [arquivosIgnorados, setArquivosIgnorados] = useState([]);
 
     const inputRef = useRef(null);
 
@@ -30,9 +33,11 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
         setProcessandoZip(true);
         setDadosProcessados(null);
         setDiffResultado(null);
+        setArquivosIgnorados([]);
 
         try {
             const resultado = await processarZipTurmas(file);
+            setArquivosIgnorados(resultado.arquivosComErro || []);
 
             if (!resultado.escolas || resultado.escolas.length === 0) {
                 setErro('Nenhuma escola válida foi encontrada dentro do arquivo zip.');
@@ -189,6 +194,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
         setArquivoNome('');
         setDadosProcessados(null);
         setDiffResultado(null);
+        setArquivosIgnorados([]);
         setErro('');
         if (inputRef.current) inputRef.current.value = '';
     };
@@ -284,6 +290,31 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* planilhas que não puderam ser usadas */}
+            {arquivosIgnorados.length > 0 && !processandoZip && (
+                <AvisoCartao
+                    tipo="erro"
+                    titulo={
+                        arquivosIgnorados.length === 1
+                            ? '1 planilha não pôde ser usada'
+                            : `${arquivosIgnorados.length} planilhas não puderam ser usadas`
+                    }
+                    emFundoBranco
+                >
+                    {arquivosIgnorados.map((item) => (
+                        <p key={item.arquivo}>
+                            <strong>{item.arquivo}</strong>: {item.motivo}
+                        </p>
+                    ))}
+                    <p>
+                        {diffResultado
+                            ? 'As demais planilhas foram processadas normalmente. Confira os arquivos acima e, se necessário, gere-os novamente no EducarWEB.'
+                            : 'Confira os arquivos acima e, se necessário, gere-os novamente no EducarWEB.'}
+                    </p>
+                    <p className="aviso-cartao__codigo">Código: PLANILHA</p>
+                </AvisoCartao>
             )}
 
             {/* alerta de erro em vermelho posicionado acima do rodape */}

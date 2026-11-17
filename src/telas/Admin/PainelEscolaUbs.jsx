@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { carregarRelacaoUbsEscolasDB } from '../../services/supabaseService';
+import { AvisoErro } from '../../components/AvisoErro';
 
 export function PainelEscolaUbs({ onEditar, onAdicionarUbs, onRemoverUbs }) {
     const { tipoUsuario } = useAuth();
@@ -10,15 +11,18 @@ export function PainelEscolaUbs({ onEditar, onAdicionarUbs, onRemoverUbs }) {
     const [listaUbs, setListaUbs] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [escolasSemUbs, setEscolasSemUbs] = useState([]);
+    const [erroCarregar, setErroCarregar] = useState(null);
+    const [tentativa, setTentativa] = useState(0);
 
     useEffect(() => {
         let montado = true;
         async function carregarDados() {
             setCarregando(true);
-            const { ubs, escolasSemUbs: semUbs } = await carregarRelacaoUbsEscolasDB();
+            const { ubs, escolasSemUbs: semUbs, explicacao } = await carregarRelacaoUbsEscolasDB();
             if (montado) {
                 setListaUbs(ubs || []);
                 setEscolasSemUbs(semUbs || []);
+                setErroCarregar(explicacao || null);
                 setCarregando(false);
             }
         }
@@ -26,7 +30,7 @@ export function PainelEscolaUbs({ onEditar, onAdicionarUbs, onRemoverUbs }) {
         return () => {
             montado = false;
         };
-    }, []);
+    }, [tentativa]);
 
     if (!isAdminGeral) {
         return (
@@ -44,7 +48,14 @@ export function PainelEscolaUbs({ onEditar, onAdicionarUbs, onRemoverUbs }) {
                 {carregando && (
                     <p className="admin__escola_ubs__vazio">Carregando unidades e escolas...</p>
                 )}
-                {!carregando && listaUbs.length === 0 && (
+                {!carregando && erroCarregar && (
+                    <AvisoErro
+                        explicacao={erroCarregar}
+                        onTentarNovamente={() => setTentativa((t) => t + 1)}
+                        emFundoBranco
+                    />
+                )}
+                {!carregando && !erroCarregar && listaUbs.length === 0 && (
                     <p className="admin__escola_ubs__vazio">Nenhuma UBS cadastrada.</p>
                 )}
                 {!carregando && listaUbs.map((ubs) => (
