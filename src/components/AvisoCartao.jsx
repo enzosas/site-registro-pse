@@ -1,20 +1,22 @@
 import '../styles/components/AvisoCartao.css';
-import { IconeRelogio, IconeAlerta, IconeSemInternet } from './Icones';
+import { IconeRelogio, IconeAlerta, IconeSemInternet, IconeCheck } from './Icones';
 
 const ICONES = {
     pendente: IconeRelogio,
     erro: IconeAlerta,
     offline: IconeSemInternet,
+    sucesso: IconeCheck,
 };
 
 // Cartão de aviso: ícone colorido ao lado do título, texto e botões abaixo.
-// tipo: 'pendente' (azul), 'offline' (azul) ou 'erro' (vermelho)
+// tipo: 'pendente' (azul), 'offline' (azul), 'erro' (vermelho) ou 'sucesso' (verde)
 // emFundoBranco: usa borda em vez de sombra (para cartões dentro de outro cartão branco)
 export function AvisoCartao({ tipo = 'pendente', titulo, children, acoes, emFundoBranco = false }) {
     const Icone = ICONES[tipo] || IconeRelogio;
     const classes = [
         'aviso-cartao',
         tipo === 'erro' ? 'aviso-cartao--erro' : '',
+        tipo === 'sucesso' ? 'aviso-cartao--sucesso' : '',
         emFundoBranco ? 'aviso-cartao--em-fundo-branco' : '',
     ].join(' ');
 

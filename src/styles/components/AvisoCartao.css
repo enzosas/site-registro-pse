@@ -32,6 +32,10 @@
     color: var(--cor-negative);
 }
 
+.aviso-cartao--sucesso .aviso-cartao__icone {
+    color: var(--cor-step);
+}
+
 .aviso-cartao__titulo {
     font-weight: 700;
     font-size: 1rem;

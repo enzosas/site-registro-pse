@@ -4,6 +4,8 @@ import {
     deslogarUsuario,
     restaurarSessaoUsuario,
     observarFimDaSessao,
+    observarRecuperacaoSenha,
+    existeSessaoSalva,
 } from '../services/supabaseService';
 
 const AuthContext = createContext(null);
@@ -49,6 +51,72 @@ function sessaoExpirouPorInatividade() {
     return Date.now() - lerUltimaAtividade() > TEMPO_LIMITE_INATIVIDADE_MS;
 }
 
+// ---------------------------------------------------------------------------
+// Recuperação de senha
+// O link do e-mail abre o site com os dados na parte "#..." da URL. Lemos isso uma única
+// vez, ao carregar o módulo, antes de o Supabase limpar a URL.
+// ---------------------------------------------------------------------------
+const paramsDaUrl = new URLSearchParams(
+    typeof window !== 'undefined' ? window.location.hash.replace(/^#/, '') : ''
+);
+const ABRIU_LINK_RECUPERACAO =
+    paramsDaUrl.get('type') === 'recovery' && Boolean(paramsDaUrl.get('access_token'));
+const ABRIU_LINK_INVALIDO =
+    !ABRIU_LINK_RECUPERACAO &&
+    (paramsDaUrl.get('error_code') === 'otp_expired' || paramsDaUrl.get('error') === 'access_denied');
+
+// Aba que está trocando a senha (sobrevive a recarregar a página)
+const CHAVE_RECUPERANDO = 'recuperando-senha';
+
+function lerRecuperacaoSalva() {
+    try {
+        return sessionStorage.getItem(CHAVE_RECUPERANDO) === '1';
+    } catch {
+        return false;
+    }
+}
+
+// O link do e-mail só funciona uma vez. Para quem abre o mesmo link de novo (outra aba, atalho,
+// histórico) e ainda tem a troca de senha em andamento neste navegador, guardamos um marcador
+// com validade. Assim dá para continuar em vez de exigir um novo e-mail.
+const CHAVE_PENDENTE = 'recuperacao-pendente-ate';
+const VALIDADE_PENDENTE_MS = 55 * 60 * 1000; // o link do Supabase vale 1 hora
+
+function haRecuperacaoPendente() {
+    try {
+        return Number(localStorage.getItem(CHAVE_PENDENTE)) > Date.now();
+    } catch {
+        return false;
+    }
+}
+
+function marcarRecuperacaoPendente() {
+    try {
+        // não renova: a janela conta a partir da primeira abertura do link
+        if (!haRecuperacaoPendente()) {
+            localStorage.setItem(CHAVE_PENDENTE, String(Date.now() + VALIDADE_PENDENTE_MS));
+        }
+    } catch {
+        // sem acesso ao armazenamento: segue sem o marcador
+    }
+}
+
+function limparRecuperacaoPendente() {
+    try {
+        localStorage.removeItem(CHAVE_PENDENTE);
+    } catch {
+        // sem acesso ao armazenamento: nada a limpar
+    }
+}
+
+const VERIFICAR_SESSAO_AO_ABRIR = ABRIU_LINK_INVALIDO && haRecuperacaoPendente();
+
+// A sessão criada pelo link de recuperação NÃO pode ser tratada como um login: senão quem
+// clicasse no link entraria no app sem senha (ou a verificação de inatividade a encerraria
+// antes da troca). Por isso, enquanto a troca está em andamento, não restauramos a sessão.
+const TROCANDO_SENHA_AO_ABRIR =
+    ABRIU_LINK_RECUPERACAO || VERIFICAR_SESSAO_AO_ABRIR || lerRecuperacaoSalva();
+
 export function AuthProvider({ children }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [restaurandoSessao, setRestaurandoSessao] = useState(true);
@@ -58,6 +126,17 @@ export function AuthProvider({ children }) {
     const [escolaIdUsuario, setEscolaIdUsuario] = useState(null);
     const [ubsIdUsuario, setUbsIdUsuario] = useState(null);
     const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro de login (cartão)
+    const [mensagemInfo, setMensagemInfo] = useState(''); // aviso de sucesso (ex.: senha redefinida)
+
+    // Se a página for recarregada no meio da troca de senha, continua na tela "Nova senha"
+    // (o link do e-mail é de uso único e já foi consumido, então não dá para abri-lo de novo)
+    const [recuperandoSenha, setRecuperandoSenha] = useState(
+        () => ABRIU_LINK_RECUPERACAO || lerRecuperacaoSalva()
+    );
+    const [linkRecuperacaoInvalido, setLinkRecuperacaoInvalido] = useState(
+        ABRIU_LINK_INVALIDO && !VERIFICAR_SESSAO_AO_ABRIR
+    );
+    const [verificandoLink, setVerificandoLink] = useState(VERIFICAR_SESSAO_AO_ABRIR);
 
     // Funções avisadas quando o usuário sai (para limpar o registro em andamento)
     const ouvintesDeLogoutRef = useRef(new Set());
@@ -90,6 +169,7 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         setMensagemErro(null);
+        setMensagemInfo('');
         const resultado = await autenticarUsuario(email, password);
 
         if (!resultado.sucesso) {
@@ -97,6 +177,7 @@ export function AuthProvider({ children }) {
             return false;
         }
 
+        limparRecuperacaoPendente();
         registrarUltimaAtividade();
         aplicarUsuario(resultado);
         setMensagemErro(null);
@@ -115,6 +196,12 @@ export function AuthProvider({ children }) {
         let ativo = true;
 
         async function restaurar() {
+            // Troca de senha em andamento: a sessão do link não é um login
+            if (false) {
+                setRestaurandoSessao(false);
+                return;
+            }
+
             const resultado = await restaurarSessaoUsuario();
             if (!ativo) return;
 
@@ -138,6 +225,82 @@ export function AuthProvider({ children }) {
             pararDeObservar();
         };
     }, [aplicarUsuario, limparUsuario]);
+
+    // --- Recuperação de senha ---------------------------------------------------------
+
+    // Segunda via de detecção do link (a leitura da URL, no topo do arquivo, é a principal)
+    useEffect(() => observarRecuperacaoSenha(() => setRecuperandoSenha(true)), []);
+
+    // Guarda "esta aba está trocando a senha" e o marcador com validade
+    useEffect(() => {
+        try {
+            if (recuperandoSenha) {
+                sessionStorage.setItem(CHAVE_RECUPERANDO, '1');
+                marcarRecuperacaoPendente();
+            } else {
+                sessionStorage.removeItem(CHAVE_RECUPERANDO);
+            }
+        } catch {
+            // sem acesso ao armazenamento: o aviso só vale até recarregar a página
+        }
+    }, [recuperandoSenha]);
+
+    // Voltou à tela só pelo aviso salvo (recarregou a página): confirma que a sessão ainda existe
+    useEffect(() => {
+        if (ABRIU_LINK_RECUPERACAO || !lerRecuperacaoSalva()) return;
+        existeSessaoSalva().then((existe) => {
+            if (!existe) setRecuperandoSenha(false);
+        });
+    }, []);
+
+    // Abriu um link que já foi usado: se a troca de senha ainda está em andamento neste
+    // navegador (a sessão do primeiro clique continua válida), retoma de onde parou
+    useEffect(() => {
+        if (!VERIFICAR_SESSAO_AO_ABRIR) return undefined;
+        let ativo = true;
+        existeSessaoSalva().then((existe) => {
+            if (!ativo) return;
+            if (existe) {
+                setRecuperandoSenha(true);
+            } else {
+                limparRecuperacaoPendente();
+                setLinkRecuperacaoInvalido(true);
+            }
+            setVerificandoLink(false);
+        });
+        return () => {
+            ativo = false;
+        };
+    }, []);
+
+    // Limpa dados sensíveis do endereço (tokens ou mensagem de erro do link)
+    useEffect(() => {
+        if (ABRIU_LINK_RECUPERACAO || ABRIU_LINK_INVALIDO) {
+            const limpo = window.location.pathname + window.location.search;
+            window.history.replaceState(window.history.state, '', limpo);
+        }
+    }, []);
+
+    const finalizarRecuperacao = (mensagem = '') => {
+        limparRecuperacaoPendente();
+        setRecuperandoSenha(false);
+        setLinkRecuperacaoInvalido(false);
+        setMensagemInfo(mensagem);
+    };
+
+    // A sessão do link não vale mais: encerra e pede para solicitar um novo link
+    const recuperacaoExpirada = async () => {
+        limparRecuperacaoPendente();
+        await deslogarUsuario();
+        setRecuperandoSenha(false);
+        setLinkRecuperacaoInvalido(true);
+        setMensagemInfo('');
+    };
+
+    const cancelarRecuperacao = async () => {
+        await deslogarUsuario();
+        finalizarRecuperacao('');
+    };
 
     // Logout automático após TEMPO_LIMITE_INATIVIDADE_MS sem interação
     useEffect(() => {
@@ -205,6 +368,15 @@ export function AuthProvider({ children }) {
                 ubsIdUsuario,
                 mensagemErro,
                 setMensagemErro,
+                mensagemInfo,
+                setMensagemInfo,
+                recuperandoSenha,
+                linkRecuperacaoInvalido,
+                setLinkRecuperacaoInvalido,
+                verificandoLink,
+                finalizarRecuperacao,
+                cancelarRecuperacao,
+                recuperacaoExpirada,
                 login,
                 logout,
                 aoDeslogar,

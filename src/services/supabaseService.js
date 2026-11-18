@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import { formatarNome, formatarNomeTurma } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../utils/constantes';
-import { explicarErro, explicarMensagemDoBanco, erroLocal, erroDeValidacao } from '../utils/mensagensErro';
+import { explicarErro, explicarMensagemDoBanco, erroLocal, erroDeValidacao, EMAIL_SUPORTE } from '../utils/mensagensErro';
 
 // Resultado de falha padronizado: texto (compatibilidade) + explicação para o cartão de erro
 function falha(explicacao) {
@@ -63,6 +63,26 @@ export function observarFimDaSessao(callback) {
     return () => data.subscription.unsubscribe();
 }
 
+// Avisa quando o usuário abre o link de recuperação de senha enviado por e-mail
+export function observarRecuperacaoSenha(callback) {
+    const { data } = supabase.auth.onAuthStateChange((evento) => {
+        if (evento === 'PASSWORD_RECOVERY') {
+            callback();
+        }
+    });
+    return () => data.subscription.unsubscribe();
+}
+
+// Existe uma sessão guardada neste navegador? (usada para retomar a troca de senha)
+export async function existeSessaoSalva() {
+    try {
+        const { data } = await supabase.auth.getSession();
+        return Boolean(data?.session);
+    } catch {
+        return false;
+    }
+}
+
 export async function autenticarUsuario(email, password) {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -75,7 +95,7 @@ export async function autenticarUsuario(email, password) {
                 return falha(erroLocal({
                     oQue: 'Não foi possível entrar.',
                     porque: 'E-mail ou senha incorretos.',
-                    oQueFazer: 'Confira o e-mail e a senha e tente de novo. Se esqueceu a senha, procure a coordenação.',
+                    oQueFazer: 'Confira o e-mail e a senha e tente de novo. Se esqueceu a senha, use o botão "Esqueci a senha".',
                     codigo: 'LOGIN-400',
                 }));
             }
@@ -644,46 +664,61 @@ export async function marcarRegistroComoExportadoDB(registroId, usuarioId, nomeU
 }
 
 export async function solicitarRecuperacaoSenhaDB(email) {
+    const oQue = 'Não foi possível enviar o e-mail de recuperação.';
     try {
         const emailLimpo = (email || '').trim();
         if (!emailLimpo) {
-            return { sucesso: false, erro: 'Informe o seu e-mail.' };
+            return falha(erroDeValidacao({ oQue: 'Informe o seu e-mail.' }));
         }
 
-        // O link do e-mail traz o usuário de volta para este site (precisa estar liberado no Supabase)
+        // O link do e-mail traz a pessoa de volta para este site (precisa estar liberado no Supabase)
         const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`;
 
         const { error } = await supabase.auth.resetPasswordForEmail(emailLimpo, { redirectTo });
 
         if (error) {
             console.error('Erro ao solicitar recuperação de senha:', error);
-            if (error.status === 429 || /rate limit|only request this after/i.test(error.message || '')) {
-                return {
-                    sucesso: false,
-                    erro: 'Muitas solicitações. Aguarde alguns minutos e tente novamente.',
-                };
+            const codigo = error.code || '';
+
+            // O servidor de e-mail padrão do Supabase só entrega para a equipe do projeto
+            if (codigo === 'email_address_not_authorized') {
+                return falha(erroLocal({
+                    oQue,
+                    porque: 'O servidor de e-mail do sistema ainda não está liberado para este endereço.',
+                    oQueFazer: `Avise o suporte (${EMAIL_SUPORTE}) informando o código abaixo.`,
+                    codigo: 'EMAIL-NAO-AUTORIZADO',
+                }));
             }
-            if (error.status >= 500) {
-                return { sucesso: false, erro: 'Servidor fora do ar. Tente novamente mais tarde.' };
+            if (codigo === 'over_email_send_rate_limit' || error.status === 429) {
+                return falha(explicarErro(error, {
+                    oQue,
+                    status: 429,
+                    porCategoria: {
+                        limite: {
+                            porque: 'Foram pedidos muitos e-mails em pouco tempo.',
+                            oQueFazer: 'Aguarde alguns minutos e tente novamente.',
+                        },
+                    },
+                }));
             }
-            return {
-                sucesso: false,
-                erro: 'Não foi possível enviar o e-mail agora. Verifique sua internet e tente novamente.',
-            };
+            return falha(explicarErro(error, { oQue, status: error.status }));
         }
 
         // O Supabase responde sucesso mesmo se o e-mail não existir (de propósito, por segurança)
         return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao solicitar recuperação de senha:', err);
-        return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
+        return falha(explicarErro(err, { oQue }));
     }
 }
 
 export async function redefinirSenhaDB(novaSenha) {
+    const oQue = 'Não foi possível redefinir a senha.';
     try {
         if (!novaSenha || novaSenha.length < 6) {
-            return { sucesso: false, erro: 'A senha deve ter pelo menos 6 caracteres.' };
+            return falha(erroDeValidacao({
+                oQue: 'A senha deve ter pelo menos 6 caracteres.',
+            }));
         }
 
         const { error } = await supabase.auth.updateUser({ password: novaSenha });
@@ -699,23 +734,34 @@ export async function redefinirSenhaDB(novaSenha) {
                 ['session_not_found', 'session_expired', 'bad_jwt', 'no_authorization'].includes(codigo) ||
                 /auth session missing|invalid jwt|jwt expired/i.test(msg)
             ) {
-                return { sucesso: false, sessaoExpirada: true, erro: 'O link expirou ou já foi usado.' };
+                return {
+                    ...falha(erroLocal({
+                        oQue: 'O link de recuperação expirou ou já foi usado.',
+                        porque: 'Cada link vale por 1 hora e só pode ser aberto uma vez.',
+                        oQueFazer: 'Peça um novo link em "Esqueci a senha".',
+                        codigo: 'LINK-EXPIRADO',
+                    })),
+                    sessaoExpirada: true,
+                };
             }
             if (codigo === 'same_password' || /different from the old password|same password/i.test(msg)) {
-                return { sucesso: false, erro: 'A nova senha deve ser diferente da senha atual.' };
+                return falha(erroDeValidacao({
+                    oQue: 'A nova senha deve ser diferente da senha atual.',
+                }));
             }
             if (codigo === 'weak_password' || /weak|at least|should contain/i.test(msg)) {
-                return { sucesso: false, erro: 'Senha não aceita. Use uma senha mais forte (letras e números).' };
+                return falha(erroDeValidacao({
+                    oQue: 'Senha não aceita.',
+                    porque: 'O sistema considerou a senha fraca ou fácil de adivinhar.',
+                    oQueFazer: 'Use uma senha mais forte, com letras e números.',
+                }));
             }
-            if (error.status === 429) {
-                return { sucesso: false, erro: 'Muitas tentativas. Aguarde um pouco e tente novamente.' };
-            }
-            return { sucesso: false, erro: 'Não foi possível redefinir a senha. Tente novamente.' };
+            return falha(explicarErro(error, { oQue, status: error.status }));
         }
 
         return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao redefinir senha:', err);
-        return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
+        return falha(explicarErro(err, { oQue }));
     }
 }

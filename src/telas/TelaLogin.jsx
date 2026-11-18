@@ -4,9 +4,10 @@ import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
 import { TELAS, TIPO_USUARIO } from '../utils/constantes';
 import { AvisoErro } from '../components/AvisoErro';
+import { AvisoCartao } from '../components/AvisoCartao';
 
 export function TelaLogin({ onVoltar, onEsqueciSenha }) {
-    const { login, mensagemErro } = useAuth();
+    const { login, mensagemErro, mensagemInfo } = useAuth();
     const { setTelaAtiva, cardRef } = useRegistro();
 
     const [loginInput, setLoginInput] = useState('');
@@ -57,6 +58,7 @@ export function TelaLogin({ onVoltar, onEsqueciSenha }) {
                             required
                         />
                     </div>
+{mensagemInfo && <AvisoCartao tipo="sucesso" titulo={mensagemInfo} emFundoBranco />}
                     <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 </div>
                 <div className='app__footer'>

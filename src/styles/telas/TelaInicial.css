@@ -84,3 +84,10 @@ button.app__tela-inicial__ajuda {
         margin-bottom: 0;
     }
 }
+
+/* Os logos têm textos escuros: no modo escuro ficam sobre uma base clara */
+:root[data-tema='escuro'] .app__logo-pse {
+    background-color: hsl(0, 0%, 96%);
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+}

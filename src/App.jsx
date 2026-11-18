@@ -3,19 +3,28 @@ import { useAuth } from './context/AuthContext';
 import { useRegistro } from './context/RegistroPSEContext';
 import { TELAS, TELAS_GESTAO } from './utils/constantes';
 import { RenderizadorEtapas } from './components/etapas/RenderizadorEtapas';
-import { IconeVoltar } from './components/Icones';
 
 // Telas
 import { TelaInicial } from './telas/TelaInicial';
 import { TelaAjuda } from './telas/TelaAjuda';
 import { TelaLogin } from './telas/TelaLogin';
+import { TelaEsqueciSenha } from './telas/TelaEsqueciSenha';
+import { TelaRedefinirSenha } from './telas/TelaRedefinirSenha';
 import { TelaCadastroManual } from './telas/TelaCadastroManual';
 import { TelaAddAluno } from './telas/TelaAddAluno';
 import { TelaResumo } from './telas/TelaResumo';
 import { TelaGestao } from './telas/Admin/TelaGestao';
 
 function App() {
-    const { isLoggedIn, tipoUsuario, restaurandoSessao } = useAuth();
+    const {
+        isLoggedIn,
+        tipoUsuario,
+        restaurandoSessao,
+        recuperandoSenha,
+        linkRecuperacaoInvalido,
+        verificandoLink,
+        setLinkRecuperacaoInvalido,
+    } = useAuth();
     const {
         telaAtiva,
         setTelaAtiva,
@@ -31,7 +40,24 @@ function App() {
     const [subtelaGestao, setSubtelaGestao] = useState(TELAS_GESTAO.PAINEL_INICIAL);
 
     const renderizarConteudo = () => {
-        switch (telaAtiva) {
+        // Confirmando se o link já usado ainda pode ser retomado (dura uma fração de segundo)
+        if (verificandoLink) {
+            return (
+                <div className='app__card' ref={cardRef}>
+                    <p className='app__title'>Aguarde...</p>
+                </div>
+            );
+        }
+
+        // Quem abre o link do e-mail de recuperação vai direto para a tela certa
+        let tela = telaAtiva;
+        if (recuperandoSenha) {
+            tela = TELAS.REDEFINIR_SENHA;
+        } else if (linkRecuperacaoInvalido && telaAtiva === TELAS.INICIAL) {
+            tela = TELAS.ESQUECI_SENHA;
+        }
+
+        switch (tela) {
             case TELAS.INICIAL:
                 return (
                     <TelaInicial
@@ -74,22 +100,16 @@ function App() {
 
             case TELAS.ESQUECI_SENHA:
                 return (
-                    <div className='app__input-group'>
-                        <div className='app__card' ref={cardRef}>
-                            <button
-                                type="button"
-                                className="app__botao-voltar"
-                                onClick={() => setTelaAtiva(TELAS.LOGIN)}
-                            >
-                                <IconeVoltar />
-                            </button>
-                            <div className='app__input-group'>
-                                <label>Digite seu email</label>
-                                <input type="text" />
-                            </div>
-                        </div>
-                    </div>
+                    <TelaEsqueciSenha
+                        onVoltar={() => {
+                            setLinkRecuperacaoInvalido(false);
+                            setTelaAtiva(TELAS.LOGIN);
+                        }}
+                    />
                 );
+
+            case TELAS.REDEFINIR_SENHA:
+                return <TelaRedefinirSenha />;
 
 			case TELAS.CADASTRO_MANUAL:
 				return <TelaCadastroManual />;

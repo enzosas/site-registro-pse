@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRegistro } from '../context/RegistroPSEContext';
-import { MensagemErro } from '../components/MensagemErro';
+import { AvisoErro } from '../components/AvisoErro';
 import { TELAS } from '../utils/constantes';
+import { erroDeValidacao } from '../utils/mensagensErro';
 import { redefinirSenhaDB, deslogarUsuario } from '../services/supabaseService';
 
 const TAMANHO_MINIMO = 6;
@@ -14,22 +15,25 @@ export function TelaRedefinirSenha() {
     const [novaSenha, setNovaSenha] = useState('');
     const [confirmacao, setConfirmacao] = useState('');
     const [salvando, setSalvando] = useState(false);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null); // explicação do erro (cartão)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (salvando) return;
 
         if (novaSenha.length < TAMANHO_MINIMO) {
-            setErro(`A senha deve ter pelo menos ${TAMANHO_MINIMO} caracteres.`);
+            setErro(erroDeValidacao({ oQue: `A senha deve ter pelo menos ${TAMANHO_MINIMO} caracteres.` }));
             return;
         }
         if (novaSenha !== confirmacao) {
-            setErro('As senhas não são iguais.');
+            setErro(erroDeValidacao({
+                oQue: 'As senhas não são iguais.',
+                oQueFazer: 'Digite a mesma senha nos dois campos.',
+            }));
             return;
         }
 
-        setErro('');
+        setErro(null);
         setSalvando(true);
         const resultado = await redefinirSenhaDB(novaSenha);
 
@@ -40,7 +44,7 @@ export function TelaRedefinirSenha() {
                 setTelaAtiva(TELAS.ESQUECI_SENHA, true);
                 return;
             }
-            setErro(resultado.erro);
+            setErro(resultado.explicacao || null);
             return;
         }
 
@@ -81,7 +85,7 @@ export function TelaRedefinirSenha() {
                         required
                     />
                 </div>
-                <MensagemErro mensagem={erro} />
+                <AvisoErro explicacao={erro} emFundoBranco />
             </div>
 
             <div className='app__footer'>

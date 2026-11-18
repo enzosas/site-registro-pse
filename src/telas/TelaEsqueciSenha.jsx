@@ -2,10 +2,19 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRegistro } from '../context/RegistroPSEContext';
 import { IconeVoltar } from '../components/Icones';
-import { MensagemErro } from '../components/MensagemErro';
+import { AvisoCartao } from '../components/AvisoCartao';
+import { AvisoErro } from '../components/AvisoErro';
 import { solicitarRecuperacaoSenhaDB } from '../services/supabaseService';
+import { erroLocal } from '../utils/mensagensErro';
 
 const SEGUNDOS_ENTRE_ENVIOS = 60;
+
+const ERRO_LINK_EXPIRADO = erroLocal({
+    oQue: 'O link de recuperação expirou ou já foi usado.',
+    porque: 'Cada link vale por 1 hora e só pode ser aberto uma vez.',
+    oQueFazer: 'Peça um novo link abaixo.',
+    codigo: 'LINK-EXPIRADO',
+});
 
 export function TelaEsqueciSenha({ onVoltar }) {
     const { cardRef } = useRegistro();
@@ -14,7 +23,7 @@ export function TelaEsqueciSenha({ onVoltar }) {
     const [email, setEmail] = useState('');
     const [enviando, setEnviando] = useState(false);
     const [enviado, setEnviado] = useState(false);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null); // explicação do erro (cartão)
     const [segundosRestantes, setSegundosRestantes] = useState(0);
 
     // Contagem regressiva para evitar reenvios em sequência
@@ -28,13 +37,13 @@ export function TelaEsqueciSenha({ onVoltar }) {
         e.preventDefault();
         if (enviando || segundosRestantes > 0) return;
 
-        setErro('');
+        setErro(null);
         setEnviando(true);
         const resultado = await solicitarRecuperacaoSenhaDB(email);
         setEnviando(false);
 
         if (!resultado.sucesso) {
-            setErro(resultado.erro);
+            setErro(resultado.explicacao || null);
             return;
         }
 
@@ -59,9 +68,7 @@ export function TelaEsqueciSenha({ onVoltar }) {
             <p>Informe o e-mail da sua conta. Enviaremos um link para você criar uma nova senha.</p>
 
             <div className='login__input-group'>
-                {linkRecuperacaoInvalido && (
-                    <MensagemErro mensagem='O link de recuperação expirou ou já foi usado. Solicite um novo abaixo.' />
-                )}
+                {linkRecuperacaoInvalido && <AvisoErro explicacao={ERRO_LINK_EXPIRADO} emFundoBranco />}
 
                 <div className='app__input-group'>
                     <label>e-mail</label>
@@ -75,13 +82,19 @@ export function TelaEsqueciSenha({ onVoltar }) {
                 </div>
 
                 {enviado && (
-                    <div className='app__mensagem-sucesso'>
-                        Se este e-mail estiver cadastrado, você receberá um link em instantes.
-                        Confira também a caixa de spam. Se a mensagem parecer em branco, abra os
-                        três pontinhos (...) no fim dela para ver o conteúdo.
-                    </div>
+                    <AvisoCartao
+                        tipo="sucesso"
+                        titulo="Pedido enviado"
+                        emFundoBranco
+                    >
+                        <p>Se este e-mail estiver cadastrado, você receberá um link em instantes.</p>
+                        <p>
+                            Confira também a caixa de spam. Se a mensagem parecer em branco, abra os
+                            três pontinhos (...) no fim dela para ver o conteúdo.
+                        </p>
+                    </AvisoCartao>
                 )}
-                <MensagemErro mensagem={erro} />
+                <AvisoErro explicacao={erro} emFundoBranco />
             </div>
 
             <div className='app__footer'>
