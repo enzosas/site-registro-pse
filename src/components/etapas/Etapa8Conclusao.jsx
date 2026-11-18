@@ -1,12 +1,15 @@
 import { useRegistro } from '../../context/RegistroPSEContext';
 import { IconeVoltar, IconeCheck } from '../Icones';
 import { TELAS } from '../../utils/constantes';
-import { MensagemErro } from '../MensagemErro';
+import { AvisoCartao } from '../AvisoCartao';
+import { AvisoErro } from '../AvisoErro';
 
 export function Etapa8Conclusao() {
     const {
         salvandoBanco,
         registroSalvo,
+        registroNaFila,
+        motivoFila,
         erroSalvarBanco,
         handleSalvarNoBanco,
         setTelaAtiva,
@@ -14,8 +17,10 @@ export function Etapa8Conclusao() {
         voltarEtapa,
     } = useRegistro();
 
+    const registroGuardado = registroSalvo || registroNaFila;
+
     const handleRetornarInicio = () => {
-        if (!registroSalvo) {
+        if (!registroGuardado) {
             const confirmou = window.confirm(
                 'Tem certeza de que deseja voltar para o início? Os dados da atividade não estão salvos e serão perdidos.'
             );
@@ -31,13 +36,14 @@ export function Etapa8Conclusao() {
                 type="button"
                 className="app__botao-voltar"
                 onClick={() => {
-                    if (registroSalvo) {
+                    if (registroGuardado) {
                         reiniciarRegistro();
+                        setTelaAtiva(TELAS.INICIAL);
                     } else {
                         voltarEtapa();
                     }
                 }}
-                title={registroSalvo ? "Voltar ao início" : "Voltar à etapa anterior"}
+                title={registroGuardado ? "Voltar ao início" : "Voltar à etapa anterior"}
             >
                 <IconeVoltar />
             </button>
@@ -51,11 +57,19 @@ export function Etapa8Conclusao() {
                 Voltar para o início
             </button>
             <div className='app__footer'>
-                {erroSalvarBanco && (
-                    <MensagemErro mensagem={erroSalvarBanco} />
-                )}
+                <AvisoErro explicacao={erroSalvarBanco} emFundoBranco />
                 {registroSalvo && (
                     <p>Registro salvo! Você pode voltar para o início com o botão acima</p>
+                )}
+                {registroNaFila && (
+                    <AvisoCartao tipo="offline" titulo="Guardado no aparelho" emFundoBranco>
+                        <p>
+                            {motivoFila === 'rede'
+                                ? 'Sem internet agora.'
+                                : 'O servidor está temporariamente indisponível.'}{' '}
+                            O registro será enviado automaticamente. Você já pode voltar ao início.
+                        </p>
+                    </AvisoCartao>
                 )}
                 <button
                     type="button"
@@ -68,12 +82,14 @@ export function Etapa8Conclusao() {
                     type="button"
                     className="app__buttonMain"
                     onClick={handleSalvarNoBanco}
-                    disabled={salvandoBanco || registroSalvo}
+                    disabled={salvandoBanco || registroGuardado}
                 >
                     <p style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {registroSalvo
                             ? 'Registro Salvo'
-                            : salvandoBanco
+                            : registroNaFila
+                                ? 'Aguardando internet'
+                                : salvandoBanco
                                 ? 'Salvando no banco...'
                                 : 'Salvar Registro'}
                         {registroSalvo && <IconeCheck bold />}

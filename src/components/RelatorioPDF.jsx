@@ -73,6 +73,7 @@ export const TEXTOS_RELATORIO = {
     colAltura: 'ALTURA',
     colVacina: 'VACINA',
     colVisao: 'VISÃO',
+    colAudicao: 'AUDIÇÃO',
     traçoVazio: '-',
     totalAlunos: 'Total de alunos:',
 };
@@ -362,6 +363,7 @@ export const RelatorioPDF = ({ dados }) => {
     const temAltura = alunos.some((a) => a.altura);
     const temVacina = alunos.some((a) => a.vacinado);
     const temVisao = alunos.some((a) => a.saudeOcular);
+    const temAudicao = alunos.some((a) => a.saudeAuditiva);
 
     const profissionaisTexto = Array.isArray(dados.profissionaisResponsaveis)
         ? dados.profissionaisResponsaveis.join(', ')
@@ -468,6 +470,7 @@ export const RelatorioPDF = ({ dados }) => {
                     {temAltura && <Text style={[styles.tableHeaderCell, styles.colMedidas]}>{TEXTOS_RELATORIO.colAltura}</Text>}
                     {temVacina && <Text style={[styles.tableHeaderCell, styles.colStatus]}>{TEXTOS_RELATORIO.colVacina}</Text>}
                     {temVisao && <Text style={[styles.tableHeaderCell, styles.colStatus]}>{TEXTOS_RELATORIO.colVisao}</Text>}
+                    {temAudicao && <Text style={[styles.tableHeaderCell, styles.colStatus]}>{TEXTOS_RELATORIO.colAudicao}</Text>}
                 </View>
                 <View style={styles.tableContainer}>
                     {alunos.map((aluno, i) => (
@@ -502,6 +505,11 @@ export const RelatorioPDF = ({ dados }) => {
                             {temVisao && (
                                 <Text style={[styles.tableCell, styles.colStatus]}>
                                     {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}
+                                </Text>
+                            )}
+                            {temAudicao && (
+                                <Text style={[styles.tableCell, styles.colStatus]}>
+                                    {Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}
                                 </Text>
                             )}
                         </View>

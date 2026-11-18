@@ -4,6 +4,7 @@ import { HeaderRegistro } from '../components/HeaderRegistro';
 import * as Formatadores from '../utils/formatadores';
 import * as Constantes from '../utils/constantes';
 import { TELAS } from '../utils/constantes';
+import { AvisoErro } from '../components/AvisoErro';
 
 export function TelaResumo() {
     const {
@@ -11,6 +12,7 @@ export function TelaResumo() {
         gerarObjetoRelatorio,
         observacoes,
         copiado,
+        erroCopiar,
         handleCopiarResumo,
         setTelaAtiva,
         cardRef,
@@ -79,11 +81,15 @@ export function TelaResumo() {
                                 {aluno.saudeOcular && (
                                     <span> - Saúde Ocular: {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}</span>
                                 )}
+                                {aluno.saudeAuditiva && (
+                                    <span> - Saúde Auditiva: {Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}</span>
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
                 <div className='app__footer'>
+                    <AvisoErro explicacao={erroCopiar} emFundoBranco />
                     <button className='app__buttonMain' onClick={handleCopiarResumo}>
                         <p>{copiado ? 'Copiado!' : 'Copiar Resumo'}</p>
                     </button>

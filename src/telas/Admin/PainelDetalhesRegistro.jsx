@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { BlobProvider } from '@react-pdf/renderer';
 import { RelatorioPDF } from '../../components/RelatorioPDF';
 import { IconeCheck } from '../../components/Icones';
 import { useAuth } from '../../context/AuthContext';
 import { TIPO_USUARIO } from '../../utils/constantes';
 import { marcarRegistroComoExportadoDB } from '../../services/supabaseService';
 import * as Formatadores from '../../utils/formatadores';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { erroLocal } from '../../utils/mensagensErro';
 
 export const PERMISSOES_GERAR_PDF = [
     TIPO_USUARIO.ADMIN,
@@ -24,7 +25,9 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
     const { usuarioId, nomeUsuario, tipoUsuario } = useAuth();
     const [registro, setRegistro] = useState(registroInicial);
     const [marcando, setMarcando] = useState(false);
-    const [erro, setErro] = useState('');
+    // muda a cada "Tentar de novo" para gerar o PDF outra vez
+    const [tentativaPdf, setTentativaPdf] = useState(0);
+    const [erro, setErro] = useState(null);
 
     if (!registro) {
         return null;
@@ -61,13 +64,13 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
         );
         if (!confirmou) return;
 
-        setErro('');
+        setErro(null);
         setMarcando(true);
-        const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId);
+        const resultado = await marcarRegistroComoExportadoDB(registro.id, usuarioId, nomeUsuario);
         setMarcando(false);
 
         if (!resultado.sucesso) {
-            setErro(resultado.erro || 'Falha ao marcar o registro no banco.');
+            setErro(resultado.explicacao);
             return;
         }
 
@@ -144,6 +147,9 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                             {aluno.saudeOcular && (
                                 <span> - Saúde Ocular: {Formatadores.formatarSaudeOcular(aluno.saudeOcular)}</span>
                             )}
+                            {aluno.saudeAuditiva && (
+                                <span> - Saúde Auditiva: {Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}</span>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -168,21 +174,35 @@ export function PainelDetalhesRegistro({ registro: registroInicial }) {
                 )}
             </div>
             <div className="app__footer app__footer--extra_margin">
-                {erro && (
-                    <MensagemErro mensagem={erro} />
-                )}
+                <AvisoErro explicacao={erro} emFundoBranco />
 
                 {podeGerarPdf && (
-                    <PDFDownloadLink
-                        document={<RelatorioPDF dados={dadosRelatorio} />}
-                        fileName={nomeArquivo}
-                        className="app__buttonMain"
-                        style={{ textDecoration: 'none' }}
-                    >
-                        {({ loading }) => (
-                            <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
-                        )}
-                    </PDFDownloadLink>
+                    <BlobProvider key={tentativaPdf} document={<RelatorioPDF dados={dadosRelatorio} />}>
+                        {({ url, loading, error }) =>
+                            error ? (
+                                <AvisoErro
+                                    explicacao={erroLocal({
+                                        oQue: 'Não foi possível gerar o relatório em PDF.',
+                                        porque: 'O aparelho não conseguiu montar o arquivo (pode faltar memória ou o registro ter algum dado inesperado).',
+                                        oQueFazer: 'Toque em "Tentar de novo". Se continuar, feche outros aplicativos ou tente em outro aparelho.',
+                                        codigo: 'PDF',
+                                    })}
+                                    onTentarNovamente={() => setTentativaPdf((t) => t + 1)}
+                                    emFundoBranco
+                                />
+                            ) : (
+                                <a
+                                    href={loading ? undefined : url}
+                                    download={nomeArquivo}
+                                    className="app__buttonMain"
+                                    style={{ textDecoration: 'none' }}
+                                    aria-disabled={loading}
+                                >
+                                    <p>{loading ? 'Gerando PDF...' : 'Gerar Relatório em PDF'}</p>
+                                </a>
+                            )
+                        }
+                    </BlobProvider>
                 )}
 
                 {podeMarcarLancado && (

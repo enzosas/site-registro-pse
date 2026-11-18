@@ -5,7 +5,12 @@ import { useDados } from '../../context/DadosContext';
 import { processarZipTurmas } from '../../utils/parserPlanilhas';
 import { calcularDiffTurmas } from '../../utils/comparadorDiffTurmas';
 import { supabase } from '../../services/supabaseClient';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { explicarErro, erroLocal } from '../../utils/mensagensErro';
+
+// Erro do banco com a explicação já pronta para o cartão
+const erroDoBanco = (erro, oQue) => Object.assign(new Error(oQue), { explicacao: explicarErro(erro, { oQue }) });
+import { AvisoCartao } from '../../components/AvisoCartao';
 
 export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
     const { escolas: escolasAtuais, recarregarTodosDados } = useDados();
@@ -14,9 +19,11 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
     const [arquivoNome, setArquivoNome] = useState('');
     const [processandoZip, setProcessandoZip] = useState(false);
     const [salvandoBanco, setSalvandoBanco] = useState(false);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null); // explicação do erro (cartão)
     const [dadosProcessados, setDadosProcessados] = useState(null);
     const [diffResultado, setDiffResultado] = useState(null);
+    // Planilhas do zip que não puderam ser usadas (antes eram ignoradas sem aviso)
+    const [arquivosIgnorados, setArquivosIgnorados] = useState([]);
 
     const inputRef = useRef(null);
 
@@ -25,17 +32,26 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setErro('');
+        setErro(null);
         setArquivoNome(file.name);
         setProcessandoZip(true);
         setDadosProcessados(null);
         setDiffResultado(null);
+        setArquivosIgnorados([]);
 
         try {
             const resultado = await processarZipTurmas(file);
+            setArquivosIgnorados(resultado.arquivosComErro || []);
 
             if (!resultado.escolas || resultado.escolas.length === 0) {
-                setErro('Nenhuma escola válida foi encontrada dentro do arquivo zip.');
+                setErro(
+                    erroLocal({
+                        oQue: 'Nenhuma escola foi encontrada no arquivo.',
+                        porque: 'Nenhuma planilha do .zip pôde ser usada.',
+                        oQueFazer: 'Confira se o arquivo segue a organização de pastas descrita acima e se as planilhas são relatórios do EducarWEB (.xlsx).',
+                        codigo: 'ZIP-VAZIO',
+                    })
+                );
                 setProcessandoZip(false);
                 return;
             }
@@ -46,7 +62,14 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
             setDiffResultado(diff);
         } catch (err) {
             console.error('erro ao processar zip:', err);
-            setErro(err.message || 'Falha ao descompactar ou interpretar as planilhas.');
+            setErro(
+                erroLocal({
+                    oQue: 'Não foi possível abrir o arquivo.',
+                    porque: 'O arquivo pode estar corrompido ou não ser um .zip válido.',
+                    oQueFazer: 'Baixe a pasta novamente do Google Drive (ela vem como .zip) e tente de novo.',
+                    codigo: 'ZIP',
+                })
+            );
         } finally {
             setProcessandoZip(false);
         }
@@ -71,7 +94,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
         if (!confirmou) return;
 
         setSalvandoBanco(true);
-        setErro('');
+        setErro(null);
 
         try {
             // 1. busca escolas cadastradas atualmente para mapear nomes para seus ids
@@ -80,7 +103,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
                 .select('id, nome');
 
             if (erroEscolas) {
-                throw new Error(`Erro ao consultar escolas: ${erroEscolas.message}`);
+                throw erroDoBanco(erroEscolas, 'Não foi possível consultar as escolas cadastradas.');
             }
 
             const mapaEscolas = new Map();
@@ -105,7 +128,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
                     .select('id, nome');
 
                 if (erroSeed) {
-                    throw new Error(`Erro ao cadastrar novas escolas: ${erroSeed.message}`);
+                    throw erroDoBanco(erroSeed, 'Não foi possível cadastrar as escolas novas.');
                 }
 
                 (novasInseridas || []).forEach((e) => {
@@ -168,7 +191,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
                     .upsert(registrosParaSalvar, { onConflict: 'escola_id' });
 
                 if (erroUpsert) {
-                    throw new Error(`Erro ao salvar turmas: ${erroUpsert.message}`);
+                    throw erroDoBanco(erroUpsert, 'Não foi possível salvar as turmas no banco.');
                 }
             }
 
@@ -179,7 +202,7 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
             if (onSucesso) onSucesso();
         } catch (err) {
             console.error('falha na sincronizacao:', err);
-            setErro(err.message || 'Ocorreu uma falha ao sincronizar com o banco.');
+            setErro(err.explicacao || explicarErro(err, { oQue: 'Não foi possível salvar as turmas no banco.' }));
         } finally {
             setSalvandoBanco(false);
         }
@@ -189,7 +212,8 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
         setArquivoNome('');
         setDadosProcessados(null);
         setDiffResultado(null);
-        setErro('');
+        setArquivosIgnorados([]);
+        setErro(null);
         if (inputRef.current) inputRef.current.value = '';
     };
 
@@ -286,10 +310,33 @@ export function PainelAtualizarTurmas({ onSucesso, onVoltar }) {
                 </div>
             )}
 
-            {/* alerta de erro em vermelho posicionado acima do rodape */}
-            {erro && (
-                <MensagemErro mensagem={erro} />
+            {/* planilhas que não puderam ser usadas */}
+            {arquivosIgnorados.length > 0 && !processandoZip && (
+                <AvisoCartao
+                    tipo="erro"
+                    titulo={
+                        arquivosIgnorados.length === 1
+                            ? '1 planilha não pôde ser usada'
+                            : `${arquivosIgnorados.length} planilhas não puderam ser usadas`
+                    }
+                    emFundoBranco
+                >
+                    {arquivosIgnorados.map((item) => (
+                        <p key={item.arquivo}>
+                            <strong>{item.arquivo}</strong>: {item.motivo}
+                        </p>
+                    ))}
+                    <p>
+                        {diffResultado
+                            ? 'As demais planilhas foram processadas normalmente. Confira os arquivos acima e, se necessário, gere-os novamente no EducarWEB.'
+                            : 'Confira os arquivos acima e, se necessário, gere-os novamente no EducarWEB.'}
+                    </p>
+                    <p className="aviso-cartao__codigo">Código: PLANILHA</p>
+                </AvisoCartao>
             )}
+
+            {/* alerta de erro em vermelho posicionado acima do rodape */}
+            <AvisoErro explicacao={erro} emFundoBranco />
 
             {/* rodape fixo com os botoes de acao */}
             <div className="app__footer app__footer--extra_margin">

@@ -1,6 +1,6 @@
 import { IconePesquisa, IconeCheck } from './Icones';
 import '../styles/components/SearchableList.css';
-import { formatarNome } from '../utils/formatadores';
+import { formatarNomeTurma } from '../utils/formatadores';
 
 export function SearchableMultiList({
     busca,
@@ -31,7 +31,7 @@ export function SearchableMultiList({
                             className='app__search-list__unidade'
                         >
                             {isSelecionado ? <IconeCheck /> : null}
-                            <span>{formatarNome(item.nome)}</span>
+                            <span>{formatarNomeTurma(item.nome)}</span>
                         </button>
                     );
                 })}

@@ -4,6 +4,7 @@ import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { carregarUsuariosDB } from '../../services/supabaseService';
+import { AvisoErro } from '../../components/AvisoErro';
 
 export function PainelUsuarios({
     onCriarUsuario,
@@ -18,6 +19,8 @@ export function PainelUsuarios({
     const [usuarios, setUsuarios] = useState([]);
     const [termoBusca, setTermoBusca] = useState('');
     const [carregando, setCarregando] = useState(true);
+    const [erroCarregar, setErroCarregar] = useState(null);
+    const [tentativa, setTentativa] = useState(0);
     const [filtroTipo, setFiltroTipo] = useState('');
     const [filtroEscola, setFiltroEscola] = useState('');
     const [filtroUbs, setFiltroUbs] = useState('');
@@ -26,13 +29,14 @@ export function PainelUsuarios({
         let montado = true;
         async function carregarDadosPainel() {
             setCarregando(true);
-            const dadosUsuarios = await carregarUsuariosDB({
+            const resultado = await carregarUsuariosDB({
                 tipoUsuario,
                 escolaId,
                 ubsId,
             });
             if (montado) {
-                setUsuarios(dadosUsuarios || []);
+                setUsuarios(resultado.data || []);
+                setErroCarregar(resultado.sucesso ? null : resultado.explicacao);
                 setCarregando(false);
             }
         }
@@ -46,7 +50,7 @@ export function PainelUsuarios({
         return () => {
             montado = false;
         };
-    }, [tipoUsuario, escolaId, ubsId, isComum]);
+    }, [tipoUsuario, escolaId, ubsId, isComum, tentativa]);
 
     const usuariosFiltrados = useMemo(() => {
         return usuarios.filter((user) => {
@@ -168,7 +172,14 @@ export function PainelUsuarios({
                 {carregando && (
                     <p className="admin__escola_ubs__vazio">Carregando usuários...</p>
                 )}
-                {!carregando && usuariosFiltrados.length === 0 && (
+                {!carregando && erroCarregar && (
+                    <AvisoErro
+                        explicacao={erroCarregar}
+                        onTentarNovamente={() => setTentativa((t) => t + 1)}
+                        emFundoBranco
+                    />
+                )}
+                {!carregando && !erroCarregar && usuariosFiltrados.length === 0 && (
                     <p className="admin__escola_ubs__vazio">Nenhum usuário encontrado.</p>
                 )}
                 {!carregando && usuariosFiltrados.map((user) => (

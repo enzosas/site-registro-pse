@@ -49,6 +49,17 @@ export const OPCOES_VACINACAO = {
 	},
 };
 
+export const OPCOES_SAUDE_AUDITIVA = {
+	POSITIVO: {
+		valor: 'normal',
+		label: 'Normal',
+	},
+	NEGATIVO: {
+		valor: 'alterada',
+		label: 'Alterada',
+	}
+}
+
 export const OPCOES_SAUDE_OCULAR = {
 	POSITIVO: {
 		valor: 'normal',
@@ -86,6 +97,7 @@ export const TELAS_GESTAO = Object.freeze({
     PAINEL_REMOVER_UBS: 'PAINEL_REMOVER_UBS',
     PAINEL_EDITAR_ESCOLAUBS: 'PAINEL_EDITAR_ESCOLAUBS',
     PAINEL_ATUALIZAR_TURMAS: 'PAINEL_ATUALIZAR_TURMAS',
+    PAINEL_AJUDA: 'PAINEL_AJUDA',
 });
 
 export const ETAPAS = {

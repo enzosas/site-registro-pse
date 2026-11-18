@@ -23,6 +23,20 @@
 	height: 3rem;
 }
 
+/* Campo da data com rótulo (Dia, Mês, Ano) acima */
+.app__date-campo {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
+	min-width: 0;
+	font-size: 1rem;
+}
+
+.app__date-campo .app__date-input {
+	width: 100%;
+}
+
 .app__date-input:focus {
 	outline: 0.2rem solid var(--cor-botao);
 	outline-offset: 0em;
@@ -248,4 +262,11 @@
 
 .app__select--date:hover:not(:disabled) {
 	filter: none
+}
+
+/* Coleta de dados: aviso de valor improvável (não bloqueia o avanço) */
+.app__aviso-campo {
+	font-size: 0.9rem;
+	color: var(--cor-negative);
+	margin-top: 0.25rem;
 }

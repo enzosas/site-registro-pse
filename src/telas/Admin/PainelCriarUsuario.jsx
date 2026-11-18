@@ -3,7 +3,8 @@ import { TIPO_USUARIO } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { criarNovoUsuarioAdmin } from '../../services/supabaseService';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { erroDeValidacao } from '../../utils/mensagensErro';
 
 export function PainelCriarUsuario({ onSucesso }) {
     const { tipoUsuario: tipoUsuarioLogado, escolaIdUsuario: escolaIdLogado, ubsIdUsuario: ubsIdLogado } = useAuth();
@@ -19,7 +20,7 @@ export function PainelCriarUsuario({ onSucesso }) {
     const [senha, setSenha] = useState('');
     const [unidadeTexto, setUnidadeTexto] = useState('');
     const [salvando, setSalvando] = useState(false);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro (cartão)
 
     const precisaEscolherUnidade = isAdmin && tipoNovoUsuario !== TIPO_USUARIO.ADMIN;
 
@@ -62,7 +63,7 @@ export function PainelCriarUsuario({ onSucesso }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValido || salvando || carregandoDados) return;
-        setMensagemErro('');
+        setMensagemErro(null);
         setSalvando(true);
 
         let escolaId = null;
@@ -82,7 +83,13 @@ export function PainelCriarUsuario({ onSucesso }) {
 
             if (!opcaoEncontrada) {
                 setSalvando(false);
-                setMensagemErro('Por favor, selecione uma unidade válida a partir da lista.');
+                setMensagemErro(
+                    erroDeValidacao({
+                        oQue: 'Unidade não encontrada.',
+                        porque: 'O nome digitado não corresponde a nenhuma escola ou UBS cadastrada.',
+                        oQueFazer: 'Comece a digitar e selecione a unidade a partir da lista.',
+                    })
+                );
                 return;
             }
 
@@ -105,7 +112,7 @@ export function PainelCriarUsuario({ onSucesso }) {
         setSalvando(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao criar o usuário.');
+            setMensagemErro(resultado.explicacao);
             return;
         }
 
@@ -138,7 +145,7 @@ export function PainelCriarUsuario({ onSucesso }) {
                     onChange={(e) => {
                         setTipoNovoUsuario(e.target.value);
                         setUnidadeTexto('');
-                        setMensagemErro('');
+                        setMensagemErro(null);
                     }}
                 >
                     <option value={TIPO_USUARIO.COMUM}>Comum</option>
@@ -227,9 +234,7 @@ export function PainelCriarUsuario({ onSucesso }) {
             {mensagemVinculo && <p className="admin__usuario__subtitulo">{mensagemVinculo}</p>}
 
             <div className="app__footer">
-                {mensagemErro && (
-                    <MensagemErro mensagem={mensagemErro}/>
-                )}
+                <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 <button
                     type="button"
                     className="app__buttonMain"

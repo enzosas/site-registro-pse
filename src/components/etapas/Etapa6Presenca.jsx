@@ -6,6 +6,7 @@ import { TELAS } from '../../utils/constantes';
 export function Etapa6Presenca() {
     const {
         alunosOrdenados,
+        alunosPresentes,
         idsAlunosPresentes,
         toggleAluno,
         alternarPresencaTodos,
@@ -16,7 +17,7 @@ export function Etapa6Presenca() {
         setTelaAtiva,
     } = useRegistro();
 
-    const temPresentes = idsAlunosPresentes.length > 0;
+    const temPresentes = alunosPresentes.length > 0;
     const dataFormatada = formatarDataHora(escolaSelecionada?.atualizadoEm);
 
     return (

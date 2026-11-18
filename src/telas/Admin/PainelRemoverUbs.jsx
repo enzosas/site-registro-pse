@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { deletarUbsDB } from '../../services/supabaseService';
 import { useDados } from '../../context/DadosContext';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
 
 export function PainelRemoverUbs({ onSucesso }) {
     const { listaUbs, recarregarUbs, carregandoDados: carregando } = useDados();
 
     const [ubsTexto, setUbsTexto] = useState('');
     const [excluindo, setExcluindo] = useState(false);
-    const [mensagemErro, setMensagemErro] = useState('');
+    const [mensagemErro, setMensagemErro] = useState(null); // explicação do erro (cartão)
 
     const ubsEncontrada = listaUbs.find(
         (ubs) => ubs.nome.toLowerCase() === ubsTexto.trim().toLowerCase()
@@ -24,13 +24,13 @@ export function PainelRemoverUbs({ onSucesso }) {
         );
         if (!confirmou) return;
 
-        setMensagemErro('');
+        setMensagemErro(null);
         setExcluindo(true);
         const resultado = await deletarUbsDB(ubsEncontrada.id);
         setExcluindo(false);
 
         if (!resultado.sucesso) {
-            setMensagemErro(resultado.erro || 'Falha ao eliminar a UBS.');
+            setMensagemErro(resultado.explicacao);
             return;
         }
 
@@ -57,7 +57,7 @@ export function PainelRemoverUbs({ onSucesso }) {
                     value={ubsTexto}
                     onChange={(e) => {
                         setUbsTexto(e.target.value);
-                        setMensagemErro('');
+                        setMensagemErro(null);
                     }}
                     autoComplete="off"
                     disabled={carregando || excluindo}
@@ -70,9 +70,7 @@ export function PainelRemoverUbs({ onSucesso }) {
                 </datalist>
             </div>
             <div className="app__footer">
-                {mensagemErro && (
-                    <MensagemErro mensagem={mensagemErro} />
-                )}
+                <AvisoErro explicacao={mensagemErro} emFundoBranco />
                 <button
                     type="submit"
                     className="app__buttonMain"

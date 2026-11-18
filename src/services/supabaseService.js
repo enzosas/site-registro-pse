@@ -1,8 +1,67 @@
 import { supabase } from './supabaseClient';
-import { formatarNome } from '../utils/formatadores';
+import { formatarNome, formatarNomeTurma } from '../utils/formatadores';
 import { TIPO_USUARIO } from '../utils/constantes';
+import { explicarErro, explicarMensagemDoBanco, erroLocal, erroDeValidacao } from '../utils/mensagensErro';
+
+// Resultado de falha padronizado: texto (compatibilidade) + explicação para o cartão de erro
+function falha(explicacao) {
+    return { sucesso: false, erro: explicacao.texto, explicacao };
+}
+
+// Erro que carrega a explicação pronta para a tela (usado pelas funções que lançam exceção)
+function erroExplicado(explicacao) {
+    const erro = new Error(explicacao.texto);
+    erro.explicacao = explicacao;
+    return erro;
+}
 
 const EMAIL_PROTEGIDO = (import.meta.env.VITE_EMAIL_PROTEGIDO || '').trim().toLowerCase();
+
+async function buscarPerfilUsuario(userId) {
+    const { data: usuarioPerfil, error: erroPerfil } = await supabase
+        .from('usuarios')
+        .select('nome, tipo_usuario, escola_id, ubs_id')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (erroPerfil) {
+        console.error('Erro ao buscar perfil do usuário:', erroPerfil);
+    }
+
+    return {
+        nome: usuarioPerfil?.nome || '',
+        tipoUsuario: usuarioPerfil?.tipo_usuario || '',
+        escolaId: usuarioPerfil?.escola_id || null,
+        ubsId: usuarioPerfil?.ubs_id || null,
+    };
+}
+
+// Recupera a sessão que o Supabase guardou no navegador (ex.: após recarregar a página)
+export async function restaurarSessaoUsuario() {
+    try {
+        const { data, error } = await supabase.auth.getSession();
+        const usuario = data?.session?.user;
+        if (error || !usuario) {
+            return { sucesso: false };
+        }
+
+        const perfil = await buscarPerfilUsuario(usuario.id);
+        return { sucesso: true, id: usuario.id, ...perfil };
+    } catch (err) {
+        console.error('Erro inesperado ao restaurar sessão:', err);
+        return { sucesso: false };
+    }
+}
+
+// Avisa quando a sessão termina por fora do app (token expirado, logout em outra aba)
+export function observarFimDaSessao(callback) {
+    const { data } = supabase.auth.onAuthStateChange((evento) => {
+        if (evento === 'SIGNED_OUT') {
+            callback();
+        }
+    });
+    return () => data.subscription.unsubscribe();
+}
 
 export async function autenticarUsuario(email, password) {
     try {
@@ -12,43 +71,42 @@ export async function autenticarUsuario(email, password) {
         });
 
         if (error) {
-            if (error.status === 400 || error.message?.includes('Invalid login credentials')) {
-                return { sucesso: false, erro: 'Credenciais Inválidas!' };
+            if (/invalid login credentials/i.test(error.message || '') || (error.status === 400 && !/confirm/i.test(error.message || ''))) {
+                return falha(erroLocal({
+                    oQue: 'Não foi possível entrar.',
+                    porque: 'E-mail ou senha incorretos.',
+                    oQueFazer: 'Confira o e-mail e a senha e tente de novo. Se esqueceu a senha, procure a coordenação.',
+                    codigo: 'LOGIN-400',
+                }));
             }
-            if (error.status >= 500) {
-                return { sucesso: false, erro: 'servidor fora do ar. tente novamente mais tarde' };
+            if (/email not confirmed/i.test(error.message || '')) {
+                return falha(erroLocal({
+                    oQue: 'Não foi possível entrar.',
+                    porque: 'O e-mail desta conta ainda não foi confirmado.',
+                    oQueFazer: 'Procure a coordenação para liberar o acesso.',
+                    codigo: 'LOGIN-CONFIRMACAO',
+                }));
             }
-            return { sucesso: false, erro: 'Erro de conexão. Verifique sua internet.' };
+            return falha(explicarErro(error, { oQue: 'Não foi possível entrar.', status: error.status }));
         }
 
-        const { data: usuarioPerfil, error: erroPerfil } = await supabase
-            .from('usuarios')
-            .select('nome, tipo_usuario, escola_id, ubs_id')
-            .eq('id', data.user.id)
-            .maybeSingle();
-
-        if (erroPerfil) {
-            console.error('Erro ao buscar perfil do usuário:', erroPerfil);
-        }
+        const perfil = await buscarPerfilUsuario(data.user.id);
 
         return {
             sucesso: true,
             data,
             id: data.user.id,
-            nome: usuarioPerfil?.nome || '',
-            tipoUsuario: usuarioPerfil?.tipo_usuario || '',
-            escolaId: usuarioPerfil?.escola_id || null,
-            ubsId: usuarioPerfil?.ubs_id || null,
+            ...perfil,
         };
     } catch (err) {
         console.error('Erro inesperado no login:', err);
-        return { sucesso: false, erro: 'erro de conexão. verifique sua internet' };
+        return falha(explicarErro(err, { oQue: 'Não foi possível entrar.' }));
     }
 }
 
 export async function carregarEscolasDB() {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('escolas')
             .select(`
                 id,
@@ -63,7 +121,7 @@ export async function carregarEscolasDB() {
 
         if (error) {
             console.error('Erro ao buscar dados do Supabase:', error);
-            return [];
+            throw erroExplicado(explicarErro(error, { oQue: 'Não foi possível carregar a lista de escolas.', status }));
         }
 
         return (data || []).map((escola) => {
@@ -74,7 +132,7 @@ export async function carregarEscolasDB() {
             const atualizadoEm = registroVinculo?.atualizado_em || null;
             const turmasFormatadas = turmasBrutas.map((turma) => ({
                 ...turma,
-                nome: formatarNome(turma.nome),
+                nome: formatarNomeTurma(turma.nome),
                 alunos: (turma.alunos || []).map((aluno) => ({
                     ...aluno,
                     nome: formatarNome(aluno.nome),
@@ -90,21 +148,22 @@ export async function carregarEscolasDB() {
             };
         });
     } catch (err) {
+        if (err.explicacao) throw err;
         console.error('Erro inesperado ao carregar escolas:', err);
-        return [];
+        throw erroExplicado(explicarErro(err, { oQue: 'Não foi possível carregar a lista de escolas.' }));
     }
 }
 
 export async function carregarUbsDB() {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('ubs')
             .select('id, nome')
             .order('nome', { ascending: true });
 
         if (error) {
             console.error('Erro ao buscar UBSs:', error);
-            return [];
+            throw erroExplicado(explicarErro(error, { oQue: 'Não foi possível carregar a lista de UBS.', status }));
         }
 
         return (data || []).map((item) => ({
@@ -112,10 +171,19 @@ export async function carregarUbsDB() {
             nome: formatarNome(item.nome),
         }));
     } catch (err) {
+        if (err.explicacao) throw err;
         console.error('Erro inesperado ao carregar UBSs:', err);
-        return [];
+        throw erroExplicado(explicarErro(err, { oQue: 'Não foi possível carregar a lista de UBS.' }));
     }
 }
+
+const OQUE_CRIAR_USUARIO = 'Não foi possível criar o usuário.';
+const AJUSTES_CRIAR_USUARIO = {
+    duplicado: {
+        porque: 'Já existe uma conta com este e-mail.',
+        oQueFazer: 'Use outro e-mail ou exclua a conta antiga antes de criar a nova.',
+    },
+};
 
 export async function criarNovoUsuarioAdmin({
     nome,
@@ -126,7 +194,7 @@ export async function criarNovoUsuarioAdmin({
     ubsId = null,
 }) {
     try {
-        const { data, error } = await supabase.rpc('criar_usuario_admin', {
+        const { data, error, status } = await supabase.rpc('criar_usuario_admin', {
             novo_nome: nome,
             novo_email: email,
             nova_senha: password,
@@ -137,17 +205,17 @@ export async function criarNovoUsuarioAdmin({
 
         if (error) {
             console.error('Erro na RPC de criar usuário:', error);
-            return { sucesso: false, erro: error.message };
+            return falha(explicarErro(error, { oQue: OQUE_CRIAR_USUARIO, status, porCategoria: AJUSTES_CRIAR_USUARIO }));
         }
 
         if (data && !data.sucesso) {
-            return { sucesso: false, erro: data.erro };
+            return falha(explicarMensagemDoBanco(data.erro, { oQue: OQUE_CRIAR_USUARIO, porCategoria: AJUSTES_CRIAR_USUARIO }));
         }
 
         return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao criar usuário:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao criar usuário.' };
+        return falha(explicarErro(err, { oQue: OQUE_CRIAR_USUARIO }));
     }
 }
 
@@ -173,7 +241,7 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
             tipoUsuario === TIPO_USUARIO.UBS;
 
         if (!podeConsultar) {
-            return [];
+            return { sucesso: true, data: [] };
         }
 
         let query = supabase
@@ -196,14 +264,18 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
             query = query.eq('ubs_id', ubsId);
         }
 
-        const { data, error } = await query;
+        const { data, error, status } = await query;
 
         if (error) {
             console.error('Erro ao buscar usuários:', error);
-            return [];
+            return {
+                sucesso: false,
+                data: [],
+                explicacao: explicarErro(error, { oQue: 'Não foi possível carregar a lista de usuários.', status }),
+            };
         }
 
-        return (data || []).map((usuario) => {
+        const usuarios = (data || []).map((usuario) => {
             const escolaNome = Array.isArray(usuario.escolas)
                 ? usuario.escolas[0]?.nome
                 : usuario.escolas?.nome;
@@ -223,20 +295,27 @@ export async function carregarUsuariosDB({ tipoUsuario, escolaId = null, ubsId =
                 ubsNome: ubsNome || null,
             };
         });
+        return { sucesso: true, data: usuarios };
     } catch (err) {
         console.error('Erro inesperado ao buscar usuários:', err);
-        return [];
+        return {
+            sucesso: false,
+            data: [],
+            explicacao: explicarErro(err, { oQue: 'Não foi possível carregar a lista de usuários.' }),
+        };
     }
 }
+
+const OQUE_EXCLUIR_USUARIO = 'Não foi possível excluir o usuário.';
 
 export async function deletarUsuarioDB(usuarioId, email = '') {
     try {
         if (!usuarioId) {
-            return { sucesso: false, erro: 'ID do usuário não fornecido.' };
+            return falha(erroDeValidacao({ oQue: OQUE_EXCLUIR_USUARIO, porque: 'Nenhum usuário foi selecionado.', oQueFazer: 'Volte e escolha o usuário na lista.' }));
         }
 
         if (EMAIL_PROTEGIDO && email && email.trim().toLowerCase() === EMAIL_PROTEGIDO) {
-            return { sucesso: false, erro: 'Este usuário é protegido pelo sistema e não pode ser excluído.' };
+            return falha(erroDeValidacao({ oQue: OQUE_EXCLUIR_USUARIO, porque: 'Este usuário é protegido pelo sistema e não pode ser excluído.' }));
         }
 
         if (EMAIL_PROTEGIDO) {
@@ -247,23 +326,23 @@ export async function deletarUsuarioDB(usuarioId, email = '') {
                 .maybeSingle();
 
             if (!erroConsulta && usuarioAlvo?.email?.trim().toLowerCase() === EMAIL_PROTEGIDO) {
-                return { sucesso: false, erro: 'Este usuário é protegido pelo sistema e não pode ser excluído.' };
+                return falha(erroDeValidacao({ oQue: OQUE_EXCLUIR_USUARIO, porque: 'Este usuário é protegido pelo sistema e não pode ser excluído.' }));
             }
         }
 
-        const { error } = await supabase.rpc('deletar_usuario_por_admin', {
+        const { error, status } = await supabase.rpc('deletar_usuario_por_admin', {
             usuario_alvo_id: usuarioId,
         });
 
         if (error) {
             console.error('Erro ao deletar usuário:', error);
-            return { sucesso: false, erro: error.message || 'Falha ao deletar o usuário.' };
+            return falha(explicarErro(error, { oQue: OQUE_EXCLUIR_USUARIO, status }));
         }
 
         return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao deletar usuário:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao deletar o usuário.' };
+        return falha(explicarErro(err, { oQue: OQUE_EXCLUIR_USUARIO }));
     }
 }
 
@@ -280,8 +359,18 @@ export async function carregarRelacaoUbsEscolasDB() {
                 .order('nome', { ascending: true })
         ]);
 
-        if (respUbs.error) console.error('Erro ao procurar UBSs:', respUbs.error);
-        if (respEscolas.error) console.error('Erro ao procurar escolas:', respEscolas.error);
+        const respostaComErro = respUbs.error ? respUbs : respEscolas.error ? respEscolas : null;
+        if (respostaComErro) {
+            console.error('Erro ao carregar relação UBS e escolas:', respostaComErro.error);
+            return {
+                ubs: [],
+                escolasSemUbs: [],
+                explicacao: explicarErro(respostaComErro.error, {
+                    oQue: 'Não foi possível carregar as UBS e escolas.',
+                    status: respostaComErro.status,
+                }),
+            };
+        }
 
         const listaUbs = respUbs.data || [];
         const listaEscolas = respEscolas.data || [];
@@ -310,17 +399,21 @@ export async function carregarRelacaoUbsEscolasDB() {
         };
     } catch (err) {
         console.error('Erro inesperado ao carregar relação UBS e Escolas:', err);
-        return { ubs: [], escolasSemUbs: [] };
+        return {
+            ubs: [],
+            escolasSemUbs: [],
+            explicacao: explicarErro(err, { oQue: 'Não foi possível carregar as UBS e escolas.' }),
+        };
     }
 }
 
 export async function criarUbsDB(nomeUbs) {
     try {
         if (!nomeUbs || !nomeUbs.trim()) {
-            return { sucesso: false, erro: 'Informe o nome da UBS.' };
+            return falha(erroDeValidacao({ oQue: 'Informe o nome da UBS.' }));
         }
 
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('ubs')
             .insert([{ nome: nomeUbs.trim() }])
             .select()
@@ -328,52 +421,56 @@ export async function criarUbsDB(nomeUbs) {
 
         if (error) {
             console.error('Erro ao cadastrar UBS:', error);
-            return { sucesso: false, erro: error.message };
+            return falha(explicarErro(error, {
+                oQue: 'Não foi possível cadastrar a UBS.',
+                status,
+                porCategoria: { duplicado: { porque: 'Já existe uma UBS com este nome.', oQueFazer: 'Confira a lista de UBS ou use outro nome.' } },
+            }));
         }
 
         return { sucesso: true, data };
     } catch (err) {
         console.error('Erro inesperado ao cadastrar UBS:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao cadastrar UBS.' };
+        return falha(explicarErro(err, { oQue: 'Não foi possível cadastrar a UBS.' }));
     }
 }
 
 export async function deletarUbsDB(ubsId) {
     try {
         if (!ubsId) {
-            return { sucesso: false, erro: 'ID da UBS não informado.' };
+            return falha(erroDeValidacao({ oQue: 'Selecione a UBS a remover.' }));
         }
 
-        const { data, error } = await supabase.rpc('deletar_ubs_admin', {
+        const { data, error, status } = await supabase.rpc('deletar_ubs_admin', {
             ubs_alvo_id: ubsId,
         });
 
         if (error) {
             console.error('Erro na RPC de excluir UBS:', error);
-            return { sucesso: false, erro: error.message };
+            return falha(explicarErro(error, { oQue: 'Não foi possível remover a UBS.', status }));
         }
 
         if (data && !data.sucesso) {
-            return { sucesso: false, erro: data.erro };
+            return falha(explicarMensagemDoBanco(data.erro, { oQue: 'Não foi possível remover a UBS.' }));
         }
 
         return { sucesso: true };
     } catch (err) {
         console.error('Erro inesperado ao excluir UBS:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao excluir UBS.' };
+        return falha(explicarErro(err, { oQue: 'Não foi possível remover a UBS.' }));
     }
 }
 
 export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
     try {
         if (!Array.isArray(escolaIds) || escolaIds.length === 0) {
-            return { sucesso: false, erro: 'Selecione pelo menos uma escola.' };
+            return falha(erroDeValidacao({ oQue: 'Selecione pelo menos uma escola.' }));
         }
 
         const idsNumericos = escolaIds.map((id) => Number(id));
         const valorUbs = ubsId ? Number(ubsId) : null;
 
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('escolas')
             .update({ ubs_responsavel: valorUbs })
             .in('id', idsNumericos)
@@ -381,22 +478,28 @@ export async function vincularEscolasAUbsDB(escolaIds, ubsId) {
 
         if (error) {
             console.error('Erro ao atualizar vínculo das escolas:', error);
-            return { sucesso: false, erro: error.message };
+            return falha(explicarErro(error, { oQue: 'Não foi possível salvar o vínculo.', status }));
         }
 
         return { sucesso: true, data };
     } catch (err) {
         console.error('Erro inesperado ao vincular escolas:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao salvar alterações.' };
+        return falha(explicarErro(err, { oQue: 'Não foi possível salvar o vínculo.' }));
     }
 }
 
+const OQUE_SALVAR = 'Não foi possível salvar o registro.';
+const AJUSTES_SALVAR = {
+    permissao: { oQueFazer: 'Saia, entre novamente com a sua conta e tente de novo.' },
+};
+
 export async function salvarRegistroAtividadeDB(payload) {
     try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('registros_atividade')
             .insert([
                 {
+                    id_cliente: payload.idCliente || null,
                     data_atividade: payload.dataAtividade,
                     turno: payload.turno,
                     escola_id: payload.escolaId,
@@ -415,14 +518,21 @@ export async function salvarRegistroAtividadeDB(payload) {
             .single();
 
         if (error) {
+            // Mesmo código único já salvo: o envio anterior chegou ao banco
+            // (a resposta é que se perdeu). Não é erro: o registro já está salvo.
+            if (error.code === '23505' && String(error.message || '').includes('id_cliente')) {
+                return { sucesso: true, jaSalvo: true };
+            }
             console.error('Erro ao salvar registro de atividade:', error);
-            return { sucesso: false, erro: error.message };
+            const explicacao = explicarErro(error, { oQue: OQUE_SALVAR, status, porCategoria: AJUSTES_SALVAR });
+            return { sucesso: false, temporario: explicacao.temporario, explicacao, erro: explicacao.texto };
         }
 
         return { sucesso: true, data };
     } catch (err) {
         console.error('Erro inesperado ao salvar registro:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao salvar o registro no banco.' };
+        const explicacao = explicarErro(err, { oQue: OQUE_SALVAR, porCategoria: AJUSTES_SALVAR });
+        return { sucesso: false, temporario: explicacao.temporario, explicacao, erro: explicacao.texto };
     }
 }
 
@@ -453,7 +563,7 @@ export async function carregarRegistrosAtividadeDB({
                 exportado_outro_sistema,
                 exportado_por_usuario_id,
                 exportado_em,
-                usuarios!registros_atividade_exportado_por_usuario_id_fkey ( nome )
+                exportado_por_nome
             `)
             .order('data_atividade', { ascending: false })
             .order('id', { ascending: false });
@@ -479,36 +589,42 @@ export async function carregarRegistrosAtividadeDB({
             query = query.eq('usuario_id', usuarioId);
         }
 
-        const { data, error } = await query;
+        const { data, error, status } = await query;
 
         if (error) {
             console.error('Erro ao buscar registros de atividade:', error);
-            return { sucesso: false, erro: error.message, data: [] };
+            const explicacao = explicarErro(error, { oQue: 'Não foi possível carregar os registros.', status });
+            return { sucesso: false, erro: explicacao.texto, explicacao, data: [] };
         }
 
         const formatados = (data || []).map((reg) => ({
             ...reg,
-            exportador_nome: reg.usuarios?.nome || null,
+            // nome gravado no próprio registro ao marcar como lançado no MV
+            exportador_nome: reg.exportado_por_nome || null,
         }));
 
         return { sucesso: true, data: formatados };
     } catch (err) {
         console.error('Erro inesperado ao carregar registros de atividade:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao carregar os registros.', data: [] };
+        const explicacao = explicarErro(err, { oQue: 'Não foi possível carregar os registros.' });
+        return { sucesso: false, erro: explicacao.texto, explicacao, data: [] };
     }
 }
 
-export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
+const OQUE_MARCAR_MV = 'Não foi possível marcar o registro como lançado no MV.';
+
+export async function marcarRegistroComoExportadoDB(registroId, usuarioId, nomeUsuario = '') {
     try {
         if (!registroId || !usuarioId) {
-            return { sucesso: false, erro: 'Identificadores inválidos.' };
+            return falha(erroDeValidacao({ oQue: OQUE_MARCAR_MV, porque: 'O registro ou o usuário não foi identificado.', oQueFazer: 'Volte, abra o registro novamente e tente de novo.' }));
         }
 
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
             .from('registros_atividade')
             .update({
                 exportado_outro_sistema: true,
                 exportado_por_usuario_id: usuarioId,
+                exportado_por_nome: nomeUsuario || null,
                 exportado_em: new Date().toISOString(),
             })
             .eq('id', registroId)
@@ -517,13 +633,13 @@ export async function marcarRegistroComoExportadoDB(registroId, usuarioId) {
 
         if (error) {
             console.error('Erro ao marcar registro como exportado:', error);
-            return { sucesso: false, erro: error.message };
+            return falha(explicarErro(error, { oQue: OQUE_MARCAR_MV, status }));
         }
 
         return { sucesso: true, data };
     } catch (err) {
         console.error('Erro inesperado ao exportar registro:', err);
-        return { sucesso: false, erro: 'Erro inesperado ao atualizar o registro.' };
+        return falha(explicarErro(err, { oQue: OQUE_MARCAR_MV }));
     }
 }
 

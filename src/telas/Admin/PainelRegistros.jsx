@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { IconePesquisa, IconeCheck } from '../../components/Icones';
+import { IconePesquisa, IconeCheck, IconeBaixar } from '../../components/Icones';
 import { TIPO_USUARIO, EIXOS_TEMATICOS } from '../../utils/constantes';
 import { useAuth } from '../../context/AuthContext';
 import { useDados } from '../../context/DadosContext';
 import { carregarRegistrosAtividadeDB } from '../../services/supabaseService';
-import { MensagemErro } from '../../components/MensagemErro';
+import { AvisoErro } from '../../components/AvisoErro';
+import { erroLocal } from '../../utils/mensagensErro';
+import { exportarRegistrosParaPlanilha } from '../../utils/exportarPlanilha';
 import {
     formatarTurmas,
     formatarDataIso,
@@ -27,9 +29,18 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         );
     }, [isUbs, ubsIdUsuario, listaEscolas]);
 
+    // UBS responsável por cada escola (registros de escolas cadastradas são salvos sem ubs_id)
+    const ubsPorEscola = useMemo(() => {
+        const mapa = new Map();
+        listaEscolas.forEach((e) => mapa.set(String(e.id), e.ubs_responsavel));
+        return mapa;
+    }, [listaEscolas]);
+
     const [registros, setRegistros] = useState([]);
     const [carregando, setCarregando] = useState(true);
-    const [erro, setErro] = useState('');
+    const [erro, setErro] = useState(null);
+    const [tentativa, setTentativa] = useState(0);
+    const [erroExportar, setErroExportar] = useState(null);
 
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
     const [termoBusca, setTermoBusca] = useState('');
@@ -54,14 +65,14 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             });
             if (!montado) return;
             setRegistros(resultado.data || []);
-            setErro(resultado.sucesso ? '' : resultado.erro);
+            setErro(resultado.sucesso ? null : resultado.explicacao);
             setCarregando(false);
         }
         carregar();
         return () => {
             montado = false;
         };
-    }, [tipoUsuario, escolaIdUsuario, ubsIdUsuario, usuarioId]);
+    }, [tipoUsuario, escolaIdUsuario, ubsIdUsuario, usuarioId, tentativa]);
 
     const registradores = useMemo(() => {
         const nomes = registros.map((r) => r.registrador_nome).filter(Boolean);
@@ -88,7 +99,8 @@ export function PainelRegistros({ onSelecionarRegistro }) {
             );
 
             const passaEscola = !filtroEscola || String(r.escola_id) === String(filtroEscola);
-            const passaUbs = !filtroUbs || String(r.ubs_id) === String(filtroUbs);
+            const ubsDoRegistro = r.ubs_id ?? ubsPorEscola.get(String(r.escola_id));
+            const passaUbs = !filtroUbs || String(ubsDoRegistro) === String(filtroUbs);
             const passaRegistrador = !filtroRegistrador || r.registrador_nome === filtroRegistrador;
             const passaLancadoPor = !filtroLancadoPor || r.exportador_nome === filtroLancadoPor;
 
@@ -114,6 +126,7 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         });
     }, [
         registros,
+        ubsPorEscola,
         termoBusca,
         filtroEixo,
         filtroEscola,
@@ -208,6 +221,29 @@ export function PainelRegistros({ onSelecionarRegistro }) {
         filtroStatusMv ||
         dataInicio ||
         dataFim;
+
+    // Exportação em planilha: só admin e UBS (a aba de alunos tem dados pessoais)
+    const podeExportar = isAdmin || isUbs;
+
+    const nomeUbsDoRegistro = (registro) => {
+        const ubsId = registro.ubs_id ?? ubsPorEscola.get(String(registro.escola_id));
+        return listaUbs.find((ubs) => String(ubs.id) === String(ubsId))?.nome || '';
+    };
+
+    const handleExportar = () => {
+        if (registrosFiltrados.length === 0) return;
+        setErroExportar(null);
+        try {
+            exportarRegistrosParaPlanilha(registrosFiltrados, { nomeUbs: nomeUbsDoRegistro });
+        } catch (err) {
+            console.error('Erro ao exportar planilha:', err);
+            setErroExportar(erroLocal({
+                oQue: 'Não foi possível gerar a planilha.',
+                porque: 'Ocorreu um erro ao montar o arquivo neste aparelho.',
+                codigo: 'PLANILHA-EXPORTAR',
+            }));
+        }
+    };
 
     const limparFiltros = () => {
         setTermoBusca('');
@@ -388,8 +424,31 @@ export function PainelRegistros({ onSelecionarRegistro }) {
                 <IconePesquisa />
             </div>
 
+            {!carregando && !erro && (
+                <div className="admin__registros__resumo">
+                    <span className="admin__registros__contagem">
+                        {registrosFiltrados.length} {registrosFiltrados.length === 1 ? 'registro' : 'registros'}
+                    </span>
+                    {podeExportar && (
+                        <button
+                            type="button"
+                            className="admin__registros__exportar"
+                            onClick={handleExportar}
+                            disabled={registrosFiltrados.length === 0}
+                            title="Baixar os registros listados em uma planilha Excel (.xlsx)"
+                        >
+                            <IconeBaixar />
+                            Exportar planilha
+                        </button>
+                    )}
+                </div>
+            )}
+            <AvisoErro explicacao={erroExportar} onTentarNovamente={handleExportar} emFundoBranco />
+
             {carregando && <p className="admin__escola_ubs__vazio">Carregando registros...</p>}
-            {!carregando && erro && <MensagemErro mensagem={`Não foi possível carregar os registros: ${erro}`} />}
+            {!carregando && erro && (
+                <AvisoErro explicacao={erro} onTentarNovamente={() => setTentativa((t) => t + 1)} emFundoBranco />
+            )}
             {!carregando && !erro && registrosFiltrados.length === 0 && (
                 <p className="admin__escola_ubs__vazio">
                     {temFiltroAtivo

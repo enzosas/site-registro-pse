@@ -127,7 +127,8 @@ export function extrairDadosPlanilha(arrayBuffer, nomeArquivo = '', debugPrimeir
 // processa o arquivo zip e estrutura o banco de dados idêntico ao python
 export async function processarZipTurmas(arquivoZip) {
     const zip = await JSZip.loadAsync(arquivoZip);
-    const bancoDados = { escolas: [] };
+    // arquivosComErro: planilhas que não puderam ser usadas, com o motivo (mostradas na tela)
+    const bancoDados = { escolas: [], arquivosComErro: [] };
 
     const entradasXlsx = [];
     zip.forEach((caminhoRelativo, entry) => {
@@ -188,7 +189,20 @@ export async function processarZipTurmas(arquivoZip) {
                 // se a celula veio vazia usa como fallback o nome da pasta
                 const nomeFinal = escolaLida || pastaEscola.replace(/\s*-\s*turmas\s*$/i, '').trim();
 
-                if (!nomeFinal || turmas.length === 0) continue;
+                if (!nomeFinal) {
+                    bancoDados.arquivosComErro.push({
+                        arquivo: arquivoItem.caminho,
+                        motivo: 'não foi possível identificar o nome da escola.',
+                    });
+                    continue;
+                }
+                if (turmas.length === 0) {
+                    bancoDados.arquivosComErro.push({
+                        arquivo: arquivoItem.caminho,
+                        motivo: 'nenhuma turma com alunos foi encontrada na planilha.',
+                    });
+                    continue;
+                }
 
                 if (turmas.length === 1) {
                     const novoNome = extrairNomeTurmaArquivo(arquivoItem.nomeArquivo);
@@ -211,6 +225,10 @@ export async function processarZipTurmas(arquivoZip) {
                 }
             } catch (err) {
                 console.error(`erro em '${arquivoItem.nomeArquivo}':`, err);
+                bancoDados.arquivosComErro.push({
+                    arquivo: arquivoItem.caminho,
+                    motivo: 'o arquivo não pôde ser lido (pode estar corrompido ou não ser um relatório do EducarWEB).',
+                });
             }
         }
     }

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { salvarRegistroAtividadeDB } from '../services/supabaseService';
 import * as Constantes from '../utils/constantes';
 import * as Formatadores from '../utils/formatadores';
@@ -6,9 +6,21 @@ import { TELAS, ETAPAS, TURNOS } from '../utils/constantes';
 import { useAuth } from '../context/AuthContext';
 import { useDados } from '../context/DadosContext';
 import { navegarComFeedback } from '../utils/delayTouch';
+import { numeroDecimal, normalizarDecimal } from '../utils/medidas';
+import { erroLocal } from '../utils/mensagensErro';
+import {
+    gerarIdCliente,
+    salvarRascunho,
+    lerRascunho,
+    removerRascunho,
+    lerFila,
+    adicionarNaFila,
+    removerDaFila,
+    atualizarItemDaFila,
+} from '../utils/armazenamentoLocal';
 
 export function useRegistroPSE() {
-    const { usuarioId, nomeUsuario, logout } = useAuth();
+    const { usuarioId, nomeUsuario, logout, aoDeslogar, isLoggedIn } = useAuth();
     const { escolas, listaUbs } = useDados();
 
     // Navegação global de ecrãs
@@ -69,7 +81,15 @@ export function useRegistroPSE() {
     // Persistência na base de dados
     const [salvandoBanco, setSalvandoBanco] = useState(false);
     const [registroSalvo, setRegistroSalvo] = useState(false);
-    const [erroSalvarBanco, setErroSalvarBanco] = useState('');
+    const [erroSalvarBanco, setErroSalvarBanco] = useState(null); // explicação do erro (ou null)
+    const [erroCopiar, setErroCopiar] = useState(null);
+
+    // Rascunho e envio sem internet
+    const [idCliente, setIdCliente] = useState(null); // código único do registro (evita duplicados)
+    const [registroEmAndamento, setRegistroEmAndamento] = useState(false); // guarda rascunho só quando true
+    const [registroNaFila, setRegistroNaFila] = useState(false); // salvo no aparelho, aguardando envio
+    const [motivoFila, setMotivoFila] = useState(''); // categoria do erro temporário (rede, servidor...)
+    const [filaEnvio, setFilaEnvio] = useState([]);
 
     // Refs de interface
     const cardRef = useRef(null);
@@ -92,42 +112,19 @@ export function useRegistroPSE() {
         }
     }, [nomeUsuario]);
 
-    // faz a seta do celular voltar
-    useEffect(() => {
-        // Só adiciona estado no histórico se estiver para além da primeira etapa ou fora da tela inicial
-        if (etapaAtualId !== ETAPAS.DATA || telaAtivaInterna !== TELAS.INICIAL) {
-            window.history.pushState({ etapa: etapaAtualId, tela: telaAtivaInterna }, '');
-        }
-
-        const handleBotaoVoltarNativo = () => {
-            // Quando o utilizador clica no botão voltar do Android/sistema:
-            if (etapaAtualId !== ETAPAS.DATA) {
-                voltarEtapa();
-            } else if (telaAtivaInterna !== TELAS.INICIAL) {
-                setTelaAtiva(TELAS.INICIAL);
-            }
-        };
-
-        window.addEventListener('popstate', handleBotaoVoltarNativo);
-
-        return () => {
-            window.removeEventListener('popstate', handleBotaoVoltarNativo);
-        };
-    }, [etapaAtualId, telaAtivaInterna]);
-
-    // Logout global e reinicialização do registo
+    // Logout global (o registro é reiniciado pelo ouvinte de logout abaixo)
     const handleLogout = async () => {
         await logout();
-        reiniciarRegistro();
-        setTelaAtiva(TELAS.INICIAL);
     };
 
     // Avaliações ativas conforme os eixos selecionados
     const temAntropometria = idsEixosSelecionados.includes(Constantes.EIXOS_ID.ANTROPOMETRIA);
     const temVacinacao = idsEixosSelecionados.includes(Constantes.EIXOS_ID.VACINACAO);
     const temSaudeOcular = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_OCULAR);
+    const temSaudeAuditiva = idsEixosSelecionados.includes(Constantes.EIXOS_ID.SAUDE_AUDITIVA);
     const temEixoLocal = idsEixosSelecionados.includes(Constantes.EIXOS_ID.TEMATICA_LOCAL);
-    const temAvaliacaoIndividual = temAntropometria || temVacinacao || temSaudeOcular;
+    const temAvaliacaoIndividual =
+        temAntropometria || temVacinacao || temSaudeOcular || temSaudeAuditiva;
 
     const etapasAtivas = useMemo(() => {
         const lista = [
@@ -152,11 +149,12 @@ export function useRegistroPSE() {
         etapasAtivas.forEach((id, index) => {
             mapa[id] = index + 1;
         });
-        mapa[TELAS.CADASTRO_MANUAL] = mapa[ETAPAS.ESCOLA] || 3;
+        mapa[TELAS.CADASTRO_MANUAL] =
+            etapaAtualId === ETAPAS.TURMA ? mapa[ETAPAS.TURMA] || 4 : mapa[ETAPAS.ESCOLA] || 3;
         mapa[TELAS.ADD_ALUNO] = mapa[ETAPAS.PRESENCA] || 6;
         mapa[TELAS.RESUMO] = mapa[ETAPAS.CONCLUSAO] || totalEtapas;
         return mapa;
-    }, [etapasAtivas, totalEtapas]);
+    }, [etapasAtivas, totalEtapas, etapaAtualId]);
 
     const passoVisual = useMemo(() => {
         if (telaAtivaInterna === TELAS.ETAPAS) {
@@ -190,10 +188,35 @@ export function useRegistroPSE() {
         .filter((escola) => escola.nome.toLowerCase().includes(buscaEscola.toLowerCase()))
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
-    const turmasFiltradas =
-        escolaSelecionada?.turmas
-            ?.filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
-            .sort((a, b) => a.nome.localeCompare(b.nome)) || [];
+    const ID_TURMA_MANUAL = 'manual_turma';
+
+    // Turmas da escola + turma cadastrada manualmente (para continuar visível e desmarcável)
+    const turmasFiltradas = [
+        ...(escolaSelecionada?.turmas || []),
+        ...(Array.isArray(turmaSelecionada) ? turmaSelecionada : []).filter(
+            (t) => t.id === ID_TURMA_MANUAL
+        ),
+    ]
+        .filter((turma) => turma.nome.toLowerCase().includes(buscaTurma.toLowerCase()))
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+
+    // Cadastro manual aberto a partir da etapa de turmas, com uma escola da lista já escolhida:
+    // pede apenas o nome da turma e mantém a escola real
+    const cadastroManualSomenteTurma =
+        etapaAtualId === ETAPAS.TURMA && typeof escolaSelecionada?.id === 'number';
+
+    // Ao trocar de escola, descarta turmas, presenças e dados coletados da escola anterior
+    const selecionarEscola = (escola) => {
+        if (escola?.id !== escolaSelecionada?.id) {
+            setTurmaSelecionada([]);
+            setBuscaTurma('');
+            setIdsAlunosPresentes([]);
+            idsAlunosJaExibidosRef.current = new Set();
+            setDadosAlunos({});
+            setAlunoAtualIndex(0);
+        }
+        setEscolaSelecionada(escola);
+    };
 
     const toggleTurma = (turma) => {
         setTurmaSelecionada((prev) => {
@@ -224,10 +247,9 @@ export function useRegistroPSE() {
         );
     };
 
+    // Compara com os alunos das turmas atuais (ignora ids de turmas que foram desmarcadas)
     const todosEstaoPresentes =
-        turmasArray.length > 0 &&
-        alunosOrdenados.length > 0 &&
-        idsAlunosPresentes.length === alunosOrdenados.length;
+        alunosOrdenados.length > 0 && alunosPresentes.length === alunosOrdenados.length;
 
     const alternarPresencaTodos = () => {
         if (todosEstaoPresentes) {
@@ -237,10 +259,19 @@ export function useRegistroPSE() {
         }
     };
 
-    const marcarTodosPresentes = () => {
-        if (turmasArray.length > 0) {
-            setIdsAlunosPresentes(alunosOrdenados.map((aluno) => aluno.id));
-        }
+    // Alunos que já apareceram na tela de presença neste registro
+    const idsAlunosJaExibidosRef = useRef(new Set());
+
+    // Antes de abrir a presença: marca como presentes apenas os alunos que ainda não
+    // foram exibidos, preservando as marcações que o usuário já fez
+    const prepararPresenca = () => {
+        const jaExibidos = idsAlunosJaExibidosRef.current;
+        const novos = alunosOrdenados
+            .map((aluno) => aluno.id)
+            .filter((id) => !jaExibidos.has(id));
+        if (novos.length === 0) return;
+        novos.forEach((id) => jaExibidos.add(id));
+        setIdsAlunosPresentes((prev) => [...prev, ...novos.filter((id) => !prev.includes(id))]);
     };
 
     const toggleEixo = (idEixo) => {
@@ -260,25 +291,32 @@ export function useRegistroPSE() {
         }));
     };
 
+    // Indica se os dados de um aluno estão completos para os eixos selecionados
+    const dadosAlunoCompletos = (dados = {}) => {
+        if (temAntropometria) {
+            if (numeroDecimal(dados.altura) === null) return false;
+            if (numeroDecimal(dados.peso) === null) return false;
+        }
+        if (temVacinacao && !dados.vacinado) return false;
+        if (temSaudeOcular && !dados.saudeOcular) return false;
+        if (temSaudeAuditiva && !dados.saudeAuditiva) return false;
+        return true;
+    };
+
     const obterAlunosPendentes = () => {
-        return alunosPresentes.filter((aluno) => {
-            const dados = dadosAlunos[aluno.id] || {};
-            if (temAntropometria) {
-                if (!dados.altura || !String(dados.altura).trim()) return true;
-                if (!dados.peso || !String(dados.peso).trim()) return true;
-            }
-            if (temVacinacao && !dados.vacinado) return true;
-            if (temSaudeOcular && !dados.saudeOcular) return true;
-            return false;
-        });
+        return alunosPresentes.filter((aluno) => !dadosAlunoCompletos(dadosAlunos[aluno.id]));
+    };
+
+    // Coloca o cursor na altura no mesmo instante do toque/Enter: no iPhone, o teclado
+    // só abre se o foco acontecer dentro da interação do usuário (não depois de um atraso)
+    const focarAltura = () => {
+        alturaInputRef.current?.focus({ preventScroll: true });
     };
 
     const proximoAluno = () => {
         if (alunoAtualIndex < alunosPresentes.length - 1) {
+            focarAltura();
             setAlunoAtualIndex((prev) => prev + 1);
-            setTimeout(() => {
-                if (alturaInputRef.current) alturaInputRef.current.focus();
-            }, 10);
         } else {
             const pendentes = obterAlunosPendentes();
             if (pendentes.length > 0) {
@@ -291,10 +329,8 @@ export function useRegistroPSE() {
 
     const alunoAnterior = () => {
         if (alunoAtualIndex > 0) {
+            focarAltura();
             setAlunoAtualIndex((prev) => prev - 1);
-            setTimeout(() => {
-                if (alturaInputRef.current) alturaInputRef.current.focus();
-            }, 10);
         } else {
             voltarEtapa();
         }
@@ -324,6 +360,16 @@ export function useRegistroPSE() {
     };
 
     const handleSalvarManual = () => {
+        if (cadastroManualSomenteTurma) {
+            setTurmaSelecionada((prev) => [
+                ...(Array.isArray(prev) ? prev : []).filter((t) => t.id !== ID_TURMA_MANUAL),
+                { id: ID_TURMA_MANUAL, nome: turmaManual.trim(), alunos: [] },
+            ]);
+            setEtapaAtualId(ETAPAS.EIXOS);
+            setTelaAtiva(TELAS.ETAPAS);
+            return;
+        }
+
         const ubsEncontrada = listaUbs.find(
             (u) => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase()
         );
@@ -333,8 +379,9 @@ export function useRegistroPSE() {
             turmas: [],
             ubsManualId: ubsEncontrada ? ubsEncontrada.id : null,
         });
-        setTurmaSelecionada([{ id: 'manual_turma', nome: turmaManual, alunos: [] }]);
+        setTurmaSelecionada([{ id: ID_TURMA_MANUAL, nome: turmaManual, alunos: [] }]);
         setIdsAlunosPresentes([]);
+        idsAlunosJaExibidosRef.current = new Set();
         setEtapaAtualId(ETAPAS.EIXOS);
         setTelaAtiva(TELAS.ETAPAS);
     };
@@ -354,19 +401,20 @@ export function useRegistroPSE() {
                     id: aluno.id,
                     nome: aluno.nome,
                     dataNascimento: aluno.dataNascimento,
-                    altura: dadosAlunos[aluno.id]?.altura || null,
-                    peso: dadosAlunos[aluno.id]?.peso || null,
+                    altura: normalizarDecimal(dadosAlunos[aluno.id]?.altura),
+                    peso: normalizarDecimal(dadosAlunos[aluno.id]?.peso),
                     vacinado: dadosAlunos[aluno.id]?.vacinado || null,
                     saudeOcular: dadosAlunos[aluno.id]?.saudeOcular || null,
+                    saudeAuditiva: dadosAlunos[aluno.id]?.saudeAuditiva || null,
                 })),
         };
     };
 
     const handleSalvarNoBanco = async () => {
-        if (registroSalvo || salvandoBanco) return;
+        if (registroSalvo || registroNaFila || salvandoBanco) return;
 
         setSalvandoBanco(true);
-        setErroSalvarBanco('');
+        setErroSalvarBanco(null);
 
         const relatorio = gerarObjetoRelatorio();
         const dataIso = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
@@ -376,7 +424,11 @@ export function useRegistroPSE() {
             ? null
             : (escolaSelecionada?.ubsManualId || (ubsManualTexto ? listaUbs.find(u => u.nome.trim().toLowerCase() === ubsManualTexto.trim().toLowerCase())?.id : null) || null);
 
+        const codigoRegistro = idCliente || gerarIdCliente();
+        if (!idCliente) setIdCliente(codigoRegistro);
+
         const payload = {
+            idCliente: codigoRegistro,
             dataAtividade: dataIso,
             turno: turno,
             escolaId: idEscolaValido,
@@ -394,12 +446,32 @@ export function useRegistroPSE() {
         const resultado = await salvarRegistroAtividadeDB(payload);
         setSalvandoBanco(false);
 
-        if (!resultado.sucesso) {
-            setErroSalvarBanco(resultado.erro || 'Falha ao salvar o registro no banco de dados.');
+        if (resultado.sucesso) {
+            setRegistroSalvo(true);
+            setRegistroEmAndamento(false);
+            removerRascunho(usuarioId);
             return;
         }
 
-        setRegistroSalvo(true);
+        // Erro temporário (sem internet, servidor fora do ar, conexão lenta):
+        // guarda no aparelho e envia sozinho quando for possível
+        if (resultado.temporario) {
+            const guardou = adicionarNaFila(usuarioId, {
+                idCliente: codigoRegistro,
+                payload,
+                resumo: `${payload.escolaNome}, ${payload.turmas}, ${Formatadores.formatarDataIso(dataIso)}`,
+            });
+            if (guardou) {
+                setRegistroNaFila(true);
+                setMotivoFila(resultado.explicacao?.categoria || 'rede');
+                setRegistroEmAndamento(false);
+                removerRascunho(usuarioId);
+                setFilaEnvio(lerFila(usuarioId));
+                return;
+            }
+        }
+
+        setErroSalvarBanco(resultado.explicacao || null);
     };
 
     const handleCopiarResumo = async () => {
@@ -427,6 +499,7 @@ export function useRegistroPSE() {
             if (aluno.altura) detalhes.push(`${aluno.altura}cm`);
             if (aluno.vacinado) detalhes.push(`Vacina: ${Formatadores.formatarVacinacao(aluno.vacinado)}`);
             if (aluno.saudeOcular) detalhes.push(`Saúde Ocular: ${Formatadores.formatarSaudeOcular(aluno.saudeOcular)}`);
+            if (aluno.saudeAuditiva) detalhes.push(`Saúde Auditiva: ${Formatadores.formatarSaudeAuditiva(aluno.saudeAuditiva)}`);
             if (detalhes.length > 0) {
                 linhaAluno += ` [${detalhes.join(' - ')}]`;
             }
@@ -435,14 +508,29 @@ export function useRegistroPSE() {
 
         try {
             await navigator.clipboard.writeText(linhas.join('\n'));
+            setErroCopiar(null);
             setCopiado(true);
             setTimeout(() => setCopiado(false), 2000);
         } catch (erro) {
             console.error('Erro ao copiar', erro);
+            setErroCopiar(
+                erroLocal({
+                    oQue: 'Não foi possível copiar o resumo.',
+                    porque: 'O navegador bloqueou o acesso à área de transferência.',
+                    oQueFazer: 'Selecione o texto do resumo com o dedo (ou o mouse) e copie manualmente.',
+                    codigo: 'COPIAR',
+                })
+            );
         }
     };
 
-    const reiniciarRegistro = () => {
+    // Reinicia o formulário. Por padrão também apaga o rascunho (a pessoa voltou ao início
+    // de propósito); no logout/inatividade o rascunho é mantido para ser retomado depois.
+    const reiniciarRegistro = ({ manterRascunho = false } = {}) => {
+        if (!manterRascunho) removerRascunho(usuarioId);
+        setRegistroEmAndamento(false);
+        setRegistroNaFila(false);
+        setIdCliente(null);
         setEtapaAtualId(ETAPAS.DATA);
         setTurno(TURNOS.MANHA);
         setAlunoAtualIndex(0);
@@ -458,11 +546,15 @@ export function useRegistroPSE() {
         setNomeEixoLocal('');
         setObservacoes('');
         setIdsAlunosPresentes([]);
+        idsAlunosJaExibidosRef.current = new Set();
         setDadosAlunos({});
         setUbsManualTexto('');
         setMostrarAlunosPendentes(false);
         setProfissionaisResponsaveis(nomeUsuario ? [nomeUsuario] : []);
         setRegistroSalvo(false);
+        setErroSalvarBanco(null);
+        setErroCopiar(null);
+        setMotivoFila('');
 
         const dataAtual = new Date();
         setDia(String(dataAtual.getDate()).padStart(2, '0'));
@@ -470,10 +562,290 @@ export function useRegistroPSE() {
         setAno(String(dataAtual.getFullYear()));
     };
 
+    // Sempre que a sessão termina (botão Sair, inatividade ou sessão expirada no Supabase),
+    // descarta o registro em andamento e volta para a tela inicial
+    const aoDeslogarRef = useRef(null);
+    useEffect(() => {
+        aoDeslogarRef.current = () => {
+            reiniciarRegistro({ manterRascunho: true });
+            setFilaEnvio([]);
+            setTelaAtivaInterna(TELAS.INICIAL);
+        };
+    });
+    useEffect(() => aoDeslogar(() => aoDeslogarRef.current?.()), [aoDeslogar]);
+
+    // ------------------------------------------------------------------ rascunho
+    // Guarda o andamento no aparelho a cada alteração (com um pequeno intervalo)
+    useEffect(() => {
+        if (!registroEmAndamento || !usuarioId || registroSalvo || registroNaFila) return;
+        if (etapaAtualId === ETAPAS.DATA && !escolaSelecionada) return; // nada relevante ainda
+        const temporizador = setTimeout(() => {
+            salvarRascunho(usuarioId, {
+                idCliente,
+                etapaAtualId,
+                dia,
+                mes,
+                ano,
+                turno,
+                profissionaisResponsaveis,
+                escolaSelecionada,
+                turmaSelecionada,
+                escolaManual,
+                turmaManual,
+                ubsManualTexto,
+                idsEixosSelecionados,
+                nomeEixoLocal,
+                observacoes,
+                idsAlunosPresentes,
+                idsAlunosJaExibidos: [...idsAlunosJaExibidosRef.current],
+                dadosAlunos,
+                alunoAtualIndex,
+                totalAlunosPresentes: alunosPresentes.length,
+            });
+        }, 400);
+        return () => clearTimeout(temporizador);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        registroEmAndamento, usuarioId, registroSalvo, registroNaFila, idCliente, etapaAtualId,
+        dia, mes, ano, turno, profissionaisResponsaveis, escolaSelecionada, turmaSelecionada,
+        escolaManual, turmaManual, ubsManualTexto, idsEixosSelecionados, nomeEixoLocal,
+        observacoes, idsAlunosPresentes, dadosAlunos, alunoAtualIndex,
+    ]);
+
+    const NOMES_ETAPAS = {
+        [ETAPAS.DATA]: 'data da atividade',
+        [ETAPAS.PROFISSIONAIS]: 'profissionais responsáveis',
+        [ETAPAS.ESCOLA]: 'escolha da escola',
+        [ETAPAS.TURMA]: 'escolha da turma',
+        [ETAPAS.EIXOS]: 'eixos temáticos',
+        [ETAPAS.PRESENCA]: 'lista de presença',
+        [ETAPAS.COLETA]: 'coleta de dados',
+        [ETAPAS.CONCLUSAO]: 'tela final (falta salvar)',
+    };
+
+    const descreverRascunho = ({ salvoEm, dados }) => {
+        const escola = dados.escolaSelecionada?.nome || dados.escolaManual || 'escola não escolhida';
+        const turmas = (dados.turmaSelecionada || []).map((t) => t.nome).join(', ');
+        const quando = new Date(salvoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        let etapa = NOMES_ETAPAS[dados.etapaAtualId] || '';
+        if (dados.etapaAtualId === ETAPAS.COLETA && dados.totalAlunosPresentes) {
+            etapa += ` (aluno ${(dados.alunoAtualIndex || 0) + 1} de ${dados.totalAlunosPresentes})`;
+        }
+        return `${escola}${turmas ? ', ' + turmas : ''}\nÚltima alteração: ${quando}\nParou em: ${etapa}`;
+    };
+
+    const restaurarRascunho = (dados) => {
+        setEtapaAtualId(dados.etapaAtualId || ETAPAS.DATA);
+        setDia(dados.dia);
+        setMes(dados.mes);
+        setAno(dados.ano);
+        setTurno(dados.turno || TURNOS.MANHA);
+        setProfissionaisResponsaveis(dados.profissionaisResponsaveis || (nomeUsuario ? [nomeUsuario] : []));
+        setEscolaSelecionada(dados.escolaSelecionada || null);
+        setTurmaSelecionada(dados.turmaSelecionada || []);
+        setEscolaManual(dados.escolaManual || '');
+        setTurmaManual(dados.turmaManual || '');
+        setUbsManualTexto(dados.ubsManualTexto || '');
+        setIdsEixosSelecionados(dados.idsEixosSelecionados || []);
+        setNomeEixoLocal(dados.nomeEixoLocal || '');
+        setObservacoes(dados.observacoes || '');
+        setIdsAlunosPresentes(dados.idsAlunosPresentes || []);
+        const jaExibidos = idsAlunosJaExibidosRef.current;
+        jaExibidos.clear();
+        (dados.idsAlunosJaExibidos || []).forEach((id) => jaExibidos.add(id));
+        setDadosAlunos(dados.dadosAlunos || {});
+        setAlunoAtualIndex(dados.alunoAtualIndex || 0);
+        setMostrarAlunosPendentes(false);
+        setRegistroSalvo(false);
+        setRegistroNaFila(false);
+        setErroSalvarBanco(null);
+        setIdCliente(dados.idCliente || gerarIdCliente());
+        setRegistroEmAndamento(true);
+    };
+
+    // Botão "Gerar Registro": oferece retomar o rascunho, se houver
+    const iniciarOuRetomarRegistro = () => {
+        const rascunho = lerRascunho(usuarioId);
+        if (rascunho) {
+            const continuar = window.confirm(
+                `Você tem um registro não concluído:\n\n${descreverRascunho(rascunho)}\n\nDeseja continuar de onde parou?`
+            );
+            if (continuar) {
+                restaurarRascunho(rascunho.dados);
+                setTelaAtiva(TELAS.ETAPAS);
+                return;
+            }
+            const descartar = window.confirm(
+                'Descartar o registro não concluído e começar um novo?\n\nOs dados dele serão perdidos.'
+            );
+            if (!descartar) return;
+        }
+        reiniciarRegistro();
+        setIdCliente(gerarIdCliente());
+        setRegistroEmAndamento(true);
+        setTelaAtiva(TELAS.ETAPAS);
+    };
+
+    // ------------------------------------------------------------ fila de envio
+    const processandoFilaRef = useRef(false);
+
+    const processarFila = useCallback(async () => {
+        if (!usuarioId || processandoFilaRef.current) return;
+        processandoFilaRef.current = true;
+        try {
+            for (const item of lerFila(usuarioId)) {
+                if (item.status === 'erro') continue;
+                const resultado = await salvarRegistroAtividadeDB(item.payload);
+                if (resultado.sucesso) {
+                    removerDaFila(usuarioId, item.idCliente);
+                } else if (resultado.temporario) {
+                    break; // sem internet ou servidor fora do ar: tenta de novo depois
+                } else {
+                    atualizarItemDaFila(usuarioId, item.idCliente, {
+                        status: 'erro',
+                        erro: resultado.erro || 'Erro ao enviar.',
+                        explicacao: resultado.explicacao || null,
+                    });
+                }
+            }
+        } finally {
+            processandoFilaRef.current = false;
+            setFilaEnvio(lerFila(usuarioId));
+        }
+    }, [usuarioId]);
+
+    // Tenta enviar ao entrar, quando a internet volta e a cada 30 s enquanto houver pendências
+    useEffect(() => {
+        if (!isLoggedIn || !usuarioId) return;
+        const tentar = () => {
+            processarFila();
+        };
+        const temporizadorInicial = setTimeout(tentar, 0);
+        const intervalo = setInterval(() => {
+            if (lerFila(usuarioId).some((item) => item.status !== 'erro')) tentar();
+        }, 30 * 1000);
+        window.addEventListener('online', tentar);
+        return () => {
+            clearTimeout(temporizadorInicial);
+            clearInterval(intervalo);
+            window.removeEventListener('online', tentar);
+        };
+    }, [isLoggedIn, usuarioId, processarFila]);
+
+    const tentarEnviarNovamente = (idClienteItem) => {
+        atualizarItemDaFila(usuarioId, idClienteItem, { status: 'pendente', erro: '', explicacao: null });
+        processarFila();
+    };
+
+    const descartarDaFila = (idClienteItem) => {
+        const confirmou = window.confirm(
+            'Descartar este registro? Ele não foi enviado ao banco e será perdido.'
+        );
+        if (!confirmou) return;
+        removerDaFila(usuarioId, idClienteItem);
+        setFilaEnvio(lerFila(usuarioId));
+    };
+
+    // Botão voltar nativo (celular/navegador).
+    // Enquanto o usuário está fora da tela inicial, mantemos exatamente UMA entrada extra
+    // no histórico. Ao apertar voltar, essa entrada é consumida, o app executa a mesma ação
+    // do botão voltar da tela atual e a entrada é recriada. Assim o histórico não cresce
+    // e, na tela inicial, o voltar sai do site normalmente.
+    const estaNaTelaInicial = telaAtivaInterna === TELAS.INICIAL;
+    const temEntradaHistoricoRef = useRef(false);
+    const ignorarProximoPopstateRef = useRef(false);
+    const voltarNativoRef = useRef(null);
+    const estaNaTelaInicialRef = useRef(estaNaTelaInicial);
+
+    // Telas com navegação interna (ex.: Administração) registram aqui o seu botão voltar
+    const voltarAdminRef = useRef(null);
+    const registrarVoltarAdmin = useCallback((callback) => {
+        voltarAdminRef.current = callback;
+        return () => {
+            if (voltarAdminRef.current === callback) voltarAdminRef.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        estaNaTelaInicialRef.current = estaNaTelaInicial;
+        voltarNativoRef.current = () => {
+            switch (telaAtivaInterna) {
+                case TELAS.ETAPAS:
+                    if (
+                        etapaAtualId === ETAPAS.DATA ||
+                        (etapaAtualId === ETAPAS.CONCLUSAO && (registroSalvo || registroNaFila))
+                    ) {
+                        reiniciarRegistro();
+                        setTelaAtiva(TELAS.INICIAL);
+                    } else {
+                        // Mesmo comportamento do botão voltar da etapa de turmas
+                        if (etapaAtualId === ETAPAS.TURMA) {
+                            setTurmaSelecionada([]);
+                        }
+                        voltarEtapa();
+                    }
+                    break;
+                case TELAS.CADASTRO_MANUAL:
+                case TELAS.ADD_ALUNO:
+                case TELAS.RESUMO:
+                    setTelaAtiva(TELAS.ETAPAS);
+                    break;
+                case TELAS.ESQUECI_SENHA:
+                    setTelaAtiva(TELAS.LOGIN);
+                    break;
+                case TELAS.ADMIN:
+                    // Mesmo comportamento do botão voltar do painel (volta ao painel anterior)
+                    if (voltarAdminRef.current) {
+                        voltarAdminRef.current();
+                    } else {
+                        setTelaAtiva(TELAS.INICIAL);
+                    }
+                    break;
+                default:
+                    setTelaAtiva(TELAS.INICIAL);
+            }
+        };
+    });
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (ignorarProximoPopstateRef.current) {
+                ignorarProximoPopstateRef.current = false;
+                return;
+            }
+            temEntradaHistoricoRef.current = false;
+            if (estaNaTelaInicialRef.current) return;
+
+            voltarNativoRef.current?.();
+
+            // Recria a entrada extra na hora: algumas ações (ex.: trocar de painel dentro da
+            // Administração) não mudam a tela principal. Se a ação levar à tela inicial,
+            // o efeito abaixo remove a entrada.
+            window.history.pushState({ registroPse: true }, '');
+            temEntradaHistoricoRef.current = true;
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    useEffect(() => {
+        if (!estaNaTelaInicial && !temEntradaHistoricoRef.current) {
+            window.history.pushState({ registroPse: true }, '');
+            temEntradaHistoricoRef.current = true;
+        } else if (estaNaTelaInicial && temEntradaHistoricoRef.current) {
+            // Voltou para a tela inicial pelos botões do app: remove a entrada extra
+            temEntradaHistoricoRef.current = false;
+            ignorarProximoPopstateRef.current = true;
+            window.history.back();
+        }
+    }, [estaNaTelaInicial]);
+
     return {
         telaAtiva: telaAtivaInterna,
         setTelaAtiva,
         handleLogout,
+        registrarVoltarAdmin,
 
         etapaAtualId,
         passoVisual,
@@ -497,6 +869,7 @@ export function useRegistroPSE() {
         setBuscaEscola,
         escolaSelecionada,
         setEscolaSelecionada,
+        selecionarEscola,
         escolasFiltradas,
         buscaTurma,
         setBuscaTurma,
@@ -509,6 +882,7 @@ export function useRegistroPSE() {
         turmaManual,
         setTurmaManual,
         handleSalvarManual,
+        cadastroManualSomenteTurma,
         ubsManualTexto,
         setUbsManualTexto,
         listaUbs,
@@ -526,7 +900,7 @@ export function useRegistroPSE() {
         toggleAluno,
         alternarPresencaTodos,
         todosEstaoPresentes,
-        marcarTodosPresentes,
+        prepararPresenca,
         novoAlunoNome,
         setNovoAlunoNome,
         novoAlunoDataNascimento,
@@ -543,9 +917,11 @@ export function useRegistroPSE() {
         temAntropometria,
         temVacinacao,
         temSaudeOcular,
+        temSaudeAuditiva,
         mostrarAlunosPendentes,
         setMostrarAlunosPendentes,
         obterAlunosPendentes,
+        focarAltura,
         proximoAluno,
         alunoAnterior,
 
@@ -556,6 +932,14 @@ export function useRegistroPSE() {
 
         salvandoBanco,
         registroSalvo,
+        registroNaFila,
+        motivoFila,
+        erroCopiar,
+        iniciarOuRetomarRegistro,
+        filaEnvio,
+        processarFila,
+        tentarEnviarNovamente,
+        descartarDaFila,
         erroSalvarBanco,
         handleSalvarNoBanco,
 

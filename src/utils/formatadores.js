@@ -1,6 +1,7 @@
 import {
     OPCOES_VACINACAO,
     OPCOES_SAUDE_OCULAR,
+    OPCOES_SAUDE_AUDITIVA,
     TIPO_USUARIO,
     EIXOS_TEMATICOS,
     EIXOS_ID
@@ -13,7 +14,7 @@ export const formatarData = (data) => {
 
 export const formatarNome = (nome) => {
     if (!nome) return '';
-    const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI'];
+    const siglas = ['EMEF', 'EMEI', 'EE', 'CMEI', 'UBS'];
     const preposicoes = ['de', 'da', 'do', 'das', 'dos', 'e'];
     const regexRomano = /^(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$/i;
 
@@ -32,6 +33,56 @@ export const formatarNome = (nome) => {
         })
         .join(' ');
 };
+
+// Formatação própria para nomes de turma (ex.: "EJA EPT", "Maternal II E Tarde", "6 -Tarde").
+// Só altera maiúsculas/minúsculas, nunca o texto, para não afetar a comparação de turmas.
+const SIGLAS_TURMA = ['EJA', 'EPT', 'AEE', 'EMEF', 'EMEI', 'CMEI'];
+const PREPOSICOES_TURMA = ['de', 'da', 'do', 'das', 'dos'];
+const REGEX_ROMANO_TURMA = /^[IVX]+$/i;
+
+function formatarTrechoTurma(trecho, ehInicioDePalavra) {
+    const maiusculo = trecho.toUpperCase();
+    const minusculo = trecho.toLowerCase();
+
+    if (/\d/.test(trecho)) return maiusculo; // "5a" -> "5A", "a1" -> "A1", "1º" -> "1º"
+    if (trecho.length === 1) return maiusculo; // letra da turma: "A", "B", "E"
+    if (SIGLAS_TURMA.includes(maiusculo)) return maiusculo;
+    if (REGEX_ROMANO_TURMA.test(trecho)) return maiusculo; // "II", "III", "IV"
+    if (!ehInicioDePalavra || PREPOSICOES_TURMA.includes(minusculo)) return minusculo;
+    return minusculo.charAt(0).toUpperCase() + minusculo.slice(1);
+}
+
+export function formatarNomeTurma(nome) {
+    if (!nome) return '';
+
+    return String(nome)
+        .split(' ')
+        .map((palavra, indicePalavra) => {
+            // Separa a palavra em trechos de letras/números e os símbolos entre eles
+            const partes = palavra.split(/([^\p{L}\p{N}º°ª]+)/u);
+            let ehInicio = true;
+
+            return partes
+                .map((parte) => {
+                    if (!parte) return parte;
+                    if (!/[\p{L}\p{N}]/u.test(parte)) {
+                        // Depois de ".", "(" ou de um símbolo no começo da palavra, a próxima letra
+                        // inicia uma nova palavra ("Educ.Infant.", "-Tarde"); depois de "-" no meio
+                        // ("Pré-escola") continua minúscula
+                        if (/[.(/]/.test(parte)) ehInicio = true;
+                        return parte;
+                    }
+                    const preposicaoNoInicio = indicePalavra === 0 && ehInicio;
+                    const resultado = preposicaoNoInicio
+                        ? formatarTrechoTurma(parte, true).replace(/^\p{Ll}/u, (l) => l.toUpperCase())
+                        : formatarTrechoTurma(parte, ehInicio);
+                    ehInicio = false;
+                    return resultado;
+                })
+                .join('');
+        })
+        .join(' ');
+}
 
 export function formatarProfissionais(profissionais) {
     if (!profissionais) return '-';
@@ -62,13 +113,13 @@ export function formatarDataComTurno(dia, mes, ano, turno) {
 
 export function formatarTurmas(turmas) {
     if (!turmas) return '-';
-    if (Array.isArray(turmas)) {
-        return turmas
-            .map((t) => (typeof t === 'string' ? t.trim() : t?.nome?.trim()))
-            .filter(Boolean)
-            .join(', ') || '-';
-    }
-    return String(turmas).trim() || '-';
+    // Registros salvos guardam as turmas como texto "Turma 1, Turma 2"
+    const lista = Array.isArray(turmas) ? turmas : String(turmas).split(',');
+    return lista
+        .map((t) => (typeof t === 'string' ? t : t?.nome || ''))
+        .map((nome) => formatarNomeTurma(nome.trim()))
+        .filter(Boolean)
+        .join(', ') || '-';
 }
 
 
@@ -83,6 +134,12 @@ export const formatarVacinacao = (valor) => {
         default:
             return '-';
     }
+};
+
+export const formatarSaudeAuditiva = (valor) => {
+    if (valor === OPCOES_SAUDE_AUDITIVA.POSITIVO.valor) return OPCOES_SAUDE_AUDITIVA.POSITIVO.label;
+    if (valor === OPCOES_SAUDE_AUDITIVA.NEGATIVO.valor) return OPCOES_SAUDE_AUDITIVA.NEGATIVO.label;
+    return '-';
 };
 
 export const formatarSaudeOcular = (valor) => {

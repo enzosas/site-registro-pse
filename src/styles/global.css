@@ -62,3 +62,43 @@ h6 {
         font-size: 90%;
     }
 }
+/* Barra de rolagem (só em computador com mouse; no celular fica a do sistema).
+   Puxador fino e arredondado, afastado da borda e dos cantos dos cards. */
+@media (hover: hover) and (pointer: fine) {
+    ::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 1.5rem 0;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: hsl(0, 0%, 79%);
+        background-clip: padding-box;
+        border: 4px solid transparent;
+        border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: hsl(0, 0%, 66%);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+        background-color: hsl(0, 0%, 55%);
+    }
+
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    /* Firefox não tem os seletores acima: usa a versão padrão (fina, cinza) */
+    @supports not selector(::-webkit-scrollbar) {
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: hsl(0, 0%, 79%) transparent;
+        }
+    }
+}

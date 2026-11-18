@@ -1,0 +1,102 @@
+.aviso-cartao {
+    width: 100%;
+    max-width: 28rem;
+    background-color: var(--cor-frame);
+    border-radius: 1rem;
+    padding: 0.875rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    text-align: left;
+}
+
+/* dentro de outro cartão branco: borda fina em vez de sombra */
+.aviso-cartao--em-fundo-branco {
+    box-shadow: none;
+    border: 1px solid var(--cor-botao3);
+    max-width: none;
+}
+
+.aviso-cartao__topo {
+    display: flex;
+    align-items: center; /* ícone centralizado em relação ao título (uma ou mais linhas) */
+    gap: 0.625rem;
+}
+
+.aviso-cartao__icone {
+    display: flex;
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    color: var(--cor-botao);
+}
+
+.aviso-cartao--erro .aviso-cartao__icone {
+    color: var(--cor-negative);
+}
+
+.aviso-cartao__titulo {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+.aviso-cartao__texto {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--cor-botao2);
+}
+
+.aviso-cartao__texto p + p {
+    margin-top: 0.25rem;
+}
+
+.aviso-cartao__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.aviso-cartao__item + .aviso-cartao__item,
+.aviso-cartao__texto > p + .aviso-cartao__item {
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--cor-botao3);
+}
+
+/* botões pequenos do cartão */
+.aviso-cartao__botao {
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.45rem 0.9rem;
+    border-radius: 2rem;
+    border: 0.1rem solid var(--cor-botao3);
+    background-color: var(--cor-frame);
+    color: var(--cor-texto);
+    cursor: pointer;
+    transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+.aviso-cartao__botao--principal {
+    background-color: var(--cor-botao);
+    border-color: var(--cor-botao);
+    color: var(--cor-frame);
+}
+
+.aviso-cartao__botao:hover {
+    filter: brightness(0.95);
+}
+
+.aviso-cartao__botao:active {
+    transform: scale(0.97);
+}
+
+/* código do erro para o suporte (ex.: SERVIDOR-503) */
+.aviso-cartao__codigo {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--cor-botao2);
+    opacity: 0.8;
+    letter-spacing: 0.02em;
+}
