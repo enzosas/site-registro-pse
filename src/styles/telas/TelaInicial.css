@@ -39,11 +39,21 @@ button.app__tela-inicial__ajuda {
     justify-content: center;
 }
 
+/* Botões secundários em grade de duas colunas, na largura do botão principal.
+   Se a quantidade for ímpar, o último ocupa a linha inteira. */
 .app__tela-inicial__botoes-segundo-nivel {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+    width: 100%;
+}
+
+.app__tela-inicial__botoes-segundo-nivel > button {
+    width: 100%;
+}
+
+.app__tela-inicial__botoes-segundo-nivel > button:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
 }
 
 @media (max-width: 750px) {
@@ -58,6 +68,7 @@ button.app__tela-inicial__ajuda {
     }
 
     .app__tela-inicial__botoes-segundo-nivel {
+        display: flex;
         flex-direction: column;
         gap: 0.75rem;
         width: 100%;
